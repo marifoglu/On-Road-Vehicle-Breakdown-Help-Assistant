@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navHome"
+        android:title="Home"
+        android:icon="@drawable/baseline_home_24">
+    </item>
+
+    <item
+        android:id="@+id/navRescue"
+        android:title="Rescue"
+        android:icon="@drawable/baseline_car_repair_24">
+    </item>
+
+    <item
+        android:id="@+id/navNotifications"
+        android:title="Notifications"
+        android:icon="@drawable/ic_messages">
+    </item>
+
+    <item
+        android:id="@+id/navSettings"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings">
+    </item>
+</menu>
