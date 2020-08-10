@@ -4,8 +4,12 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityLandingPageBinding
+import com.darth.on_road_vehicle_breakdown_help.view.MainActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 class LandingPage : AppCompatActivity() {
@@ -20,13 +24,44 @@ class LandingPage : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        auth = Firebase.auth
+        val currentUser = auth.currentUser
+        if (currentFocus != null){
+
+        }
 
 
     }
 
-    fun forgotPassword(view: View) {}
-    fun signIn(view: View) {
-        
+    fun forgotPassword(view: View) {
+
+        val intent = Intent(this@LandingPage, ForgotAccount::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    fun loginSignIn(view: View) {
+
+        val email = binding.loginEmail.text.toString()
+        val password = binding.loginPassword.text.toString()
+
+        if (email.isNotEmpty() && password.isNotEmpty()){
+                auth.signInWithEmailAndPassword(email,password)
+                    .addOnSuccessListener {
+
+                        val intent = Intent(this@LandingPage, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+
+                    }.addOnFailureListener {
+                        Toast.makeText(this,it.localizedMessage, Toast.LENGTH_LONG).show()
+                    }
+            }else {
+
+            Toast.makeText(this,"You have to fill all forms for the registration!", Toast.LENGTH_LONG).show()
+        }
+
+
     }
     fun createAccount(view: View) {
         val intent = Intent(this@LandingPage, RegistrationActivity::class.java)

@@ -22,7 +22,7 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/loginPassword"
         android:layout_width="298dp"
         android:layout_height="36dp"
         android:layout_marginTop="16dp"
@@ -35,10 +35,10 @@
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+        app:layout_constraintTop_toBottomOf="@+id/loginEmail" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/loginEmail"
         android:layout_width="299dp"
         android:layout_height="41dp"
         android:layout_marginTop="140dp"
@@ -46,7 +46,7 @@
         android:drawableLeft="@drawable/baseline_email_24"
         android:drawablePadding="3dp"
         android:ems="10"
-        android:hint="Username"
+        android:hint="Email Address"
         android:inputType="textPersonName"
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,13 +60,13 @@
         android:layout_height="36dp"
         android:layout_marginTop="48dp"
         android:background="@color/white"
-        android:onClick="signIn"
+        android:onClick="loginSignIn"
         android:text="Sign In"
         app:cornerRadius="5dp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/loginPassword"
         app:layout_constraintHorizontal_bias="0.25"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintStart_toStartOf="@+id/loginPassword"
+        app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
 
     <Button
         android:id="@+id/button2"
@@ -90,8 +90,8 @@
         android:onClick="forgotPassword"
         android:text="Forgot Password?"
         android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintEnd_toEndOf="@+id/loginPassword"
+        app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
 
     <TextView
         android:id="@+id/textView4"

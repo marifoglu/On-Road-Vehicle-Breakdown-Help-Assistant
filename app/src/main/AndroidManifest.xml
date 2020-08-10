@@ -16,6 +16,9 @@
         android:theme="@style/Theme.OnRoadVehicleBreakdownHelp"
         tools:targetApi="31">
         <activity
+            android:name=".view.login.ForgotAccount"
+            android:exported="false" />
+        <activity
             android:name=".view.login.RegistrationActivity"
             android:exported="false" />
         <activity
@@ -30,7 +33,7 @@
         <activity
             android:name=".view.MainActivity"
             android:exported="true"
-            android:label="Main Activity"></activity>
+            android:label="Main Activity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

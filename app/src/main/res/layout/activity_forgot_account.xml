@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.login.ForgotAccount">
+
+    <ImageView
+        android:id="@+id/background_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/landingbackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <EditText
+        android:id="@+id/loginEmail2"
+        android:layout_width="288dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="140dp"
+        android:background="@drawable/edit_text_shape"
+        android:drawableLeft="@drawable/baseline_email_24"
+        android:drawablePadding="3dp"
+        android:ems="10"
+        android:hint="E-mail address"
+        android:inputType="textPersonName"
+        android:padding="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/background_image_view" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="293dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="24dp"
+        android:background="@color/white"
+        android:onClick="resetPassword"
+        android:text="Reset Password"
+        app:cornerRadius="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginEmail2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

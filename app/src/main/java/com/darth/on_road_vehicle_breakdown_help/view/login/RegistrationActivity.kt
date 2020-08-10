@@ -45,7 +45,7 @@ class RegistrationActivity : AppCompatActivity() {
                     .addOnSuccessListener {
                         val intent = Intent(this@RegistrationActivity, MainActivity::class.java)
                         startActivity(intent)
-
+                        finish()
                         Toast.makeText(this,"Registration completed! You can login now.", Toast.LENGTH_LONG).show()
 
                 }.addOnFailureListener {

@@ -5,14 +5,25 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding : ActivityMainBinding
+    private lateinit var auth : FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        auth = Firebase.auth
+        val currentUser = auth.currentUser
+        if (currentFocus != null){
+
+        }
+
 
         val homeFragment = HomeFragment()
         val rescueFragment = RescueFragment()
@@ -20,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         val settingsFragment = SettingsFragment()
 
         setCurrentFragment(homeFragment)
+
 
         binding.bottomNavigationView.setOnItemSelectedListener  {
             when(it.itemId){
