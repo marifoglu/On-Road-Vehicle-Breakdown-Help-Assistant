@@ -24,12 +24,14 @@ class LandingPage : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        auth = Firebase.auth
-        val currentUser = auth.currentUser
-        if (currentFocus != null){
-
+        auth.addAuthStateListener { firebaseAuth ->
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                // User is already authenticated, start the MainActivity and finish the LoginActivity
+                startActivity(Intent(this@LandingPage, MainActivity::class.java))
+                finish()
+            }
         }
-
 
     }
 

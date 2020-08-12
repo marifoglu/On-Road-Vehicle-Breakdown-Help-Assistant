@@ -1,10 +1,13 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
+import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -18,31 +21,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        auth = Firebase.auth
-        val currentUser = auth.currentUser
-        if (currentFocus != null){
-
-        }
+        auth = FirebaseAuth.getInstance()
 
 
-        val homeFragment = HomeFragment()
-        val rescueFragment = RescueFragment()
-        val notificationFragment = NotificationFragment()
-        val settingsFragment = SettingsFragment()
+        auth.addAuthStateListener { firebaseAuth ->
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
 
-        setCurrentFragment(homeFragment)
+                // User is already authenticated
+                val homeFragment = HomeFragment()
+                val rescueFragment = RescueFragment()
+                val notificationFragment = NotificationFragment()
+                val settingsFragment = SettingsFragment()
+
+                setCurrentFragment(homeFragment)
 
 
-        binding.bottomNavigationView.setOnItemSelectedListener  {
-            when(it.itemId){
-                R.id.navHome ->setCurrentFragment(homeFragment)
-                R.id.navRescue ->setCurrentFragment(rescueFragment)
-                R.id.navNotifications ->setCurrentFragment(notificationFragment)
-                R.id.navSettings ->setCurrentFragment(settingsFragment)
+                binding.bottomNavigationView.setOnItemSelectedListener  {
+                    when(it.itemId){
+                        R.id.navHome ->setCurrentFragment(homeFragment)
+                        R.id.navRescue ->setCurrentFragment(rescueFragment)
+                        R.id.navNotifications ->setCurrentFragment(notificationFragment)
+                        R.id.navSettings ->setCurrentFragment(settingsFragment)
+                    }
+                    true
+                }
             }
-            true
         }
-
     }
 
     private fun setCurrentFragment(fragment: Fragment) =
@@ -51,4 +56,9 @@ class MainActivity : AppCompatActivity() {
             commit()
         }
 
+    fun logout(view: View) {
+        FirebaseAuth.getInstance().signOut()
+        startActivity(Intent(this, LandingPage::class.java))
+        finish()
+    }
 }
