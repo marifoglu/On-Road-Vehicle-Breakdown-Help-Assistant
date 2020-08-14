@@ -14,11 +14,10 @@
             android:id="@+id/textViewLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:text="Current Location"
-            app:layout_constraintBottom_toTopOf="@+id/mainFrameLayout"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/mainFrameLayout"
             app:layout_constraintTop_toTopOf="parent" />
 
         <FrameLayout
@@ -26,14 +25,12 @@
             android:layout_width="360dp"
             android:layout_height="300dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:background="#B6B6B6"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewLocation">
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/textViewLocation"></FrameLayout>
 
         <TextView
             android:id="@+id/textViewDirection"
@@ -41,11 +38,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Address Direction"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/mainFrameLayout"
             app:layout_constraintTop_toBottomOf="@+id/mainFrameLayout" />
 
         <TextView
-            android:id="@+id/textViewDirectionExplain"
+            android:id="@+id/vehicleLocation"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -56,6 +54,28 @@
             app:layout_constraintStart_toStartOf="@+id/textViewDirection"
             app:layout_constraintTop_toBottomOf="@+id/textViewDirection" />
 
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Vehicle Problem"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleLocation"></TextView>
+
+        <TextView
+            android:id="@+id/vehicleProblem"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Don't know it stopped at the motorway"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.509"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView6"></TextView>
+
         <Button
             android:id="@+id/buttonUpdate"
             android:layout_width="wrap_content"
@@ -64,7 +84,7 @@
             android:onClick="updateRequest"
             android:text="Update"
             app:layout_constraintEnd_toStartOf="@+id/buttonCancel"
-            app:layout_constraintTop_toBottomOf="@+id/textViewDirectionExplain" />
+            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem" />
 
         <Button
             android:id="@+id/buttonCancel"
@@ -72,8 +92,8 @@
             android:layout_height="wrap_content"
             android:onClick="cancelRequest"
             android:text="Cancel"
-            app:layout_constraintEnd_toEndOf="@+id/textViewDirectionExplain"
-            app:layout_constraintTop_toBottomOf="@+id/textViewDirectionExplain" />
+            app:layout_constraintEnd_toEndOf="@+id/vehicleProblem"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem" />
 
 
 
