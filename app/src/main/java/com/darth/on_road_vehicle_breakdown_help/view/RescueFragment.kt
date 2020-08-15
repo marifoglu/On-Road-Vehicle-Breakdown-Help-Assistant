@@ -37,10 +37,12 @@ class RescueFragment : Fragment() {
         val cancelButton = binding.root.findViewById<Button>(R.id.buttonCancel)
         val updateButton = binding.root.findViewById<Button>(R.id.buttonUpdate)
 
+
+
         updateButton.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Update")
-            builder.setMessage("Are you sure you want to update help request?")
+            builder.setMessage("Are you sure you want to update the help request?")
             builder.setPositiveButton("Yes") { _, _ ->
                 val intent = Intent(requireContext(), MapsActivity::class.java)
                 intent.putExtra("Key", "update")
@@ -52,8 +54,23 @@ class RescueFragment : Fragment() {
             builder.create().show()
         }
 
+
+        cancelButton.setOnClickListener {
+            val builder = AlertDialog.Builder(requireContext())
+            builder.setTitle("Delete")
+            builder.setMessage("Are you sure you want to delete the help request?")
+            builder.setPositiveButton("Yes") { _, _ ->
+                // Delete job
+            }
+            builder.setNegativeButton("No") { _, _ ->
+                // empty...
+            }
+            builder.create().show()
+        }
         return binding.root
     }
+
+
 
     fun cancelRequest(view: View) {}
     fun updateRequest(view: View) {}
