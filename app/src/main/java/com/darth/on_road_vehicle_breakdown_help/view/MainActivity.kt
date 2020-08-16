@@ -9,8 +9,6 @@ import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 

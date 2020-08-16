@@ -78,6 +78,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         mMap = p0
         mMap.setOnMapLongClickListener(this)
 
+        // "key" -> update and create comes!
+        val intent = intent
+        val info = intent.getStringExtra("key")
+
+        if (info == "update") {
+
+        }else{
+
+        }
+
+
         if (ContextCompat.checkSelfPermission(this@MapsActivity,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,android.Manifest.permission.ACCESS_FINE_LOCATION)){
                 Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_LONG).setAction("Give Permission"){

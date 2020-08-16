@@ -34,40 +34,73 @@ class RescueFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRescueBinding.inflate(inflater, container, false)
 
-        val cancelButton = binding.root.findViewById<Button>(R.id.buttonCancel)
-        val updateButton = binding.root.findViewById<Button>(R.id.buttonUpdate)
+        val dataFromSQL = 0
 
+        if (dataFromSQL == 0) {
 
+            binding.rescueInformationText.visibility = View.VISIBLE
+            binding.createRescueRequest.visibility = View.VISIBLE
 
-        updateButton.setOnClickListener {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Update")
-            builder.setMessage("Are you sure you want to update the help request?")
-            builder.setPositiveButton("Yes") { _, _ ->
+            binding.currentLocationText.visibility = View.GONE
+            binding.mapsFrame.visibility = View.GONE
+            binding.addressDirectionText.visibility = View.GONE
+            binding.mapsFrame.visibility = View.GONE
+            binding.addressDirectionText.visibility = View.GONE
+            binding.vehicleLocation.visibility = View.GONE
+            binding.vehicleLocationText.visibility = View.GONE
+            binding.vehicleProblem.visibility = View.GONE
+            binding.buttonUpdate.visibility = View.GONE
+            binding.buttonCancel.visibility = View.GONE
+
+            binding.createRescueRequest.setOnClickListener {
                 val intent = Intent(requireContext(), MapsActivity::class.java)
-                intent.putExtra("Key", "update")
+                intent.putExtra("key", "create")
                 startActivity(intent)
             }
-            builder.setNegativeButton("No") { _, _ ->
-                // empty...
-            }
-            builder.create().show()
-        }
 
 
-        cancelButton.setOnClickListener {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Delete")
-            builder.setMessage("Are you sure you want to delete the help request?")
-            builder.setPositiveButton("Yes") { _, _ ->
-                // Delete job
+
+        }else {
+
+            binding.rescueInformationText.visibility = View.GONE
+            binding.createRescueRequest.visibility = View.GONE
+
+            val cancelButton = binding.root.findViewById<Button>(R.id.buttonCancel)
+            val updateButton = binding.root.findViewById<Button>(R.id.buttonUpdate)
+
+
+
+            updateButton.setOnClickListener {
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Update")
+                builder.setMessage("Are you sure you want to update the help request?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    val intent = Intent(requireContext(), MapsActivity::class.java)
+                    intent.putExtra("key", "update")
+                    startActivity(intent)
+                }
+                builder.setNegativeButton("No") { _, _ ->
+                    // empty...
+                }
+                builder.create().show()
             }
-            builder.setNegativeButton("No") { _, _ ->
-                // empty...
+
+
+            cancelButton.setOnClickListener {
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Delete")
+                builder.setMessage("Are you sure you want to delete the help request?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    // Delete job
+                }
+                builder.setNegativeButton("No") { _, _ ->
+                    // empty...
+                }
+                builder.create().show()
             }
-            builder.create().show()
         }
         return binding.root
+
     }
 
 
