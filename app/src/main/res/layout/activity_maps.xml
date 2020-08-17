@@ -68,7 +68,7 @@
         map:layout_constraintTop_toBottomOf="@+id/textView7" />
 
     <Button
-        android:id="@+id/saveResuceButton"
+        android:id="@+id/saveRescueButton"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -81,14 +81,14 @@
         map:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/editResuceButton"
+        android:id="@+id/editRescueButton"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="Edit"
-        map:layout_constraintBottom_toTopOf="@+id/saveResuceButton"
+        map:layout_constraintBottom_toTopOf="@+id/saveRescueButton"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintHorizontal_bias="0.482"
         map:layout_constraintStart_toStartOf="parent" />
