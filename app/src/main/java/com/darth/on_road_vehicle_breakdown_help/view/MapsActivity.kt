@@ -76,16 +76,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             // Casting
             locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
 
-            locationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
+            locationListener = LocationListener { location ->
+                trackBoolean = sharedPreferences.getBoolean("tracking", false)
 
-                    trackBoolean = sharedPreferences.getBoolean("tracking", false)
-
-                    if (!trackBoolean!!){
-                        val userLocation = LatLng(location.latitude, location.longitude)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,16f))
-                        sharedPreferences.edit().putBoolean("tracking",true).apply()
-                    }
+                if (!trackBoolean!!){
+                    val userLocation = LatLng(location.latitude, location.longitude)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,16f))
+                    sharedPreferences.edit().putBoolean("tracking",true).apply()
                 }
             }
 
@@ -121,16 +118,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             // Casting
             locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
 
-            locationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
+            locationListener = LocationListener { location ->
+                trackBoolean = sharedPreferences.getBoolean("tracking", false)
 
-                    trackBoolean = sharedPreferences.getBoolean("tracking", false)
-
-                    if (!trackBoolean!!){
-                        val userLocation = LatLng(location.latitude, location.longitude)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,16f))
-                        sharedPreferences.edit().putBoolean("tracking",true).apply()
-                    }
+                if (!trackBoolean!!){
+                    val userLocation = LatLng(location.latitude, location.longitude)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,16f))
+                    sharedPreferences.edit().putBoolean("tracking",true).apply()
                 }
             }
 
