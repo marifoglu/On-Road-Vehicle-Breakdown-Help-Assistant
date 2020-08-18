@@ -8,6 +8,11 @@ import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListPopupWindow
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,7 +64,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         selectedLatitude = 0.0
         selectedLongitude = 0.0
 
+        // Data comes from Firebase to here!
+        val list : MutableList<String> = ArrayList()
+        list.add("Choose your vehicle:")
+        list.add("BMW")
+        list.add("Volkswagen")
+        list.add("Volvo")
+        list.add("Audi")
+
+        val adapter : ArrayAdapter<String> = ArrayAdapter(this,
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, list)
+
+        val mySpinner = binding.vehicleSpinner
+        mySpinner.adapter = adapter
+        mySpinner.setSelection(0)
+
+        mySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                val item : String = list[position]
+                val defaultItem: String = list[0]
+
+                if (item != defaultItem) {
+                    Toast.makeText(this@MapsActivity, "$item selected!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+
     }
+
+
+
+
     override fun onMapReady(p0: GoogleMap) {
         mMap = p0
         mMap.setOnMapLongClickListener(this)
@@ -184,6 +230,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 //        binding.editRescueButton.setOnClickListener {
 //
 //        }
+
+
 //
     }
 

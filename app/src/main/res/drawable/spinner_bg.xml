@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="#CFCFCF"></solid>
+                    <corners android:radius="5dp" />
+                    <padding android:left="8dp" />
+                </shape>
+            </item>
+
+            <item android:gravity="end|center_vertical" android:drawable="@drawable/baseline_arrow_circle_down_24" />
+        </layer-list>
+    </item>
+</selector>

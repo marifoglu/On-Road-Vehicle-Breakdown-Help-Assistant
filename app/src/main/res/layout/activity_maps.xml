@@ -60,9 +60,11 @@
         android:id="@+id/vehicleSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
+        android:background="@drawable/spinner_bg"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toBottomOf="@+id/textView7" />
