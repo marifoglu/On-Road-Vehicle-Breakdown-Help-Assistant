@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.fragment.app.FragmentManager
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentSettingsBinding
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
@@ -34,7 +35,17 @@ class SettingsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
-        // Logout
+
+
+
+        binding.addVehicleText.setOnClickListener {
+            val dialog = VehicleRegistrationFragment()
+            dialog.show(childFragmentManager, "Add Vehicle")
+        }
+
+
+
+        // Logout--------------------------------------------------------
         val logoutButton = binding.root.findViewById<Button>(R.id.button3)
 
         logoutButton.setOnClickListener {

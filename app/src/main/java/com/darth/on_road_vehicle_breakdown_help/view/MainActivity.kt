@@ -32,9 +32,6 @@ class MainActivity : AppCompatActivity() {
                 val notificationFragment = NotificationFragment()
                 val settingsFragment = SettingsFragment()
 
-                setCurrentFragment(homeFragment)
-
-
                 binding.bottomNavigationView.setOnItemSelectedListener  {
                     when(it.itemId){
                         R.id.navHome ->setCurrentFragment(homeFragment)
@@ -44,8 +41,15 @@ class MainActivity : AppCompatActivity() {
                     }
                     true
                 }
+
+                setCurrentFragment(homeFragment)
+            } else {
+                // User is not authenticated
+                startActivity(Intent(this, LandingPage::class.java))
+                finish()
             }
         }
+
     }
 
     private fun setCurrentFragment(fragment: Fragment) =
@@ -59,4 +63,5 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent(this, LandingPage::class.java))
         finish()
     }
+
 }

@@ -1,14 +1,15 @@
 package com.darth.on_road_vehicle_breakdown_help.view.login
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityLandingPageBinding
 import com.darth.on_road_vehicle_breakdown_help.view.MainActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
@@ -16,6 +17,8 @@ class LandingPage : AppCompatActivity() {
 
     private lateinit var binding : ActivityLandingPageBinding
     private lateinit var auth : FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +26,7 @@ class LandingPage : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        firestore = Firebase.firestore
 
         auth.addAuthStateListener { firebaseAuth ->
             val currentUser = firebaseAuth.currentUser
@@ -48,17 +52,17 @@ class LandingPage : AppCompatActivity() {
         val password = binding.loginPassword.text.toString()
 
         if (email.isNotEmpty() && password.isNotEmpty()){
-                auth.signInWithEmailAndPassword(email,password)
-                    .addOnSuccessListener {
+            auth.signInWithEmailAndPassword(email,password)
+                .addOnSuccessListener {
 
-                        val intent = Intent(this@LandingPage, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                    val intent = Intent(this@LandingPage, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
 
-                    }.addOnFailureListener {
-                        Toast.makeText(this,it.localizedMessage, Toast.LENGTH_LONG).show()
-                    }
-            }else {
+                }.addOnFailureListener {
+                    Toast.makeText(this,it.localizedMessage, Toast.LENGTH_LONG).show()
+                }
+        }else {
 
             Toast.makeText(this,"You have to fill all forms for the registration!", Toast.LENGTH_LONG).show()
         }

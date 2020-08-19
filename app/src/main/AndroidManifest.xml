@@ -23,10 +23,10 @@
             android:exported="false" />
         <activity
             android:name=".view.login.LandingPage"
-            android:exported="true">
+            android:exported="true"
+            android:label="Landing Page" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -37,10 +37,6 @@
 
         <activity android:name=".view.MapsActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <meta-data

@@ -10,7 +10,6 @@ import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentSettingsBinding
 import com.google.firebase.auth.FirebaseAuth
 
-
 class HomeFragment : Fragment() {
 
     private var _binding : FragmentHomeBinding? = null

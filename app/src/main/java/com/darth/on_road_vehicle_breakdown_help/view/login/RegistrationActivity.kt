@@ -8,12 +8,17 @@ import android.widget.Toast
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityRegistrationBinding
 import com.darth.on_road_vehicle_breakdown_help.view.MainActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class RegistrationActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityRegistrationBinding
-    private lateinit var auth : FirebaseAuth
+    private lateinit var binding: ActivityRegistrationBinding
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +26,7 @@ class RegistrationActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-
+        firestore = Firebase.firestore
 
     }
 
@@ -34,16 +39,27 @@ class RegistrationActivity : AppCompatActivity() {
         val homeAddress = binding.homeAddress.text.toString()
         val phoneNumber = binding.phoneNumber.text.toString()
 
-        val vehicleManufecturer = binding.vehicleManufecturer.text.toString()
-        val vehicleModel = binding.vehicleModel.text.toString()
-        val vehicleYear = binding.vehicleYear.text.toString()
 
-        if (email.isNotEmpty() && password.isNotEmpty() && password2.isNotEmpty()/* && homeAddress.isNotEmpty() && phoneNumber.isNotEmpty() && vehicleManufecturer.isNotEmpty() && vehicleModel.isNotEmpty() && vehicleYear.isNotEmpty()*/){
+        if (email.isNotEmpty() && password.isNotEmpty() && password2.isNotEmpty() && homeAddress.isNotEmpty() && phoneNumber.isNotEmpty()){
             if (password == password2){
 
                 auth.createUserWithEmailAndPassword(email,password)
                     .addOnSuccessListener {
-                        val intent = Intent(this@RegistrationActivity, MainActivity::class.java)
+
+                        val userRegistration = hashMapOf<String, Any>()
+                        userRegistration.put("email", auth.currentUser!!.email!!)
+                        userRegistration.put("homeAddress", homeAddress)
+                        userRegistration.put("phoneNumber", phoneNumber)
+                        userRegistration.put("vehicleRegDate", Timestamp.now())
+
+                        firestore.collection("UserInformation").add(userRegistration)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@RegistrationActivity,"You successfully registered.", Toast.LENGTH_LONG).show()
+                            }.addOnFailureListener {
+                                Toast.makeText(this@RegistrationActivity,it.localizedMessage, Toast.LENGTH_LONG).show()
+                            }
+
+                        val intent = Intent(this@RegistrationActivity, LandingPage::class.java)
                         startActivity(intent)
                         finish()
                         Toast.makeText(this,"Registration completed! You can login now.", Toast.LENGTH_LONG).show()
@@ -55,8 +71,6 @@ class RegistrationActivity : AppCompatActivity() {
 
                 Toast.makeText(this,"You have to fill all forms for the registration!", Toast.LENGTH_LONG).show()
             }
-
-
         }
     }
 }

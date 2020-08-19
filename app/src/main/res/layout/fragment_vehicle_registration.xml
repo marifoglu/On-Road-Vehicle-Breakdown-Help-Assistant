@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.VehicleRegistrationFragment">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/regFrameLayout"
+        android:layout_width="340dp"
+        android:layout_height="400dp"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="9dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/vehicleManufacturer"
+            android:layout_width="299dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_shape"
+            android:drawableStart="@drawable/baseline_directions_car_24"
+            android:drawablePadding="3dp"
+            android:ems="10"
+            android:hint="Vehicle Manufacturer"
+            android:inputType="textPersonName"
+            android:padding="5dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/regFrameLayout"
+            app:layout_constraintStart_toStartOf="@+id/regFrameLayout"
+            app:layout_constraintTop_toTopOf="@+id/regFrameLayout" />
+
+        <EditText
+            android:id="@+id/vehicleModel"
+            android:layout_width="299dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/edit_text_shape"
+            android:drawableStart="@drawable/baseline_directions_car_24"
+            android:drawablePadding="3dp"
+            android:ems="10"
+            android:hint="Vehicle Model"
+            android:inputType="textPersonName"
+            android:padding="5dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/vehicleManufacturer"
+            app:layout_constraintStart_toStartOf="@+id/vehicleManufacturer"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleManufacturer" />
+
+        <EditText
+            android:id="@+id/vehicleYear"
+            android:layout_width="299dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/edit_text_shape"
+            android:drawableStart="@drawable/baseline_directions_car_24"
+            android:drawablePadding="3dp"
+            android:ems="10"
+            android:hint="Vehicle Year"
+            android:inputType="textPersonName"
+            android:padding="5dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/vehicleModel"
+            app:layout_constraintStart_toStartOf="@+id/vehicleModel"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleModel" />
+
+        <Button
+            android:id="@+id/vehicleRegisterButton"
+            android:layout_width="293dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="80dp"
+            android:background="@color/white"
+            android:onClick="register"
+            android:text="Register"
+            app:cornerRadius="5dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/vehicleYear"
+            app:layout_constraintStart_toStartOf="@+id/vehicleYear"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleYear" />
+
+        <Button
+            android:id="@+id/vehicleCancelButton"
+            android:layout_width="293dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/white"
+            android:onClick="register"
+            android:text="Cancel"
+            app:cornerRadius="5dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/vehicleRegisterButton"
+            app:layout_constraintStart_toStartOf="@+id/vehicleRegisterButton"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleRegisterButton" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
