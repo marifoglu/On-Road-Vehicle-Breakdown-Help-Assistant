@@ -77,12 +77,28 @@
             app:layout_constraintStart_toStartOf="@+id/password"
             app:layout_constraintTop_toBottomOf="@+id/password" />
 
+        <EditText
+            android:id="@+id/nameAndSurname"
+            android:layout_width="299dp"
+            android:layout_height="41dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/edit_text_shape"
+            android:drawableStart="@drawable/baseline_person_24"
+            android:drawablePadding="3dp"
+            android:ems="10"
+            android:hint="Name and Surname"
+            android:inputType="textPersonName"
+            android:padding="5dp"
+            app:layout_constraintEnd_toEndOf="@+id/password2"
+            app:layout_constraintHorizontal_bias="0.508"
+            app:layout_constraintStart_toStartOf="@+id/password2"
+            app:layout_constraintTop_toBottomOf="@+id/password2" />
 
         <EditText
             android:id="@+id/homeAddress"
             android:layout_width="299dp"
             android:layout_height="41dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/edit_text_shape"
             android:drawableStart="@drawable/baseline_home_work_24"
             android:drawablePadding="3dp"
@@ -90,10 +106,10 @@
             android:hint="@string/home_address"
             android:inputType="textPersonName"
             android:padding="5dp"
-            app:layout_constraintEnd_toEndOf="@+id/password2"
+            app:layout_constraintEnd_toEndOf="@+id/nameAndSurname"
             app:layout_constraintHorizontal_bias="0.508"
-            app:layout_constraintStart_toStartOf="@+id/password2"
-            app:layout_constraintTop_toBottomOf="@+id/password2" />
+            app:layout_constraintStart_toStartOf="@+id/nameAndSurname"
+            app:layout_constraintTop_toBottomOf="@+id/nameAndSurname" />
 
         <EditText
             android:id="@+id/phoneNumber"

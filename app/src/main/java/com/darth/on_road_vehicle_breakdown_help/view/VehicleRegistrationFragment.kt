@@ -51,6 +51,13 @@ class VehicleRegistrationFragment : DialogFragment() {
 
             if (vehicleManufacturer.isNotEmpty() && vehicleModel.isNotEmpty() && vehicleYear.isNotEmpty()) {
                 if (auth.currentUser != null) {
+
+
+
+
+
+
+
                     val registerVehicle = hashMapOf<String, Any>()
 
                     registerVehicle.put("vehicleUser", auth.currentUser!!.email!!)
@@ -89,3 +96,41 @@ class VehicleRegistrationFragment : DialogFragment() {
         _binding = null
     }
 }
+
+/*
+        // Data comes from Firebase to here!
+        val list : MutableList<String> = ArrayList()
+        list.add("Choose your vehicle:")
+        list.add("BMW")
+        list.add("Volkswagen")
+        list.add("Volvo")
+        list.add("Audi")
+
+        val adapter : ArrayAdapter<String> = ArrayAdapter(this,
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, list)
+
+        val mySpinner = binding.vehicleSpinner
+        mySpinner.adapter = adapter
+        mySpinner.setSelection(0)
+
+        mySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                val item : String = list[position]
+                val defaultItem: String = list[0]
+
+                if (item != defaultItem) {
+                    Toast.makeText(this@MapsActivity, "$item selected!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+ */

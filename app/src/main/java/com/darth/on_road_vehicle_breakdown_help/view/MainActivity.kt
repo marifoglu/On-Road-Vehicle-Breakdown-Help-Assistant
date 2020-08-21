@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
     private lateinit var auth : FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -21,12 +22,10 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-
         auth.addAuthStateListener { firebaseAuth ->
             val currentUser = firebaseAuth.currentUser
             if (currentUser != null) {
-
-                // User is already authenticated
+                // User authenticated
                 val homeFragment = HomeFragment()
                 val rescueFragment = RescueFragment()
                 val notificationFragment = NotificationFragment()
@@ -34,29 +33,39 @@ class MainActivity : AppCompatActivity() {
 
                 binding.bottomNavigationView.setOnItemSelectedListener  {
                     when(it.itemId){
-                        R.id.navHome ->setCurrentFragment(homeFragment)
-                        R.id.navRescue ->setCurrentFragment(rescueFragment)
-                        R.id.navNotifications ->setCurrentFragment(notificationFragment)
-                        R.id.navSettings ->setCurrentFragment(settingsFragment)
+                        R.id.navHome -> setCurrentFragment(homeFragment)
+                        R.id.navRescue -> setCurrentFragment(rescueFragment)
+                        R.id.navNotifications -> setCurrentFragment(notificationFragment)
+                        R.id.navSettings -> setCurrentFragment(settingsFragment)
                     }
                     true
                 }
 
-                setCurrentFragment(homeFragment)
+                if (isFragmentChangeAllowed()) {
+                    setCurrentFragment(homeFragment)
+                }
             } else {
                 // User is not authenticated
                 startActivity(Intent(this, LandingPage::class.java))
                 finish()
             }
         }
-
+        
     }
 
-    private fun setCurrentFragment(fragment: Fragment) =
-        supportFragmentManager.beginTransaction().apply {
-            replace(R.id.frameLayoutID,fragment)
-            commit()
+    private fun isFragmentChangeAllowed(): Boolean {
+        // Check some condition
+        return true
+    }
+
+    private fun setCurrentFragment(fragment: Fragment) {
+        if (isFragmentChangeAllowed()) {
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.frameLayoutID, fragment)
+                commit()
+            }
         }
+    }
 
     fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()

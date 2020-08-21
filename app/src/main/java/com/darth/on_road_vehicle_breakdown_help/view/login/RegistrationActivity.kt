@@ -36,11 +36,13 @@ class RegistrationActivity : AppCompatActivity() {
         val password = binding.password.text.toString()
         val password2 = binding.password2.text.toString()
 
+        val nameAndSurname = binding.nameAndSurname.text.toString()
         val homeAddress = binding.homeAddress.text.toString()
         val phoneNumber = binding.phoneNumber.text.toString()
 
 
-        if (email.isNotEmpty() && password.isNotEmpty() && password2.isNotEmpty() && homeAddress.isNotEmpty() && phoneNumber.isNotEmpty()){
+
+        if (email.isNotEmpty() && password.isNotEmpty() && password2.isNotEmpty() && homeAddress.isNotEmpty() && phoneNumber.isNotEmpty() && nameAndSurname.isNotEmpty()){
             if (password == password2){
 
                 auth.createUserWithEmailAndPassword(email,password)
@@ -48,13 +50,15 @@ class RegistrationActivity : AppCompatActivity() {
 
                         val userRegistration = hashMapOf<String, Any>()
                         userRegistration.put("email", auth.currentUser!!.email!!)
+                        userRegistration.put("nameAndSurname", nameAndSurname)
                         userRegistration.put("homeAddress", homeAddress)
                         userRegistration.put("phoneNumber", phoneNumber)
                         userRegistration.put("vehicleRegDate", Timestamp.now())
 
                         firestore.collection("UserInformation").add(userRegistration)
                             .addOnSuccessListener {
-                                Toast.makeText(this@RegistrationActivity,"You successfully registered.", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@RegistrationActivity,"You successfully registered.", Toast.LENGTH_SHORT).show()
+                                finish()
                             }.addOnFailureListener {
                                 Toast.makeText(this@RegistrationActivity,it.localizedMessage, Toast.LENGTH_LONG).show()
                             }
