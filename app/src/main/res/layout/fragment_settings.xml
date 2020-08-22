@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="Email Address"
+            android:text="Name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,26 +27,91 @@
             android:id="@+id/userNameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
             android:text="User name"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userNameLabel"
             app:layout_constraintTop_toBottomOf="@+id/userNameLabel" />
 
 
+        <TextView
+            android:id="@+id/userEmailLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Email Address"
+            app:layout_constraintStart_toStartOf="@+id/userNameText"
+            app:layout_constraintTop_toBottomOf="@+id/userNameText" />
+
+        <TextView
+            android:id="@+id/userEmailText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Email Address"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/userEmailLabel"
+            app:layout_constraintTop_toBottomOf="@+id/userEmailLabel" />
+
+
+        <TextView
+            android:id="@+id/userHomeAddressLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Home Address"
+            app:layout_constraintStart_toStartOf="@+id/userEmailText"
+            app:layout_constraintTop_toBottomOf="@+id/userEmailText" />
+
+        <TextView
+            android:id="@+id/userHomeAddressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Home Address"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/userHomeAddressLabel"
+            app:layout_constraintTop_toBottomOf="@+id/userHomeAddressLabel" />
 
 
 
+        <TextView
+            android:id="@+id/userPhoneLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Phone Number"
+            app:layout_constraintStart_toStartOf="@+id/userHomeAddressText"
+            app:layout_constraintTop_toBottomOf="@+id/userHomeAddressText" />
+
+        <TextView
+            android:id="@+id/userPhoneText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Phone Number"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/userPhoneLabel"
+            app:layout_constraintTop_toBottomOf="@+id/userPhoneLabel" />
+
+        <TextView
+            android:id="@+id/vehicleList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Your Vehicles"
+            app:layout_constraintStart_toStartOf="@+id/userPhoneText"
+            app:layout_constraintTop_toBottomOf="@+id/userPhoneText" />
 
         <TextView
             android:id="@+id/addVehicleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="403dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="24dp"
             android:text="@string/add_vehicle"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/userPhoneText" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button3"
@@ -58,6 +123,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleList"
+            tools:layout_editor_absoluteX="-16dp">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/vehicleRecyclerView"
+                android:layout_width="409dp"
+                android:layout_height="298dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="1dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

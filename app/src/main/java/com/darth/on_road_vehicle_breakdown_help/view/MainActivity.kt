@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setCurrentFragment(fragment: Fragment) {
-        if (isFragmentChangeAllowed()) {
+        if (!isFinishing && isFragmentChangeAllowed()) {
             supportFragmentManager.beginTransaction().apply {
                 replace(R.id.frameLayoutID, fragment)
                 commit()
