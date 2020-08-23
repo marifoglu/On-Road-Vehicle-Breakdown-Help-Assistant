@@ -9,12 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentSettingsBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.VehicleAdapter
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
+import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -49,7 +52,50 @@ class SettingsFragment : Fragment() {
         binding.vehicleRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.vehicleRecyclerView.adapter = vehicleAdapter
 
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+
+
+        // Swipe to remove -------------------------------------------------------------------------
+        val swipeToDeleteCallBack = object : SwipeToDelete() {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+                val position = viewHolder.adapterPosition
+                val vehicle = vehicleArrayList[position]
+
+                // Delete the selected vehicle from Firestore
+                db.collection("Vehicles").document(vehicle.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Vehicle deleted successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Remove the selected vehicle from the local ArrayList and notify the adapter
+                        vehicleArrayList.removeAt(position)
+                        vehicleAdapter.notifyItemRemoved(position)
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to delete vehicle",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
+        itemTouchHelper.attachToRecyclerView(binding.vehicleRecyclerView)
         getVehicles()
+
+        // Add Vehicle-----------------------------------------------------------------------------------
 
         binding.addVehicleText.setOnClickListener {
             val dialog = VehicleRegistrationFragment()
@@ -58,7 +104,7 @@ class SettingsFragment : Fragment() {
 
 
 
-        // Logout--------------------------------------------------------
+        // Logout-----------------------------------------------------------------------------------
         val logoutButton = binding.root.findViewById<Button>(R.id.button3)
 
         logoutButton.setOnClickListener {
@@ -75,29 +121,30 @@ class SettingsFragment : Fragment() {
             dialog.show()
         }
 
-        return binding.root
     }
 
-    private fun getVehicles(){
+    private fun getVehicles() {
         db.collection("Vehicles").addSnapshotListener { value, error ->
 
-            if (error != null){
+            if (error != null) {
                 Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            }else{
-                if (value != null){
-                    if (!value.isEmpty){
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
 
                         val documents = value.documents
 
-                        for (document in documents){
+                        for (document in documents) {
+                            // Check for null values before casting to String
+                            val vehicleId = document.getString("id")
+                            val vehicleManufacturer = document.getString("vehicleManufacturer")
+                            val vehicleModel = document.getString("vehicleModel")
+                            val vehicleYear = document.getString("vehicleYear")
 
-                            //casting
-                            val vehicleManufacturer = document.get("vehicleManufacturer") as String
-                            val vehicleModel = document.get("vehicleModel") as String
-                            val vehicleYear = document.get("vehicleYear") as String
-
-                            val vehicle = Vehicle(vehicleManufacturer,vehicleModel,vehicleYear)
-                            vehicleArrayList.add(vehicle)
+                            if (vehicleId != null && vehicleManufacturer != null && vehicleModel != null && vehicleYear != null) {
+                                val vehicle = Vehicle(vehicleId, vehicleManufacturer, vehicleModel, vehicleYear)
+                                vehicleArrayList.add(vehicle)
+                            }
                         }
                         vehicleAdapter.notifyDataSetChanged()
                     }

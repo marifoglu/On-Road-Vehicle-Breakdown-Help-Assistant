@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -49,6 +50,7 @@ class RegistrationActivity : AppCompatActivity() {
                     .addOnSuccessListener {
 
                         val userRegistration = hashMapOf<String, Any>()
+
                         userRegistration.put("email", auth.currentUser!!.email!!)
                         userRegistration.put("nameAndSurname", nameAndSurname)
                         userRegistration.put("homeAddress", homeAddress)

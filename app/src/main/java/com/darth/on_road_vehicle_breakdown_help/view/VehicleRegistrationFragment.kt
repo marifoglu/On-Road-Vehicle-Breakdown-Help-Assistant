@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.util.*
 
 
 class VehicleRegistrationFragment : DialogFragment() {
@@ -48,18 +49,15 @@ class VehicleRegistrationFragment : DialogFragment() {
             val vehicleManufacturer = binding.vehicleManufacturer.text.toString()
             val vehicleModel = binding.vehicleModel.text.toString()
             val vehicleYear = binding.vehicleYear.text.toString()
+            val id = UUID.randomUUID().toString()
 
             if (vehicleManufacturer.isNotEmpty() && vehicleModel.isNotEmpty() && vehicleYear.isNotEmpty()) {
                 if (auth.currentUser != null) {
 
 
-
-
-
-
-
                     val registerVehicle = hashMapOf<String, Any>()
 
+                    registerVehicle.put("id", id)
                     registerVehicle.put("vehicleUser", auth.currentUser!!.email!!)
                     registerVehicle.put("vehicleManufacturer", vehicleManufacturer)
                     registerVehicle.put("vehicleModel", vehicleModel)
