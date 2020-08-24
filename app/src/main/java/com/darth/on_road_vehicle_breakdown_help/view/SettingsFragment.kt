@@ -20,7 +20,6 @@ import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 
 
 class SettingsFragment : Fragment() {
@@ -58,9 +57,7 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        // Swipe to remove -------------------------------------------------------------------------
+        // Swipe to remove
         val swipeToDeleteCallBack = object : SwipeToDelete() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
@@ -76,10 +73,12 @@ class SettingsFragment : Fragment() {
                             "Vehicle deleted successfully",
                             Toast.LENGTH_SHORT
                         ).show()
+                        // Log.d("SettingsFragment", "Deleting document with ID: ${vehicle.id}")
 
-                        // Remove the selected vehicle from the local ArrayList and notify the adapter
+                        // Remove the selected vehicle from ArrayList
                         vehicleArrayList.removeAt(position)
                         vehicleAdapter.notifyItemRemoved(position)
+                        vehicleAdapter.notifyDataSetChanged()
                     }
                     .addOnFailureListener {
                         Toast.makeText(
@@ -93,20 +92,17 @@ class SettingsFragment : Fragment() {
 
         val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
         itemTouchHelper.attachToRecyclerView(binding.vehicleRecyclerView)
-        getVehicles()
 
-        // Add Vehicle-----------------------------------------------------------------------------------
-
+        // Add Vehicle
         binding.addVehicleText.setOnClickListener {
             val dialog = VehicleRegistrationFragment()
             dialog.show(childFragmentManager, "Add Vehicle")
         }
 
+        getVehicles()
 
-
-        // Logout-----------------------------------------------------------------------------------
+        // Logout
         val logoutButton = binding.root.findViewById<Button>(R.id.button3)
-
         logoutButton.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Logout")
@@ -115,7 +111,7 @@ class SettingsFragment : Fragment() {
                 logout(binding.root)
             }
             builder.setNegativeButton("Cancel") { _, _ ->
-                // Do nothing
+                // Do nothing---
             }
             val dialog = builder.create()
             dialog.show()
@@ -125,34 +121,27 @@ class SettingsFragment : Fragment() {
 
     private fun getVehicles() {
         db.collection("Vehicles").addSnapshotListener { value, error ->
-
             if (error != null) {
                 Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {
-
                         val documents = value.documents
 
                         for (document in documents) {
-                            // Check for null values before casting to String
-                            val vehicleId = document.getString("id")
-                            val vehicleManufacturer = document.getString("vehicleManufacturer")
-                            val vehicleModel = document.getString("vehicleModel")
-                            val vehicleYear = document.getString("vehicleYear")
-
-                            if (vehicleId != null && vehicleManufacturer != null && vehicleModel != null && vehicleYear != null) {
-                                val vehicle = Vehicle(vehicleId, vehicleManufacturer, vehicleModel, vehicleYear)
-                                vehicleArrayList.add(vehicle)
+                            val vehicle = document.toObject(Vehicle::class.java)
+                            vehicle?.let {
+                                it.id = document.id
+                                vehicleArrayList.add(it)
                             }
                         }
                         vehicleAdapter.notifyDataSetChanged()
                     }
                 }
             }
-
         }
     }
+
     private fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()
         startActivity(Intent(requireContext(), LandingPage::class.java))
