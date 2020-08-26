@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentSettingsBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.VehicleAdapter
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
+import com.darth.on_road_vehicle_breakdown_help.view.model.User
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +32,9 @@ class SettingsFragment : Fragment() {
     private lateinit var db: FirebaseFirestore
     private lateinit var vehicleArrayList : ArrayList<Vehicle>
     private lateinit var vehicleAdapter : VehicleAdapter
+    private lateinit var userInformationList : ArrayList<User>
+
+    private lateinit var xmlUserEmail : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +51,17 @@ class SettingsFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
+        userInformationList = ArrayList<User>()
+        xmlUserEmail = binding.userEmailText
+
+
         vehicleArrayList = ArrayList()
         vehicleAdapter = VehicleAdapter(vehicleArrayList)
         binding.vehicleRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.vehicleRecyclerView.adapter = vehicleAdapter
+
+
+
 
         return binding.root
     }
@@ -57,7 +69,10 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Swipe to remove
+        getUserInformation()
+        getVehicles()
+
+        // Swipe to remove -------------------------------------------------------------------------
         val swipeToDeleteCallBack = object : SwipeToDelete() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
@@ -93,15 +108,14 @@ class SettingsFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
         itemTouchHelper.attachToRecyclerView(binding.vehicleRecyclerView)
 
-        // Add Vehicle
+        // Add Vehicle -----------------------------------------------------------------------------
         binding.addVehicleText.setOnClickListener {
             val dialog = VehicleRegistrationFragment()
             dialog.show(childFragmentManager, "Add Vehicle")
         }
 
-        getVehicles()
 
-        // Logout
+        // Logout ----------------------------------------------------------------------------------
         val logoutButton = binding.root.findViewById<Button>(R.id.button3)
         logoutButton.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
@@ -141,6 +155,44 @@ class SettingsFragment : Fragment() {
             }
         }
     }
+
+    private fun getUserInformation() {
+
+        var userXMLEmail = binding.userEmailText.text
+
+        db.collection("UserInformation").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val userEmail = document.get("email") as String
+                            val userHomeAddress = document.get("homeAddress") as String
+                            val userNameAndSurname = document.get("nameAndSurname") as String
+                            val userPhoneNumber = document.get("phoneNumber") as String
+                            
+                            // Set the user email value to the userEmailText TextView
+                            binding.userEmailText.text = userEmail
+                            binding.userHomeAddressText.text = userHomeAddress
+                            binding.userNameText.text = userNameAndSurname
+                            binding.userPhoneText.text = userPhoneNumber
+
+                            val user = User(userEmail, userHomeAddress, userNameAndSurname, userPhoneNumber)
+                            userInformationList.add(user)
+
+
+                        }
+                        vehicleAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()

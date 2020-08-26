@@ -6,11 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityForgotAccountBinding
-import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityRegistrationBinding
-import com.darth.on_road_vehicle_breakdown_help.view.MainActivity
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

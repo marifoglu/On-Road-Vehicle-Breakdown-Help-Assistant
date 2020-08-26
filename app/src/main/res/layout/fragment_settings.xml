@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="User name"
+            android:text=""
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userNameLabel"
             app:layout_constraintTop_toBottomOf="@+id/userNameLabel" />
@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Email Address"
+            android:text=""
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userEmailLabel"
             app:layout_constraintTop_toBottomOf="@+id/userEmailLabel" />
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Home Address"
+            android:text=""
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userHomeAddressLabel"
             app:layout_constraintTop_toBottomOf="@+id/userHomeAddressLabel" />
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Phone Number"
+            android:text=""
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userPhoneLabel"
             app:layout_constraintTop_toBottomOf="@+id/userPhoneLabel" />
