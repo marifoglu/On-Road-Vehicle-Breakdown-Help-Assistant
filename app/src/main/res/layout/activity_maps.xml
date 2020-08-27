@@ -59,7 +59,7 @@
     <Spinner
         android:id="@+id/vehicleSpinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:spinnerMode="dropdown"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"

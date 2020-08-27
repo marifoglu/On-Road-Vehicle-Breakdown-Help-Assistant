@@ -18,52 +18,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
+        <Spinner
             android:id="@+id/vehicleManufacturer"
             android:layout_width="299dp"
-            android:layout_height="41dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/edit_text_shape"
-            android:drawableStart="@drawable/baseline_directions_car_24"
-            android:drawablePadding="3dp"
-            android:ems="10"
-            android:hint="Vehicle Manufacturer"
-            android:inputType="textPersonName"
-            android:padding="5dp"
+            android:layout_height="48dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/spinner_bg"
             android:layout_gravity="center_vertical|center_horizontal"
             app:layout_constraintEnd_toEndOf="@+id/regFrameLayout"
             app:layout_constraintStart_toStartOf="@+id/regFrameLayout"
             app:layout_constraintTop_toTopOf="@+id/regFrameLayout" />
 
-        <EditText
+
+        <Spinner
             android:id="@+id/vehicleModel"
             android:layout_width="299dp"
-            android:layout_height="41dp"
+            android:layout_height="48dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
-            android:background="@drawable/edit_text_shape"
-            android:drawableStart="@drawable/baseline_directions_car_24"
-            android:drawablePadding="3dp"
-            android:ems="10"
-            android:hint="Vehicle Model"
-            android:inputType="textPersonName"
-            android:padding="5dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/spinner_bg"
             android:layout_gravity="center_vertical|center_horizontal"
             app:layout_constraintEnd_toEndOf="@+id/vehicleManufacturer"
             app:layout_constraintStart_toStartOf="@+id/vehicleManufacturer"
             app:layout_constraintTop_toBottomOf="@+id/vehicleManufacturer" />
 
-        <EditText
+        <Spinner
             android:id="@+id/vehicleYear"
             android:layout_width="299dp"
-            android:layout_height="41dp"
+            android:layout_height="48dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
-            android:background="@drawable/edit_text_shape"
-            android:drawableStart="@drawable/baseline_directions_car_24"
-            android:drawablePadding="3dp"
-            android:ems="10"
-            android:hint="Vehicle Year"
-            android:inputType="textPersonName"
-            android:padding="5dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/spinner_bg"
             android:layout_gravity="center_vertical|center_horizontal"
             app:layout_constraintEnd_toEndOf="@+id/vehicleModel"
             app:layout_constraintStart_toStartOf="@+id/vehicleModel"

@@ -1,23 +1,25 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
-import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.R
 import androidx.fragment.app.DialogFragment
-import com.darth.on_road_vehicle_breakdown_help.R
-import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityRegistrationBinding
-import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentVehicleRegistrationBinding
+import com.darth.on_road_vehicle_breakdown_help.view.adapter.CarListAdapter
+import com.darth.on_road_vehicle_breakdown_help.view.util.getJsonData
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.util.*
 
 
@@ -43,43 +45,201 @@ class VehicleRegistrationFragment : DialogFragment() {
         // Inflate the layout for this fragment
         _binding = FragmentVehicleRegistrationBinding.inflate(inflater, container, false)
 
-        //add
-
-        binding.vehicleRegisterButton.setOnClickListener {
-            val vehicleManufacturer = binding.vehicleManufacturer.text.toString()
-            val vehicleModel = binding.vehicleModel.text.toString()
-            val vehicleYear = binding.vehicleYear.text.toString()
-            val id = UUID.randomUUID().toString()
-
-            if (vehicleManufacturer.isNotEmpty() && vehicleModel.isNotEmpty() && vehicleYear.isNotEmpty()) {
-                if (auth.currentUser != null) {
 
 
-                    val registerVehicle = hashMapOf<String, Any>()
+        val jsonFileString = getJsonData(requireContext(), "carlist.json")
+        if (jsonFileString != null) {
+            Log.i("data", jsonFileString)
+        } else {
+            Log.e("data", "jsonFileString is null")
+        }
 
-                    registerVehicle.put("id", id)
-                    registerVehicle.put("vehicleUser", auth.currentUser!!.email!!)
-                    registerVehicle.put("vehicleManufacturer", vehicleManufacturer)
-                    registerVehicle.put("vehicleModel", vehicleModel)
-                    registerVehicle.put("vehicleYear", vehicleYear)
-                    registerVehicle.put("vehicleRegDate", Timestamp.now())
+        val gson = Gson()
+        val listCarManufacturer = object : TypeToken<List<CarListAdapter>>() {}.type
+        val vehicles: List<CarListAdapter>? = gson.fromJson(jsonFileString, listCarManufacturer)
 
-                    firestore.collection("Vehicles").add(registerVehicle)
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                requireContext(),
-                                "Your vehicle successfully added.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            dismiss()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(requireContext(), it.localizedMessage, Toast.LENGTH_LONG)
-                                .show()
+        if (vehicles != null) {
+            Log.i("data", "Deserialized vehicles: $vehicles")
+            val vehicleManufacturerList : MutableList<String> = ArrayList()
+            vehicleManufacturerList.add("Choose your vehicle:")
+            for (vehicle in vehicles) {
+                vehicleManufacturerList.add(vehicle.brand)
+            }
+
+            val vehicleManufacturerAdapter : ArrayAdapter<String> = ArrayAdapter(requireContext(),
+                R.layout.support_simple_spinner_dropdown_item, vehicleManufacturerList)
+
+            val vehicleManufacturerSpinner = binding.vehicleManufacturer
+            vehicleManufacturerSpinner.adapter = vehicleManufacturerAdapter
+            vehicleManufacturerSpinner.setSelection(0)
+
+            vehicleManufacturerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // give an error later!
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+
+                    val selectedManufacturer : String = vehicleManufacturerList[position]
+                    val defaultItem: String = vehicleManufacturerList[0]
+
+                    if (selectedManufacturer != defaultItem) {
+                        Toast.makeText(requireContext(), "$selectedManufacturer selected!", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        } else {
+            Log.e("data", "Failed to deserialize vehicles")
+        }
+
+
+
+
+
+        // Vehicle Models List comes from JSON -----------------------------------------------
+        val carListAdapterType = object : TypeToken<List<CarListAdapter>>() {}.type
+        val carListAdapterList: List<CarListAdapter>? = gson.fromJson(jsonFileString, carListAdapterType)
+
+        if (carListAdapterList != null) {
+            Log.i("data", "Deserialized carListAdapterList: $carListAdapterList")
+            val carManufacturerList: MutableList<String> = mutableListOf()
+            val defaultCarManufacturer = "Choose your vehicle manufacturer"
+            carManufacturerList.add(defaultCarManufacturer)
+
+            for (carListAdapter in carListAdapterList) {
+                carManufacturerList.add(carListAdapter.brand)
+            }
+
+            val carManufacturerAdapter: ArrayAdapter<String> = ArrayAdapter(
+                requireContext(),
+                R.layout.support_simple_spinner_dropdown_item,
+                carManufacturerList
+            )
+            val carManufacturerSpinner = binding.vehicleManufacturer
+            carManufacturerSpinner.adapter = carManufacturerAdapter
+            carManufacturerSpinner.setSelection(0)
+
+            carManufacturerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Give an error message if needed
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    if (position != 0) {
+                        val selectedCarListAdapter = carListAdapterList[position - 1]
+                        val carModelsList = selectedCarListAdapter.models
+                        val carModelsAdapter: ArrayAdapter<String> = ArrayAdapter(
+                            requireContext(),
+                            R.layout.support_simple_spinner_dropdown_item,
+                            carModelsList
+                        )
+                        val carModelsSpinner = binding.vehicleModel
+                        carModelsSpinner.adapter = carModelsAdapter
+                        carModelsSpinner.setSelection(0)
+
+                        carModelsSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                            override fun onNothingSelected(parent: AdapterView<*>?) {
+                                // Give an error message if needed...........
+                            }
+
+                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                                if (position != 0) {
+                                    val selectedCarModel = carModelsList[position - 1]
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "$selectedCarModel selected!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
                         }
                     }
                 }
             }
+        } else {
+            Log.e("data", "Failed to deserialize carListAdapterList")
+        }
+
+
+
+        // Vehicle Year list comes generated -------------------------------------------------------
+        val vehicleYearList : MutableList<String> = ArrayList()
+        vehicleYearList.add("Choose your vehicle year:")
+        for (year in 1950..2025) {
+            vehicleYearList.add(year.toString())
+        }
+
+
+        val vehicleYearAdapter : ArrayAdapter<String> = ArrayAdapter(requireContext(),
+            R.layout.support_simple_spinner_dropdown_item, vehicleYearList)
+
+        val vehicleYearSpinner = binding.vehicleYear // year
+        vehicleYearSpinner.adapter = vehicleYearAdapter
+        vehicleYearSpinner.setSelection(0)
+
+        vehicleYearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                val selectedYear : String = vehicleYearList[position]
+                val defaultItem: String = vehicleYearList[0]
+
+                if (selectedYear != defaultItem) {
+                    Toast.makeText(requireContext(), "$selectedYear selected!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        //add --------------------------------------------------------------------------------------
+
+
+        binding.vehicleRegisterButton.setOnClickListener {
+            val id = UUID.randomUUID().toString()
+
+            if (auth.currentUser != null) {
+                val selectedManufacturer = binding.vehicleManufacturer.selectedItem.toString()
+                val selectedModel = binding.vehicleModel.selectedItem.toString()
+                val selectedYear = binding.vehicleYear.selectedItem.toString()
+
+                val registerVehicle = hashMapOf<String, Any>()
+                registerVehicle.put("id", id)
+                registerVehicle.put("vehicleUser", auth.currentUser!!.email!!)
+                registerVehicle.put("vehicleManufacturer", selectedManufacturer)
+                registerVehicle.put("vehicleModel", selectedModel)
+                registerVehicle.put("vehicleYear", selectedYear)
+                registerVehicle.put("vehicleRegDate", Timestamp.now())
+
+                firestore.collection("Vehicles").add(registerVehicle)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Your vehicle has been successfully added.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        dismiss()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "An error occurred while adding your vehicle. Please try again later.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+            }
+        }
 
         binding.vehicleCancelButton.setOnClickListener {
             dismiss()
@@ -94,41 +254,3 @@ class VehicleRegistrationFragment : DialogFragment() {
         _binding = null
     }
 }
-
-/*
-        // Data comes from Firebase to here!
-        val list : MutableList<String> = ArrayList()
-        list.add("Choose your vehicle:")
-        list.add("BMW")
-        list.add("Volkswagen")
-        list.add("Volvo")
-        list.add("Audi")
-
-        val adapter : ArrayAdapter<String> = ArrayAdapter(this,
-            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, list)
-
-        val mySpinner = binding.vehicleSpinner
-        mySpinner.adapter = adapter
-        mySpinner.setSelection(0)
-
-        mySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // give an error later!
-            }
-
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-
-                val item : String = list[position]
-                val defaultItem: String = list[0]
-
-                if (item != defaultItem) {
-                    Toast.makeText(this@MapsActivity, "$item selected!", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
- */
