@@ -170,7 +170,7 @@ class VehicleRegistrationFragment : DialogFragment() {
         // Vehicle Year list comes generated -------------------------------------------------------
         val vehicleYearList : MutableList<String> = ArrayList()
         vehicleYearList.add("Choose your vehicle year:")
-        for (year in 1950..2025) {
+        for (year in 2025 downTo 1950) {
             vehicleYearList.add(year.toString())
         }
 
@@ -204,8 +204,6 @@ class VehicleRegistrationFragment : DialogFragment() {
         }
 
         //add --------------------------------------------------------------------------------------
-
-
         binding.vehicleRegisterButton.setOnClickListener {
             val id = UUID.randomUUID().toString()
 

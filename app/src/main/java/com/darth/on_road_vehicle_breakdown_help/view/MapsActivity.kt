@@ -2,24 +2,19 @@ package com.darth.on_road_vehicle_breakdown_help.view
 
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListPopupWindow
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.darth.on_road_vehicle_breakdown_help.R
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -27,7 +22,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMapsBinding
+import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
+import com.darth.on_road_vehicle_breakdown_help.view.adapter.VehicleAdapter
+import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.UUID
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
 
@@ -39,11 +40,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
     private lateinit var sharedPreferences: SharedPreferences
 
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
+    private lateinit var vehicleArrayList : ArrayList<Vehicle>
+    private lateinit var vehicleAdapter : VehicleAdapter
+
     private var trackBoolean : Boolean? = null
 
     var selectedLatitude: Double? = null
     var selectedLongitude: Double? = null
 
+    private var vehicleItem: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +59,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
+        // Obtain the SupportMapFragment
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        vehicleArrayList = ArrayList()
+        vehicleAdapter = VehicleAdapter(vehicleArrayList)
+
+        getVehicles()
         registerLauncher()
+        getProblem()
 
         sharedPreferences = this.getSharedPreferences("com.darth.on_road_vehicle_breakdown_help", MODE_PRIVATE)
         trackBoolean = false
@@ -64,45 +80,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         selectedLatitude = 0.0
         selectedLongitude = 0.0
 
-        // Data comes from Firebase to here!
-        val list : MutableList<String> = ArrayList()
-        list.add("Choose your vehicle:")
-        list.add("BMW")
-        list.add("Volkswagen")
-        list.add("Volvo")
-        list.add("Audi")
-
-        val adapter : ArrayAdapter<String> = ArrayAdapter(this,
-            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, list)
-
-        val mySpinner = binding.vehicleSpinner
-        mySpinner.adapter = adapter
-        mySpinner.setSelection(0)
-
-        mySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // give an error later!
-            }
-
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-
-                val item : String = list[position]
-                val defaultItem: String = list[0]
-
-                if (item != defaultItem) {
-                    Toast.makeText(this@MapsActivity, "$item selected!", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
 
     }
-
 
 
 
@@ -217,23 +196,178 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
             }else{
                 // Permission denied
-                Toast.makeText(this@MapsActivity, "Permission needed!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MapsActivity, "Permission needed!", Toast.LENGTH_SHORT).show()
 
             }
         }
 
-//        binding.saveRescueButton.setOnClickListener {
-//
-//        }
+    // Save Button ---------------------------------------------------------------------------------
+    binding.saveRescueButton.setOnClickListener {
+
+        val rescueId = UUID.randomUUID().toString()
+
+        if (auth.currentUser != null) {
+
+            vehicleItem
+
+            val rescueDirection = binding.rescueDirectionText.text.toString()
+
+            val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+
+            val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
+
+            val rescue = hashMapOf<String, Any>()
+            rescue.put("id", rescueId)
+            rescue.put("vehicleUser", auth.currentUser!!.email!!)
+            rescue.put("rescueMap", googleMap)
+            rescue.put("rescueDirection", rescueDirection)
+            rescue.put("rescueVehicle", vehicleItem)
+            rescue.put("descripeTheProblem", rescueSpinner)
+
+            db.collection("Rescue").add(rescue)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        this,
+                        "Rescue requested has been successfully added.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        this,
+                        "An error occurred while adding your rescue request. Please try again later.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+
 //
 //
 //        binding.editRescueButton.setOnClickListener {
 //
 //        }
 
-
-//
     }
+
+    private fun getProblem(){
+        val problemList : MutableList<String> = ArrayList()
+        problemList.add("Choose the problem:")
+        problemList.add("Other")
+        problemList.add("A flat or faulty battery")
+        problemList.add("Alternator faults")
+        problemList.add("Damaged tyres or wheel")
+        problemList.add("Electrical problem")
+        problemList.add("Keys and alarms")
+        problemList.add("Misfuelling")
+        problemList.add("Clutch cables on manual vehicles")
+        problemList.add("Diesel Particulate Filter (DPF)")
+        problemList.add("Starter motor")
+        problemList.add("Overheating")
+        problemList.add("Accident")
+
+        val adapter : ArrayAdapter<String> = ArrayAdapter(this,
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList)
+
+        val problemSpinner = binding.problemSpinner
+        problemSpinner.adapter = adapter
+        problemSpinner.setSelection(0)
+
+        problemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                val item : String = problemList[position]
+                val defaultItem: String = problemList[0]
+                val otherItem: String = problemList[1]
+
+                if (item == otherItem){
+                    binding.describeProblem.visibility = View.VISIBLE
+                }else{
+                    binding.describeProblem.visibility = View.GONE
+                }
+
+                if (item != defaultItem) {
+                    Toast.makeText(this@MapsActivity, "$item selected!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    private fun getVehicles() {
+
+        // Data comes from Firebase to here!
+        val vehicleList : MutableList<String> = ArrayList()
+        vehicleList.add("Choose your vehicle")
+
+
+        val vehicleAdapter : ArrayAdapter<String> = ArrayAdapter(this,
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, vehicleList)
+
+        val vehicleSpinner = binding.currentVehicleSpinner
+        vehicleSpinner.adapter = vehicleAdapter
+        vehicleSpinner.setSelection(0)
+
+        vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                if (parent != null) {
+                    vehicleItem = parent.getItemAtPosition(position) as String
+                }
+                val vehicleItem : String = vehicleList[position]
+                val defaultItem: String = vehicleList[0]
+
+                if (vehicleItem != defaultItem) {
+                    Toast.makeText(this@MapsActivity, "$vehicleItem selected!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+
+        db.collection("Vehicles").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(this, error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val vehicleId = document.get("id") as String
+                            val vehicleManufacturerFB = document.get("vehicleManufacturer") as String
+                            val vehicleModelFB = document.get("vehicleModel") as String
+                            val vehicleYearFB = document.get("vehicleYear") as String
+
+                            // Add each vehicle as a separate item to the vehicleList
+                            val vehicleString = "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
+                            vehicleList.add(vehicleString)
+                        }
+                        vehicleAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+
+    }
+
+
 
 
     override fun onMapLongClick(p0: LatLng) {
@@ -241,6 +375,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         mMap.addMarker(MarkerOptions().position(p0))
 
         selectedLatitude = p0.latitude
-        selectedLatitude = p0.longitude
+        selectedLongitude = p0.longitude
     }
 }
