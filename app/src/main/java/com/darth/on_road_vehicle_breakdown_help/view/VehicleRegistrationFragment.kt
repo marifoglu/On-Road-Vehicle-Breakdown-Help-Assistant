@@ -106,7 +106,7 @@ class VehicleRegistrationFragment : DialogFragment() {
         val carListAdapterList: List<CarListAdapter>? = gson.fromJson(jsonFileString, carListAdapterType)
 
         if (carListAdapterList != null) {
-            Log.i("data", "Deserialized carListAdapterList: $carListAdapterList")
+            // Log.i("data", "Deserialized carListAdapterList: $carListAdapterList")
             val carManufacturerList: MutableList<String> = mutableListOf()
             val defaultCarManufacturer = "Choose your vehicle manufacturer"
             carManufacturerList.add(defaultCarManufacturer)

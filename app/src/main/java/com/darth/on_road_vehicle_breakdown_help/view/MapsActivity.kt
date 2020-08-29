@@ -1,5 +1,6 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationListener
@@ -208,11 +209,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
         if (auth.currentUser != null) {
 
-            vehicleItem
+            val rescueRequest = "1"
 
             val rescueDirection = binding.rescueDirectionText.text.toString()
 
             val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+
+            val rescueDescribeProblem = binding.describeProblem.text.toString()
 
             val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
 
@@ -222,7 +225,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             rescue.put("rescueMap", googleMap)
             rescue.put("rescueDirection", rescueDirection)
             rescue.put("rescueVehicle", vehicleItem)
-            rescue.put("descripeTheProblem", rescueSpinner)
+            rescue.put("rescueRequest", rescueRequest)
+
+
+            if (rescueSpinner != "Other") {
+                rescue.put("describeTheProblem", rescueSpinner)
+            }else{
+                rescue.put("describeTheProblem", rescueDescribeProblem)
+            }
 
             db.collection("Rescue").add(rescue)
                 .addOnSuccessListener {
@@ -231,6 +241,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
                         "Rescue requested has been successfully added.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    val intent = Intent(this,HomeFragment::class.java)
+                    startActivity(intent)
+                    finish()
                 }
                 .addOnFailureListener {
                     Toast.makeText(
