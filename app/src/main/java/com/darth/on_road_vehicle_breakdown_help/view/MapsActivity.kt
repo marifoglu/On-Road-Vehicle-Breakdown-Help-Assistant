@@ -45,7 +45,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
     private lateinit var db: FirebaseFirestore
 
     private lateinit var vehicleArrayList : ArrayList<Vehicle>
-    private lateinit var vehicleAdapter : VehicleAdapter
 
     private var trackBoolean : Boolean? = null
 
@@ -53,6 +52,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
     var selectedLongitude: Double? = null
 
     private var vehicleItem: String = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +69,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         mapFragment.getMapAsync(this)
 
         vehicleArrayList = ArrayList()
-        vehicleAdapter = VehicleAdapter(vehicleArrayList)
 
         getVehicles()
         registerLauncher()
@@ -91,6 +90,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         mMap.setOnMapLongClickListener(this)
 
         // "key" -> update and create comes!
+
         val intent = intent
         val info = intent.getStringExtra("key")
 
@@ -379,7 +379,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         }
 
     }
-
 
 
 

@@ -34,7 +34,7 @@ class RescueFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRescueBinding.inflate(inflater, container, false)
 
-        val dataFromSQL = 0
+        val dataFromSQL = 1
 
         if (dataFromSQL == 0) {
 
