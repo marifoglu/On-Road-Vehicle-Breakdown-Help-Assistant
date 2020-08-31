@@ -1,5 +1,7 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var trackBoolean: Boolean? = null
 
     private var selectedLatLng: LatLng? = null
+
     private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,20 +76,65 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             val rescueFBMapDirection = document.get("rescueDirection") as String
                             val rescueFBVehicle = document.get("rescueVehicle") as String
                             val rescueFBVehicleUser = document.get("vehicleUser") as String
-                            val rescueFBDescribeProblem =
-                                document.get("describeTheProblem") as String
+                            val rescueFBDescribeProblem = document.get("describeTheProblem") as String
 
-                            //binding.rescueFBMapLatitude.text = rescueFBMapLatitude.toString()
-                            //binding.rescueFBMapLongitude.text = rescueFBMapLongitude.toString()
-                            binding.rescueFBMapDirection.text = rescueFBMapDirection
-                            binding.rescueFBVehicle.text = rescueFBVehicle
-                            binding.rescueFBVehicleUser.text = rescueFBVehicleUser
-                            binding.rescueFBDescribeProblem.text = rescueFBDescribeProblem
+                            // If user has a rescue request-----------------------------------------
+                            if (rescueFBRescueRequest.equals("1")){
 
-                            // Update the map with the new latitude and longitude values
-                            if (rescueFBMapLatitude != null && rescueFBMapLongitude != null) {
-                                selectedLatLng = LatLng(rescueFBMapLatitude, rescueFBMapLongitude)
-                                updateMap()
+                                binding.addARescueRequest.visibility = View.VISIBLE
+
+
+                                binding.mapContainer.visibility = View.GONE
+                                binding.rescueFBMapDirectionLabel.visibility = View.GONE
+                                binding.rescueFBMapDirection.visibility = View.GONE
+                                binding.rescueFBVehicle.visibility  = View.GONE
+                                binding.rescueFBVehicleUser.visibility  = View.GONE
+                                binding.rescueFBDescribeProblem.visibility  = View.GONE
+
+
+                                binding.addARescueRequest.setOnClickListener {
+                                    val intent = Intent(requireContext(), MapsActivity::class.java)
+                                    intent.putExtra("data", "new")
+                                    startActivity(intent)
+                                }
+
+                                binding.updateRescueRequest.setOnClickListener {
+                                    val intent = Intent(requireContext(), MapsActivity::class.java)
+                                    intent.putExtra("data", "update")
+                                    intent.putExtra("dataFB_ID", rescueFBId)
+                                    intent.putExtra("dataFB_RescueRequest", rescueFBRescueRequest)
+                                    if (rescueFBMapLatitude != null) {
+                                        intent.putExtra("dataFB_MapLatitude", rescueFBMapLatitude.toDouble())
+                                    }
+                                    if (rescueFBMapLongitude != null) {
+                                        intent.putExtra("dataFB_MapLongitude", rescueFBMapLongitude.toDouble())
+                                    }
+                                    intent.putExtra("dataFB_MapDirection", rescueFBMapDirection)
+                                    intent.putExtra("dataFB_Vehicle", rescueFBVehicle)
+                                    intent.putExtra("dataFB_VehicleUser", rescueFBVehicleUser)
+                                    intent.putExtra("dataFB_DescribeProblem", rescueFBDescribeProblem)
+                                    startActivity(intent)
+                                }
+
+
+                                // Update the map with the new latitude and longitude values
+                                if (rescueFBMapLatitude != null && rescueFBMapLongitude != null) {
+                                    selectedLatLng = LatLng(rescueFBMapLatitude, rescueFBMapLongitude)
+                                    updateMap()
+                                }
+                            }
+                            // If user has not a rescue request-------------------------------------
+                            else if (rescueFBRescueRequest.equals("0")){
+
+                                binding.addARescueRequest.visibility = View.GONE
+
+                                //binding.rescueFBMapLatitude.text = rescueFBMapLatitude.toString()
+                                //binding.rescueFBMapLongitude.text = rescueFBMapLongitude.toString()
+                                binding.rescueFBMapDirection.text = rescueFBMapDirection
+                                binding.rescueFBVehicle.text = rescueFBVehicle
+                                binding.rescueFBVehicleUser.text = rescueFBVehicleUser
+                                binding.rescueFBDescribeProblem.text = rescueFBDescribeProblem
+
                             }
                         }
                     }
@@ -107,8 +155,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in the selected location and move the camera
-        mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, 15f))
+        if (selectedLatLng != null) {
+            mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, 15f))
+        }
     }
-
 }

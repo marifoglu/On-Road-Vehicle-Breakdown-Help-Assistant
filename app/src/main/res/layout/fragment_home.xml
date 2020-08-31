@@ -137,6 +137,23 @@
                 android:layout_weight="1"
                 android:paddingStart="10dp"
                 android:text="" />
+
+            <TextView
+                android:id="@+id/addARescueRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="10dp"
+                android:text="Do you want to create a rescue request?" />
+
+            <TextView
+                android:id="@+id/updateRescueRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="10dp"
+                android:text="Do you want to update a rescue request?" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

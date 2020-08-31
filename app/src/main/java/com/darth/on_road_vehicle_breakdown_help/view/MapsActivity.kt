@@ -31,6 +31,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
+private const val DEFAULT_ZOOM = 15f
+
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
 
     private lateinit var binding: ActivityMapsBinding
@@ -48,6 +50,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
     private var trackBoolean : Boolean? = null
 
+    private var selectedLatLng: LatLng? = null
     var selectedLatitude: Double? = null
     var selectedLongitude: Double? = null
 
@@ -81,6 +84,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         selectedLongitude = 0.0
 
 
+
     }
 
 
@@ -89,12 +93,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
         mMap = p0
         mMap.setOnMapLongClickListener(this)
 
-        // "key" -> update and create comes!
 
-        val intent = intent
-        val info = intent.getStringExtra("key")
+        val intentData = intent.getStringExtra("data") // gets "new" or "update"
 
-        if (info == "create") {
+        if (intentData.equals("new")) {
 
             binding.saveRescueButton.visibility = View.VISIBLE
             binding.editRescueButton.visibility = View.GONE
@@ -134,12 +136,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
                 mMap.isMyLocationEnabled = true
             }
 
-        }else{
-
-            mMap.clear()
+        }else if (intentData.equals("update")) { //-----------------------------------------------------------------------------------
 
             binding.saveRescueButton.visibility = View.GONE
             binding.editRescueButton.visibility = View.VISIBLE
+
+            val rescueFBId = intent.getStringExtra("dataFB_ID")
+            val rescueFBRescueRequest = intent.getStringExtra("dataFB_RescueRequest")
+            val rescueFBMapLatitude = intent.getStringExtra("dataFB_MapLatitude")
+            val rescueFBMapLongitude = intent.getStringExtra("dataFB_MapLongitude")
+            var rescueFBMapDirection = intent.getStringExtra("dataFB_MapDirection")
+            val rescueFBVehicle = intent.getStringExtra("dataFB_Vehicle")
+            val rescueFBVehicleUser = intent.getStringExtra("dataFB_VehicleUser")
+            val rescueFBDescribeProblem = intent.getStringExtra("dataFB_DescribeProblem")
+
+            // Update the map with the new latitude and longitude values
+            if (rescueFBMapLatitude != null && rescueFBMapLongitude != null) {
+                selectedLatLng = LatLng(rescueFBMapLatitude.toDouble(), rescueFBMapLongitude.toDouble())
+                updateMap()
+            }
+
+            binding.rescueDirectionText.setText(rescueFBMapDirection)
+
+            val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
+            val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(rescueFBDescribeProblem)
+            binding.problemSpinner.setSelection(spinnerUpdatePosition)
+
+            println(rescueFBVehicleUser)
+            val spinnerVehicleAdapter = binding.currentVehicleSpinner.adapter as ArrayAdapter<String>
+            val spinnerVehicleUpdatePosition = spinnerVehicleAdapter.getPosition(rescueFBVehicle)
+            binding.currentVehicleSpinner.setSelection(spinnerVehicleUpdatePosition)
+
 
             // Casting
             locationManager = this.getSystemService(LOCATION_SERVICE) as LocationManager
@@ -255,13 +282,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             }
         }
 
-//
-//
-//        binding.editRescueButton.setOnClickListener {
-//
-//        }
+        // I gonna fix it up!
+        binding.editRescueButton.setOnClickListener {
 
-    }
+
+            if (auth.currentUser != null) {
+
+
+                val rescueDirection = binding.rescueDirectionText.text.toString()
+                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+                val rescueDescribeProblem = binding.describeProblem.text.toString()
+                val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
+
+                }
+            }
+        }
 
     private fun getProblem(){
         val problemList : MutableList<String> = ArrayList()
@@ -380,7 +415,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
     }
 
-
+    private fun updateMap() {
+        if (::mMap.isInitialized && selectedLatLng != null) {
+            mMap.clear()
+            mMap.addMarker(MarkerOptions().position(selectedLatLng!!))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
+        }
+    }
 
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
