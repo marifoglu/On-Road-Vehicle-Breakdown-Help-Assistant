@@ -117,7 +117,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="Save"
-        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintHorizontal_bias="0.482"
         map:layout_constraintStart_toStartOf="parent" />
@@ -130,9 +130,18 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:text="Edit"
-        map:layout_constraintBottom_toTopOf="@+id/saveRescueButton"
+        map:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
         map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintHorizontal_bias="0.482"
+        map:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/goBackRescueButton"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintEnd_toEndOf="parent"
         map:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

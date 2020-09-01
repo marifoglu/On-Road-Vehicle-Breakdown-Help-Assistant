@@ -22,35 +22,36 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        val homeFragment = HomeFragment()
+        val rescueFragment = RescueFragment()
+        val notificationFragment = NotificationFragment()
+        val settingsFragment = SettingsFragment()
+
+        binding.bottomNavigationView.setOnItemSelectedListener  {
+            when(it.itemId){
+                R.id.navHome -> setCurrentFragment(homeFragment)
+                R.id.navRescue -> setCurrentFragment(rescueFragment)
+                R.id.navNotifications -> setCurrentFragment(notificationFragment)
+                R.id.navSettings -> setCurrentFragment(settingsFragment)
+            }
+            true
+        }
+
+        if (isFragmentChangeAllowed()) {
+            setCurrentFragment(homeFragment)
+        }
+
         auth.addAuthStateListener { firebaseAuth ->
             val currentUser = firebaseAuth.currentUser
             if (currentUser != null) {
                 // User authenticated
-                val homeFragment = HomeFragment()
-                val rescueFragment = RescueFragment()
-                val notificationFragment = NotificationFragment()
-                val settingsFragment = SettingsFragment()
-
-                binding.bottomNavigationView.setOnItemSelectedListener  {
-                    when(it.itemId){
-                        R.id.navHome -> setCurrentFragment(homeFragment)
-                        R.id.navRescue -> setCurrentFragment(rescueFragment)
-                        R.id.navNotifications -> setCurrentFragment(notificationFragment)
-                        R.id.navSettings -> setCurrentFragment(settingsFragment)
-                    }
-                    true
-                }
-
-                if (isFragmentChangeAllowed()) {
-                    setCurrentFragment(homeFragment)
-                }
             } else {
                 // User is not authenticated
                 startActivity(Intent(this, LandingPage::class.java))
                 finish()
             }
         }
-        
+
     }
 
     private fun isFragmentChangeAllowed(): Boolean {

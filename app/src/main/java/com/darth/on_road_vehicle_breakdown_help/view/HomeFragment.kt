@@ -79,24 +79,25 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             val rescueFBDescribeProblem = document.get("describeTheProblem") as String
 
                             // If user has a rescue request-----------------------------------------
-                            if (rescueFBRescueRequest.equals("1")){
+                            if (rescueFBRescueRequest == "1"){
 
-                                binding.addARescueRequest.visibility = View.VISIBLE
-
-
-                                binding.mapContainer.visibility = View.GONE
-                                binding.rescueFBMapDirectionLabel.visibility = View.GONE
-                                binding.rescueFBMapDirection.visibility = View.GONE
-                                binding.rescueFBVehicle.visibility  = View.GONE
-                                binding.rescueFBVehicleUser.visibility  = View.GONE
-                                binding.rescueFBDescribeProblem.visibility  = View.GONE
+                                binding.addARescueRequest.visibility = View.GONE
 
 
-                                binding.addARescueRequest.setOnClickListener {
-                                    val intent = Intent(requireContext(), MapsActivity::class.java)
-                                    intent.putExtra("data", "new")
-                                    startActivity(intent)
-                                }
+                                binding.mapContainer.visibility = View.VISIBLE
+                                binding.rescueFBMapDirectionLabel.visibility = View.VISIBLE
+                                binding.rescueFBMapDirection.visibility = View.VISIBLE
+                                binding.rescueFBVehicle.visibility  = View.VISIBLE
+                                binding.rescueFBVehicleUser.visibility  = View.VISIBLE
+                                binding.rescueFBDescribeProblem.visibility  = View.VISIBLE
+                                binding.mapContainer.visibility = View.VISIBLE
+
+
+                                binding.rescueFBMapDirection.text = rescueFBMapDirection
+                                binding.rescueFBVehicle.text = rescueFBVehicle
+                                binding.rescueFBVehicleUser.text = rescueFBVehicleUser
+                                binding.rescueFBDescribeProblem.text = rescueFBDescribeProblem
+
 
                                 binding.updateRescueRequest.setOnClickListener {
                                     val intent = Intent(requireContext(), MapsActivity::class.java)
@@ -124,24 +125,35 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                                 }
                             }
                             // If user has not a rescue request-------------------------------------
-                            else if (rescueFBRescueRequest.equals("0")){
-
-                                binding.addARescueRequest.visibility = View.GONE
-
-                                //binding.rescueFBMapLatitude.text = rescueFBMapLatitude.toString()
-                                //binding.rescueFBMapLongitude.text = rescueFBMapLongitude.toString()
-                                binding.rescueFBMapDirection.text = rescueFBMapDirection
-                                binding.rescueFBVehicle.text = rescueFBVehicle
-                                binding.rescueFBVehicleUser.text = rescueFBVehicleUser
-                                binding.rescueFBDescribeProblem.text = rescueFBDescribeProblem
-
-                            }
                         }
+                    }else{
+                        runThisFuckinCode()
                     }
                 }
             }
         }
     }
+
+    private fun runThisFuckinCode(){
+
+            binding.addARescueRequest.visibility = View.VISIBLE
+
+            binding.mapContainer.visibility = View.GONE
+            binding.updateRescueRequest.visibility = View.GONE
+            binding.mapContainer.visibility = View.GONE
+            binding.rescueFBMapDirectionLabel.visibility = View.GONE
+            binding.rescueFBMapDirection.visibility = View.GONE
+            binding.rescueFBVehicle.visibility  = View.GONE
+            binding.rescueFBVehicleUser.visibility  = View.GONE
+            binding.rescueFBDescribeProblem.visibility  = View.GONE
+            binding.mapContainer.visibility = View.GONE
+
+            binding.addARescueRequest.setOnClickListener {
+                val intent = Intent(requireContext(), MapsActivity::class.java)
+                intent.putExtra("data", "new")
+                startActivity(intent)
+            }
+        }
 
     private fun updateMap() {
         if (::mMap.isInitialized && selectedLatLng != null) {

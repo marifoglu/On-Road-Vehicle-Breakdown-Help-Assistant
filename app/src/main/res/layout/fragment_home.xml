@@ -91,6 +91,23 @@
                 android:layout_height="250dp"
                 tools:context=".view.HomeFragment" />
 
+            <TextView
+                android:id="@+id/rescueFBVehicleUserLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingStart="10dp"
+                android:text="You are:"
+                android:textStyle="italic"/>
+            <TextView
+                android:id="@+id/rescueFBVehicleUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="20dp"
+                android:text=""
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/rescueFBMapDirectionLabel"
@@ -98,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="5dp"
-                android:paddingStart="10dp"
+                android:paddingStart="0dp"
                 android:text="Road assistant direction:"
                 android:textStyle="italic"/>
             <TextView
@@ -106,45 +123,67 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="10dp"
-                android:text="" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="2dp">
-            </TextView>
+                android:paddingStart="20dp"
+                android:text=""
+                android:textStyle="bold"/>
 
+
+            <TextView
+                android:id="@+id/rescueFBVehicleLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingStart="10dp"
+                android:text="Your vehicle:"
+                android:textStyle="italic"/>
             <TextView
                 android:id="@+id/rescueFBVehicle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="10dp"
-                android:text="" />
+                android:paddingStart="20dp"
+                android:text=""
+                android:textStyle="bold"/>
+
 
             <TextView
-                android:id="@+id/rescueFBVehicleUser"
+                android:id="@+id/rescueFBDescribeProblemLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:paddingTop="5dp"
                 android:paddingStart="10dp"
-                android:text="" />
-
+                android:text="Described problem:"
+                android:textStyle="italic"/>
             <TextView
                 android:id="@+id/rescueFBDescribeProblem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="10dp"
-                android:text="" />
+                android:paddingStart="20dp"
+                android:text=""
+                android:paddingBottom="10dp"
+                android:textStyle="bold"/>
 
+
+            <TextView
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:lineSpacingExtra="1dp"
+                android:paddingEnd="10dp"
+                android:background="@color/medium_grey">
+
+            </TextView>
             <TextView
                 android:id="@+id/addARescueRequest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingStart="10dp"
-                android:text="Do you want to create a rescue request?" />
+                android:paddingTop="5dp"
+                android:text="@string/do_you_want_to_create_a_rescue_request" />
 
             <TextView
                 android:id="@+id/updateRescueRequest"
@@ -152,7 +191,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingStart="10dp"
-                android:text="Do you want to update a rescue request?" />
+                android:paddingTop="5dp"
+                android:text="@string/do_you_want_to_update_a_rescue_request" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -117,7 +117,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
             if (ContextCompat.checkSelfPermission(this@MapsActivity,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,android.Manifest.permission.ACCESS_FINE_LOCATION)){
-                    Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_LONG).setAction("Give Permission"){
+                    Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_SHORT).setAction("Give Permission"){
                         // Request permission
                         permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
                     }.show()
@@ -184,7 +184,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
             if (ContextCompat.checkSelfPermission(this@MapsActivity,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,android.Manifest.permission.ACCESS_FINE_LOCATION)){
-                    Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_LONG).setAction("Give Permission"){
+                    Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_SHORT).setAction("Give Permission"){
                         // Request permission
                         permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
                     }.show()
@@ -276,7 +276,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
                     Toast.makeText(
                         this,
                         "An error occurred while adding your rescue request. Please try again later.",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -296,7 +296,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
 
                 }
             }
+
+        binding.goBackRescueButton.setOnClickListener {
+            val intent = Intent(this,HomeFragment::class.java)
+            startActivity(intent)
+            finish()
         }
+    }
 
     private fun getProblem(){
         val problemList : MutableList<String> = ArrayList()
@@ -422,6 +428,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
     }
+
 
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
