@@ -19,7 +19,7 @@
             android:layout_marginEnd="24dp"
             android:text="Currently you don't have any rescue request. Do you want to create?"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/mapsFrame"
+            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
@@ -39,11 +39,12 @@
             android:layout_marginTop="8dp"
             android:text="Current Location"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/mapsFrame"
+            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <FrameLayout
-            android:id="@+id/mapsFrame"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/rescueMapContainer"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="360dp"
             android:layout_height="300dp"
             android:layout_marginStart="24dp"
@@ -52,9 +53,7 @@
             android:background="#B6B6B6"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentLocationText">
-
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/currentLocationText"/>
 
         <TextView
             android:id="@+id/addressDirectionText"
@@ -63,8 +62,8 @@
             android:layout_marginTop="16dp"
             android:text="Address Direction"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/mapsFrame"
-            app:layout_constraintTop_toBottomOf="@+id/mapsFrame" />
+            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
+            app:layout_constraintTop_toBottomOf="@+id/rescueMapContainer" />
 
         <TextView
             android:id="@+id/vehicleLocation"
@@ -72,7 +71,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="24dp"
-            android:hint="An address is a collection of information, presented in a mostly fixed format, used to give the location of a building, apartment, or other structure or a plot of land, generally using political boundaries and street names as references, along with other identifiers such as house or apartment numbers and organization name. Some addresses also contain special codes, such as a postal code, to make identification easier and aid in the routing of mail."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/addressDirectionText"
@@ -87,18 +85,43 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleLocation"></TextView>
+            app:layout_constraintTop_toBottomOf="@+id/vehicleLocation"/>
 
         <TextView
             android:id="@+id/vehicleProblem"
             android:layout_width="360dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Don't know it stopped at the motorway"
+            android:text=""
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.509"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleLocationText"></TextView>
+            app:layout_constraintTop_toBottomOf="@+id/vehicleLocationText"/>
+
+
+        <TextView
+            android:id="@+id/vehicleSelectedText"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Selected Vehicle"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem"/>
+
+        <TextView
+            android:id="@+id/vehicleSelected"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.509"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleSelectedText"/>
+
+
 
         <Button
             android:id="@+id/buttonUpdate"
@@ -108,16 +131,16 @@
             android:onClick="updateRequest"
             android:text="Update"
             app:layout_constraintEnd_toStartOf="@+id/buttonCancel"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem" />
+            app:layout_constraintTop_toBottomOf="@+id/vehicleSelected" />
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="cancelRequest"
-            android:text="Cancel"
-            app:layout_constraintEnd_toEndOf="@+id/vehicleProblem"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem" />
+            android:text="Delete Request"
+            app:layout_constraintEnd_toEndOf="@+id/vehicleSelected"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleSelected" />
 
 
 

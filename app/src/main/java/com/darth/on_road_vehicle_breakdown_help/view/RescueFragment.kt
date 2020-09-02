@@ -8,23 +8,42 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import com.darth.on_road_vehicle_breakdown_help.R
-import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentNotificationBinding
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
-
-class RescueFragment : Fragment() {
+private const val DEFAULT_ZOOM = 15f
+class RescueFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding : FragmentRescueBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
+    private var trackBoolean: Boolean? = null
+
+    private var selectedLatLng: LatLng? = null
+
+    private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
+        trackBoolean = false
+
+        getRescueData()
     }
 
     override fun onCreateView(
@@ -34,86 +53,161 @@ class RescueFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRescueBinding.inflate(inflater, container, false)
 
-        val dataFromSQL = 1
+        val mapFragment = childFragmentManager
+            .findFragmentById(com.darth.on_road_vehicle_breakdown_help.R.id.rescueMapContainer) as SupportMapFragment?
+        mapFragment?.getMapAsync(this)
 
-        if (dataFromSQL == 0) {
+        return binding.root
+    }
+    private fun getRescueData() {
+        db.collection("Rescue").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+                        val documents = value.documents
+                        for (document in documents) {
+                            val rescueFBId = document.get("id") as String
+                            val rescueFBRescueRequest = document.get("rescueRequest") as String
+                            val rescueFBMap = document.get("rescueMap") as Map<*, *>
+                            val rescueFBMapLatitude = rescueFBMap?.get("latitude") as Double?
+                            val rescueFBMapLongitude = rescueFBMap?.get("longitude") as Double?
+                            val rescueFBMapDirection = document.get("rescueDirection") as String
+                            val rescueFBVehicle = document.get("rescueVehicle") as String
+                            val rescueFBVehicleUser = document.get("vehicleUser") as String
+                            val rescueFBDescribeProblem = document.get("describeTheProblem") as String
 
-            binding.rescueInformationText.visibility = View.VISIBLE
-            binding.createRescueRequest.visibility = View.VISIBLE
-
-            binding.currentLocationText.visibility = View.GONE
-            binding.mapsFrame.visibility = View.GONE
-            binding.addressDirectionText.visibility = View.GONE
-            binding.mapsFrame.visibility = View.GONE
-            binding.addressDirectionText.visibility = View.GONE
-            binding.vehicleLocation.visibility = View.GONE
-            binding.vehicleLocationText.visibility = View.GONE
-            binding.vehicleProblem.visibility = View.GONE
-            binding.buttonUpdate.visibility = View.GONE
-            binding.buttonCancel.visibility = View.GONE
-
-            binding.createRescueRequest.setOnClickListener {
-                val intent = Intent(requireContext(), MapsActivity::class.java)
-                intent.putExtra("key", "create")
-                startActivity(intent)
-            }
-
-
-
-        }else {
-
-            binding.rescueInformationText.visibility = View.GONE
-            binding.createRescueRequest.visibility = View.GONE
-
-            val cancelButton = binding.root.findViewById<Button>(R.id.buttonCancel)
-            val updateButton = binding.root.findViewById<Button>(R.id.buttonUpdate)
+                            // If user has a rescue request-----------------------------------------
+                            if (rescueFBRescueRequest == "1"){
 
 
+                                binding.rescueInformationText.visibility = View.GONE
+                                binding.createRescueRequest.visibility = View.GONE
 
-            updateButton.setOnClickListener {
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setTitle("Update")
-                builder.setMessage("Are you sure you want to update the help request?")
-                builder.setPositiveButton("Yes") { _, _ ->
-                    val intent = Intent(requireContext(), MapsActivity::class.java)
-                    intent.putExtra("key", "update")
-                    startActivity(intent)
+                                binding.vehicleLocation.text = rescueFBMapDirection
+                                binding.vehicleProblem.text = rescueFBDescribeProblem
+                                binding.vehicleSelected.text = rescueFBVehicle
+
+                                /// duzenle amk dumun yerini
+                                binding.createRescueRequest.setOnClickListener {
+                                    val intent = Intent(requireContext(), MapsActivity::class.java)
+                                    intent.putExtra("data", "update")
+                                    intent.putExtra("dataFB_ID", rescueFBId)
+                                    intent.putExtra("dataFB_RescueRequest", rescueFBRescueRequest)
+                                    if (rescueFBMapLatitude != null) {
+                                        intent.putExtra("dataFB_MapLatitude", rescueFBMapLatitude.toDouble())
+                                    }
+                                    if (rescueFBMapLongitude != null) {
+                                        intent.putExtra("dataFB_MapLongitude", rescueFBMapLongitude.toDouble())
+                                    }
+                                    intent.putExtra("dataFB_MapDirection", rescueFBMapDirection)
+                                    intent.putExtra("dataFB_Vehicle", rescueFBVehicle)
+                                    intent.putExtra("dataFB_VehicleUser", rescueFBVehicleUser)
+                                    intent.putExtra("dataFB_DescribeProblem", rescueFBDescribeProblem)
+                                    startActivity(intent)
+                                }
+
+
+                                // Update the map with the new latitude and longitude values
+                                if (rescueFBMapLatitude != null && rescueFBMapLongitude != null) {
+                                    selectedLatLng = LatLng(rescueFBMapLatitude, rescueFBMapLongitude)
+                                    updateMap()
+                                }
+                            }
+
+                            binding.buttonUpdate.setOnClickListener {
+                                val builder = AlertDialog.Builder(requireContext())
+                                builder.setTitle("Update")
+                                builder.setMessage("Are you sure you want to update the help request?")
+                                builder.setPositiveButton("Yes") { _, _ ->
+                                    val intent = Intent(requireContext(), MapsActivity::class.java)
+                                    intent.putExtra("data", "update")
+                                    intent.putExtra("dataFB_ID", rescueFBId)
+                                    intent.putExtra("dataFB_RescueRequest", rescueFBRescueRequest)
+                                    if (rescueFBMapLatitude != null) {
+                                        intent.putExtra("dataFB_MapLatitude", rescueFBMapLatitude.toDouble())
+                                    }
+                                    if (rescueFBMapLongitude != null) {
+                                        intent.putExtra("dataFB_MapLongitude", rescueFBMapLongitude.toDouble())
+                                    }
+                                    intent.putExtra("dataFB_MapDirection", rescueFBMapDirection)
+                                    intent.putExtra("dataFB_Vehicle", rescueFBVehicle)
+                                    intent.putExtra("dataFB_VehicleUser", rescueFBVehicleUser)
+                                    intent.putExtra("dataFB_DescribeProblem", rescueFBDescribeProblem)
+                                    startActivity(intent)
+                                }
+                                builder.setNegativeButton("No") { _, _ ->
+                                    // empty...
+
+                                }
+                                builder.create().show()
+                            }
+
+
+                            binding.buttonCancel.setOnClickListener {
+                                val builder = AlertDialog.Builder(requireContext())
+                                builder.setTitle("Delete")
+                                builder.setMessage("Are you sure you want to delete the help request?")
+                                builder.setPositiveButton("Yes") { _, _ ->
+                                    // Delete job
+                                }
+                                builder.setNegativeButton("No") { _, _ ->
+                                    // empty...
+                                }
+                                builder.create().show()
+                            }
+                        }
+                    }else{
+                        runThisFuckinCode()
+                    }
                 }
-                builder.setNegativeButton("No") { _, _ ->
-                    // empty...
-                }
-                builder.create().show()
-            }
-
-
-            cancelButton.setOnClickListener {
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setTitle("Delete")
-                builder.setMessage("Are you sure you want to delete the help request?")
-                builder.setPositiveButton("Yes") { _, _ ->
-                    // Delete job
-                }
-                builder.setNegativeButton("No") { _, _ ->
-                    // empty...
-                }
-                builder.create().show()
             }
         }
-        return binding.root
 
+
+    }
+
+    private fun runThisFuckinCode(){
+//
+//        binding.addARescueRequest.visibility = View.VISIBLE
+//
+//        binding.mapContainer.visibility = View.GONE
+//        binding.updateRescueRequest.visibility = View.GONE
+//        binding.mapContainer.visibility = View.GONE
+//        binding.rescueFBMapDirectionLabel.visibility = View.GONE
+//        binding.rescueFBMapDirection.visibility = View.GONE
+//        binding.rescueFBVehicle.visibility  = View.GONE
+//        binding.rescueFBVehicleUser.visibility  = View.GONE
+//        binding.rescueFBDescribeProblem.visibility  = View.GONE
+//        binding.mapContainer.visibility = View.GONE
+//
+//        binding.addARescueRequest.setOnClickListener {
+//            val intent = Intent(requireContext(), MapsActivity::class.java)
+//            intent.putExtra("data", "new")
+//            startActivity(intent)
     }
 
 
 
-    fun cancelRequest(view: View) {}
-    fun updateRequest(view: View) {}
+    private fun updateMap() {
+        if (::mMap.isInitialized && selectedLatLng != null) {
+            mMap.addMarker(MarkerOptions().position(selectedLatLng!!))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
+        }
+    }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
 
-
-
+        // Add a marker in the selected location and move the camera
+        if (selectedLatLng != null) {
+            mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, 15f))
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
-

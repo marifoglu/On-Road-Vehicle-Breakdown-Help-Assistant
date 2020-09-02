@@ -66,30 +66,12 @@
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/cardViewTop">
 
-        <TextView
-            android:id="@+id/mainInfoTop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:paddingStart="10dp"
-            android:textStyle="bold"
-            android:textColor="#0C3453"
-            android:text="Current road assistant request" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="6dp"
-            android:layout_marginTop="20dp">
+            android:padding="6dp">
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/map_container"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                tools:context=".view.HomeFragment" />
 
             <TextView
                 android:id="@+id/rescueFBVehicleUserLabel"
@@ -98,73 +80,29 @@
                 android:layout_weight="1"
                 android:paddingTop="5dp"
                 android:paddingStart="10dp"
-                android:text="You are:"
+                android:text="Hello,"
                 android:textStyle="italic"/>
             <TextView
                 android:id="@+id/rescueFBVehicleUser"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingStart="20dp"
-                android:text=""
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/rescueFBMapDirectionLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingTop="5dp"
-                android:paddingStart="0dp"
-                android:text="Road assistant direction:"
-                android:textStyle="italic"/>
-            <TextView
-                android:id="@+id/rescueFBMapDirection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="20dp"
-                android:text=""
-                android:textStyle="bold"/>
-
-
-            <TextView
-                android:id="@+id/rescueFBVehicleLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingTop="5dp"
                 android:paddingStart="10dp"
-                android:text="Your vehicle:"
-                android:textStyle="italic"/>
-            <TextView
-                android:id="@+id/rescueFBVehicle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="20dp"
                 android:text=""
                 android:textStyle="bold"/>
 
-
             <TextView
-                android:id="@+id/rescueFBDescribeProblemLabel"
+                android:id="@+id/currentRescueRequest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingTop="5dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="5dp"
                 android:paddingStart="10dp"
-                android:text="Described problem:"
-                android:textStyle="italic"/>
-            <TextView
-                android:id="@+id/rescueFBDescribeProblem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="20dp"
                 android:text=""
-                android:paddingBottom="10dp"
+                android:textColor="#BF0000"
                 android:textStyle="bold"/>
+
 
 
             <TextView

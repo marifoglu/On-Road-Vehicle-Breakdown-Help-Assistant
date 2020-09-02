@@ -298,7 +298,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleMap.OnMapLong
             }
 
         binding.goBackRescueButton.setOnClickListener {
-            val intent = Intent(this,HomeFragment::class.java)
+            val intent = Intent(this,MainActivity::class.java)
             startActivity(intent)
             finish()
         }

@@ -1,7 +1,6 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
 import android.content.Intent
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
+import com.darth.on_road_vehicle_breakdown_help.view.model.User
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -52,9 +52,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         // Inflate the layout for this fragment
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        val mapFragment = childFragmentManager
-            .findFragmentById(com.darth.on_road_vehicle_breakdown_help.R.id.map_container) as SupportMapFragment?
-        mapFragment!!.getMapAsync(this)
 
         return binding.root
     }
@@ -83,21 +80,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
                                 binding.addARescueRequest.visibility = View.GONE
 
-
-                                binding.mapContainer.visibility = View.VISIBLE
-                                binding.rescueFBMapDirectionLabel.visibility = View.VISIBLE
-                                binding.rescueFBMapDirection.visibility = View.VISIBLE
-                                binding.rescueFBVehicle.visibility  = View.VISIBLE
-                                binding.rescueFBVehicleUser.visibility  = View.VISIBLE
-                                binding.rescueFBDescribeProblem.visibility  = View.VISIBLE
-                                binding.mapContainer.visibility = View.VISIBLE
-
-
-                                binding.rescueFBMapDirection.text = rescueFBMapDirection
-                                binding.rescueFBVehicle.text = rescueFBVehicle
-                                binding.rescueFBVehicleUser.text = rescueFBVehicleUser
-                                binding.rescueFBDescribeProblem.text = rescueFBDescribeProblem
-
+                                getUserInformation()
+                                binding.currentRescueRequest.visibility = View.VISIBLE
+                                binding.currentRescueRequest.text = "You have a currently road assistance request."
 
                                 binding.updateRescueRequest.setOnClickListener {
                                     val intent = Intent(requireContext(), MapsActivity::class.java)
@@ -136,24 +121,39 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun runThisFuckinCode(){
 
-            binding.addARescueRequest.visibility = View.VISIBLE
+        binding.addARescueRequest.visibility = View.VISIBLE
+        binding.updateRescueRequest.visibility = View.GONE
+        binding.rescueFBVehicleUser.visibility  = View.GONE
 
-            binding.mapContainer.visibility = View.GONE
-            binding.updateRescueRequest.visibility = View.GONE
-            binding.mapContainer.visibility = View.GONE
-            binding.rescueFBMapDirectionLabel.visibility = View.GONE
-            binding.rescueFBMapDirection.visibility = View.GONE
-            binding.rescueFBVehicle.visibility  = View.GONE
-            binding.rescueFBVehicleUser.visibility  = View.GONE
-            binding.rescueFBDescribeProblem.visibility  = View.GONE
-            binding.mapContainer.visibility = View.GONE
+        binding.addARescueRequest.setOnClickListener {
+            val intent = Intent(requireContext(), MapsActivity::class.java)
+            intent.putExtra("data", "new")
+            startActivity(intent)
+        }
+    }
 
-            binding.addARescueRequest.setOnClickListener {
-                val intent = Intent(requireContext(), MapsActivity::class.java)
-                intent.putExtra("data", "new")
-                startActivity(intent)
+    private fun getUserInformation() {
+
+        db.collection("UserInformation").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val userNameAndSurname = document.get("nameAndSurname") as String
+                            // Set the user name to TextView
+                            binding.rescueFBVehicleUser.text = userNameAndSurname
+
+                        }
+                    }
+                }
             }
         }
+    }
 
     private fun updateMap() {
         if (::mMap.isInitialized && selectedLatLng != null) {
@@ -171,5 +171,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, 15f))
         }
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
