@@ -157,7 +157,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun updateMap() {
         if (::mMap.isInitialized && selectedLatLng != null) {
-            mMap.clear()
             mMap.addMarker(MarkerOptions().position(selectedLatLng!!))
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
@@ -169,7 +168,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         // Add a marker in the selected location and move the camera
         if (selectedLatLng != null) {
             mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, 15f))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
     }
     override fun onDestroyView() {
