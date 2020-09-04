@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
+import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.darth.on_road_vehicle_breakdown_help.view.model.User
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -43,6 +45,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         trackBoolean = false
 
         getRescueData()
+        getUserInformation()
+
     }
 
     override fun onCreateView(
@@ -51,6 +55,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+
 
 
         return binding.root
@@ -76,30 +81,37 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             val rescueFBDescribeProblem = document.get("describeTheProblem") as String
 
                             // If user has a rescue request-----------------------------------------
-                            if (rescueFBRescueRequest == "1"){
+                            if (rescueFBRescueRequest.equals("1")){
 
                                 binding.addARescueRequest.visibility = View.GONE
 
-                                getUserInformation()
                                 binding.currentRescueRequest.visibility = View.VISIBLE
                                 binding.currentRescueRequest.text = "You have a currently road assistance request."
 
                                 binding.updateRescueRequest.setOnClickListener {
-                                    val intent = Intent(requireContext(), MapsActivity::class.java)
-                                    intent.putExtra("data", "update")
-                                    intent.putExtra("dataFB_ID", rescueFBId)
-                                    intent.putExtra("dataFB_RescueRequest", rescueFBRescueRequest)
+
+                                    val fragment = RescueFragment()
+                                    val bundle = Bundle()
+                                    bundle.putString("data", "update")
+                                    bundle.putString("dataID", rescueFBId)
+                                    bundle.putString("dataRescueRequest", rescueFBRescueRequest)
                                     if (rescueFBMapLatitude != null) {
-                                        intent.putExtra("dataFB_MapLatitude", rescueFBMapLatitude.toDouble())
+                                        bundle.putString("dataMapLatitude",
+                                            rescueFBMapLatitude.toDouble().toString()
+                                        )
                                     }
                                     if (rescueFBMapLongitude != null) {
-                                        intent.putExtra("dataFB_MapLongitude", rescueFBMapLongitude.toDouble())
+                                        bundle.putString("dataMapLongitude", rescueFBMapLongitude.toDouble().toString())
                                     }
-                                    intent.putExtra("dataFB_MapDirection", rescueFBMapDirection)
-                                    intent.putExtra("dataFB_Vehicle", rescueFBVehicle)
-                                    intent.putExtra("dataFB_VehicleUser", rescueFBVehicleUser)
-                                    intent.putExtra("dataFB_DescribeProblem", rescueFBDescribeProblem)
-                                    startActivity(intent)
+                                    bundle.putString("dataMapDirection", rescueFBMapDirection)
+                                    bundle.putString("dataVehicle", rescueFBVehicle)
+                                    bundle.putString("dataVehicleUser", rescueFBVehicleUser)
+                                    bundle.putString("dataDescribeProblem", rescueFBDescribeProblem)
+
+                                    fragment.arguments = bundle
+                                    val transaction = fragmentManager?.beginTransaction()
+                                    transaction?.replace(R.id.frameLayoutID, fragment)?.commit()
+
                                 }
 
 
@@ -109,7 +121,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                                     updateMap()
                                 }
                             }
-                            // If user has not a rescue request-------------------------------------
                         }
                     }else{
                         runThisFuckinCode()
@@ -121,14 +132,18 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private fun runThisFuckinCode(){
 
+        binding.currentRescueRequest.text = "You don't have a currently road assistance request."
+
         binding.addARescueRequest.visibility = View.VISIBLE
         binding.updateRescueRequest.visibility = View.GONE
-        binding.rescueFBVehicleUser.visibility  = View.GONE
 
         binding.addARescueRequest.setOnClickListener {
-            val intent = Intent(requireContext(), MapsActivity::class.java)
-            intent.putExtra("data", "new")
-            startActivity(intent)
+            val fragment = RescueFragment()
+            val bundle = Bundle()
+            bundle.putString("data", "new")
+            fragment.arguments = bundle
+            val transaction = fragmentManager?.beginTransaction()
+            transaction?.replace(R.id.frameLayoutID, fragment)?.commit()
         }
     }
 
@@ -147,7 +162,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             val userNameAndSurname = document.get("nameAndSurname") as String
                             // Set the user name to TextView
                             binding.rescueFBVehicleUser.text = userNameAndSurname
-
                         }
                     }
                 }

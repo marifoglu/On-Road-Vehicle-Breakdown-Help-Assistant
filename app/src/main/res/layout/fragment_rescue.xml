@@ -15,11 +15,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="24dp"
-            android:text="Currently you don't have any rescue request. Do you want to create?"
+            android:text="Currently you don't have any road assistance request. Do you want to create one?"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
@@ -30,119 +30,152 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
             android:onClick="createRequest"
-            android:text="Create Rescue Request"
-            app:layout_constraintTop_toBottomOf="@+id/rescueInformationText"></Button>
-        <TextView
-            android:id="@+id/currentLocationText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Current Location"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="@string/create_rescue_request"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rescueInformationText" />
+
+
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/rescueMapContainer"
+            android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="24dp"
-            android:background="#B6B6B6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentLocationText"/>
-
-        <TextView
-            android:id="@+id/addressDirectionText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="Address Direction"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/rescueMapContainer"
-            app:layout_constraintTop_toBottomOf="@+id/rescueMapContainer" />
-
-        <TextView
-            android:id="@+id/vehicleLocation"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/addressDirectionText"
-            app:layout_constraintTop_toBottomOf="@+id/addressDirectionText" />
-
-        <TextView
-            android:id="@+id/vehicleLocationText"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Vehicle Problem"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleLocation"/>
-
-        <TextView
-            android:id="@+id/vehicleProblem"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text=""
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.509"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleLocationText"/>
-
-
-        <TextView
-            android:id="@+id/vehicleSelectedText"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Selected Vehicle"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleProblem"/>
-
-        <TextView
-            android:id="@+id/vehicleSelected"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text=""
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.509"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleSelectedText"/>
-
-
-
-        <Button
-            android:id="@+id/buttonUpdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:onClick="updateRequest"
-            android:text="Update"
-            app:layout_constraintEnd_toStartOf="@+id/button_delete"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleSelected" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:context=".view.MapsActivity" />
 
-        <Button
-            android:id="@+id/button_delete"
+
+
+        <TextView
+            android:id="@+id/rescueDirectionLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="cancelRequest"
-            android:text="Delete Request"
-            app:layout_constraintEnd_toEndOf="@+id/vehicleSelected"
-            app:layout_constraintTop_toBottomOf="@+id/vehicleSelected" />
+            android:layout_marginTop="8dp"
+            android:text="Rescue Direction"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toBottomOf="@+id/map" />
+
+        <EditText
+            android:id="@+id/rescueDirectionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Please give us a rescue place information"
+            android:inputType="textMultiLine"
+            android:minHeight="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/rescueDirectionLabel"
+            app:layout_constraintTop_toBottomOf="@+id/rescueDirectionLabel" />
+
+        <TextView
+            android:id="@+id/problemDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Describe the problem"
+            app:layout_constraintStart_toStartOf="@+id/rescueDirectionLabel"
+            app:layout_constraintTop_toBottomOf="@+id/currentVehicleSpinner" />
 
 
+        <Spinner
+            android:id="@+id/problemSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/spinner_bg"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/rescueDirectionLabel"
+            app:layout_constraintTop_toBottomOf="@+id/problemDescription" />
+
+        <EditText
+            android:id="@+id/describeProblem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Please try to describe your vehicles problem"
+            android:inputType="textMultiLine"
+            android:minHeight="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/problemSpinner"
+            app:layout_constraintTop_toBottomOf="@+id/problemSpinner" />
+
+        <TextView
+            android:id="@+id/vehicleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Vehicle"
+            app:layout_constraintStart_toStartOf="@+id/rescueDirectionLabel"
+            app:layout_constraintTop_toBottomOf="@+id/rescueDirectionText" />
+
+        <Spinner
+            android:id="@+id/currentVehicleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/spinner_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vehicleLabel" />
+
+        <Button
+            android:id="@+id/saveRescueButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="Save"
+            app:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.482"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/editRescueButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="Update Request"
+            app:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.482"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/goBackRescueButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

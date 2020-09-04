@@ -15,4 +15,7 @@
     <string name="add_vehicle">Add Vehicle</string>
     <string name="do_you_want_to_create_a_rescue_request">Do you want to create a rescue request?</string>
     <string name="do_you_want_to_update_a_rescue_request">Do you want to update a rescue request?</string>
+    <string name="do_you_want_to_create_a_road_assistance_request">Do you want to create a road assistance request?</string>
+    <string name="do_you_want_to_update_your_road_assistance_request">Do you want to update your road assistance request?</string>
+    <string name="create_rescue_request">Create Rescue Request</string>
 </resources>
