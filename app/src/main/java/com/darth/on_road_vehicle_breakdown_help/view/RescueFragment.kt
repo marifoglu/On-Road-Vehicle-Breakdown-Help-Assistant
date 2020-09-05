@@ -171,9 +171,15 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
 
         updateMap(rescueMapLatitude, rescueMapLongitude)
 
-
         binding.rescueDirectionText.setText(dataMapDirection)
 
+        val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
+        val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
+        binding.problemSpinner.setSelection(spinnerUpdatePosition)
+
+        val spinnerVehicleAdapter = binding.currentVehicleSpinner.adapter as ArrayAdapter<String>
+        val spinnerVehicleUpdatePosition = spinnerVehicleAdapter.getPosition(dataVehicle)
+        binding.currentVehicleSpinner.setSelection(spinnerVehicleUpdatePosition)
 
     }
     private fun permissionLauncher() {
