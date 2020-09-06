@@ -123,6 +123,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         registerLauncher()
         getProblem()
 
+
+
         return binding.root
     }
 
@@ -130,32 +132,62 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         mMap = p0
         mMap.setOnMapLongClickListener(this)
 
+        // If collection has a document?
+        val collectionRef = db.collection("Rescue")
+        collectionRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Collection has an one document
 
-        if (data.equals("new")) {
-            // Code for "new" rescue
+                    if (data.equals("new")) {
+                        // Code for "new" rescue
 
-            newSection()
+                        newSection()
 
-            // request permission
-            permissionLauncher()
+                        // request permission
+                        permissionLauncher()
 
-        } else if (data.equals("update")) {
-            // Code for "update" rescue
+                    } else if (data.equals("update")) {
+                        // Code for "update" rescue
 
-            updateSection()
+                        updateSection()
 
-            // request permission
-            permissionLauncher()
+                        // request permission
+                        permissionLauncher()
 
+                        // Add a marker in the selected location and move the camera
+                        if (selectedLatLng != null) {
+                            mMap.addMarker(
+                                MarkerOptions().position(selectedLatLng!!).title("Selected Location")
+                            )
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
+                        }
+                    }
+                } else {
+                    // Collection is empty
+                    println("we DO NOT have collection")
 
-            // Add a marker in the selected location and move the camera
-            if (selectedLatLng != null) {
-                mMap.addMarker(
-                    MarkerOptions().position(selectedLatLng!!).title("Selected Location")
-                )
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
+                    binding.map.visibility = View.GONE
+                    binding.rescueDirectionLabel.visibility = View.GONE
+                    binding.rescueDirectionText.visibility = View.GONE
+                    binding.vehicleLabel.visibility = View.GONE
+                    binding.currentVehicleSpinner.visibility = View.GONE
+                    binding.problemDescription.visibility = View.GONE
+                    binding.problemSpinner.visibility = View.GONE
+                    binding.describeProblem.visibility = View.GONE
+                    binding.saveRescueButton.visibility = View.GONE
+                    binding.editRescueButton.visibility = View.GONE
+                    binding.goBackRescueButton.visibility = View.GONE
+
+                    createRescue()
+                }
             }
-        }
+            .addOnFailureListener { e ->
+                // any errors?
+                e.localizedMessage
+            }
+
+
     }
 
     //Update it
@@ -241,57 +273,57 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
             }
         }
 
-        // Save Button ---------------------------------------------------------------------------------
-        binding.saveRescueButton.setOnClickListener {
-
-            val rescueId = UUID.randomUUID().toString()
-
-            if (auth.currentUser != null) {
-
-                val rescueRequest = "1"
-
-                val rescueDirection = binding.rescueDirectionText.text.toString()
-
-                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
-
-                val rescueDescribeProblem = binding.describeProblem.text.toString()
-
-                val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
-
-                val rescue = hashMapOf<String, Any>()
-                rescue.put("id", rescueId)
-                rescue.put("vehicleUser", auth.currentUser!!.email!!)
-                rescue.put("rescueMap", googleMap)
-                rescue.put("rescueDirection", rescueDirection)
-                rescue.put("rescueVehicle", vehicleItem)
-                rescue.put("rescueRequest", rescueRequest)
-
-
-                if (rescueSpinner != "Other") {
-                    rescue.put("describeTheProblem", rescueSpinner)
-                }else{
-                    rescue.put("describeTheProblem", rescueDescribeProblem)
-                }
-
-                db.collection("Rescue").add(rescue)
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            requireContext(),
-                            "Rescue requested has been successfully added.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val intent = Intent(requireContext(),MainActivity::class.java)
-                        startActivity(intent)
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            requireContext(),
-                            "An error occurred while adding your rescue request. Please try again later.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
-        }
+//        // Save Button ---------------------------------------------------------------------------------
+//        binding.saveRescueButton.setOnClickListener {
+//
+//            val rescueId = UUID.randomUUID().toString()
+//
+//            if (auth.currentUser != null) {
+//
+//                val rescueRequest = "1"
+//
+//                val rescueDirection = binding.rescueDirectionText.text.toString()
+//
+//                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+//
+//                val rescueDescribeProblem = binding.describeProblem.text.toString()
+//
+//                val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
+//
+//                val rescue = hashMapOf<String, Any>()
+//                rescue.put("id", rescueId)
+//                rescue.put("vehicleUser", auth.currentUser!!.email!!)
+//                rescue.put("rescueMap", googleMap)
+//                rescue.put("rescueDirection", rescueDirection)
+//                rescue.put("rescueVehicle", vehicleItem)
+//                rescue.put("rescueRequest", rescueRequest)
+//
+//
+//                if (rescueSpinner != "Other") {
+//                    rescue.put("describeTheProblem", rescueSpinner)
+//                }else{
+//                    rescue.put("describeTheProblem", rescueDescribeProblem)
+//                }
+//
+//                db.collection("Rescue").add(rescue)
+//                    .addOnSuccessListener {
+//                        Toast.makeText(
+//                            requireContext(),
+//                            "Rescue requested has been successfully added.",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                        val intent = Intent(requireContext(),MainActivity::class.java)
+//                        startActivity(intent)
+//                    }
+//                    .addOnFailureListener {
+//                        Toast.makeText(
+//                            requireContext(),
+//                            "An error occurred while adding your rescue request. Please try again later.",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }
+//            }
+//        }
 
         // I gonna fix it up!
         binding.editRescueButton.setOnClickListener {
@@ -460,6 +492,25 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         }
     }
 
+    private fun createRescue(){
+        binding.createRescueRequest.setOnClickListener {
+            // Hide and Show layout
+            binding.createRescueRequest.visibility = View.GONE
+            binding.rescueInformationText.visibility = View.GONE
+            binding.editRescueButton.visibility = View.GONE
+
+            binding.map.visibility = View.VISIBLE
+            binding.rescueDirectionLabel.visibility = View.VISIBLE
+            binding.rescueDirectionText.visibility = View.VISIBLE
+            binding.vehicleLabel.visibility = View.VISIBLE
+            binding.currentVehicleSpinner.visibility = View.VISIBLE
+            binding.problemDescription.visibility = View.VISIBLE
+            binding.problemSpinner.visibility = View.VISIBLE
+            binding.describeProblem.visibility = View.VISIBLE
+            binding.saveRescueButton.visibility = View.VISIBLE
+            binding.goBackRescueButton.visibility = View.VISIBLE
+        }
+    }
 
 
     override fun onMapLongClick(p0: LatLng) {

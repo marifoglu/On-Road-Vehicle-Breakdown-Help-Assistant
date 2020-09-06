@@ -71,7 +71,7 @@
             android:layout_marginEnd="16dp"
             android:ems="10"
             android:gravity="start|top"
-            android:hint="Please give us a rescue place information"
+            android:hint="@string/please_give_us_some_place_information"
             android:inputType="textMultiLine"
             android:minHeight="48dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Describe the problem"
+            android:text="@string/describe_the_problem"
             app:layout_constraintStart_toStartOf="@+id/rescueDirectionLabel"
             app:layout_constraintTop_toBottomOf="@+id/currentVehicleSpinner" />
 
@@ -145,37 +145,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
             android:text="Save"
-            app:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.482"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/describeProblem" />
 
         <Button
             android:id="@+id/editRescueButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
             android:text="Update Request"
-            app:layout_constraintBottom_toTopOf="@+id/goBackRescueButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.482"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/describeProblem" />
 
         <Button
             android:id="@+id/goBackRescueButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Back"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="48dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="Back"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/describeProblem" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

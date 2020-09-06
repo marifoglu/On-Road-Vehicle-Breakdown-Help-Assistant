@@ -123,14 +123,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                             }
                         }
                     }else{
-                        runThisFuckinCode()
+                        ifDontHaveRequest()
                     }
                 }
             }
         }
     }
 
-    private fun runThisFuckinCode(){
+    private fun ifDontHaveRequest(){
 
         binding.currentRescueRequest.text = "You don't have a currently road assistance request."
 
