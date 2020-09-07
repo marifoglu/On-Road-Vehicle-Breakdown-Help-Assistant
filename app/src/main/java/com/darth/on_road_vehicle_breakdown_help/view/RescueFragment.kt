@@ -1,13 +1,15 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.Manifest
 import android.content.ContentValues.TAG
 import android.content.Context.LOCATION_SERVICE
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,6 +24,7 @@ import androidx.appcompat.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
@@ -36,14 +39,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
-private const val DEFAULT_ZOOM = 15f
-class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickListener {
+private const val DEFAULT_ZOOM = 16f
+class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickListener {
 
-    private var _binding : FragmentRescueBinding? = null
+    private var _binding: FragmentRescueBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
 
     private lateinit var mMap: GoogleMap
     var selectedLatitude: Double? = null
@@ -51,12 +55,11 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
     private var trackBoolean: Boolean? = null
     private var selectedLatLng: LatLng? = null
 
-
     private lateinit var locationManager: LocationManager
     private lateinit var locationListener: LocationListener
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var vehicleArrayList : ArrayList<Vehicle>
+    private lateinit var vehicleArrayList: ArrayList<Vehicle>
 
     private var vehicleItem: String = ""
 
@@ -69,6 +72,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
     private var dataVehicle: String? = null
     private var dataVehicleUser: String? = null
     private var dataDescribeProblem: String? = null
+    private var navbarData: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +81,71 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        sharedPreferences = requireActivity().getSharedPreferences("com.darth.on_road_vehicle_breakdown_help", AppCompatActivity.MODE_PRIVATE);
+    }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        _binding = FragmentRescueBinding.inflate(inflater, container, false)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        val mapFragment = childFragmentManager
+            .findFragmentById(com.darth.on_road_vehicle_breakdown_help.R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        checkForData()
+        registerLauncher()
+        getProblem()
+        getVehicles()
+        goBackButton()
+
+        sharedPreferences = requireActivity().getSharedPreferences(
+            "com.darth.on_road_vehicle_breakdown_help",
+            AppCompatActivity.MODE_PRIVATE
+        )
+        trackBoolean = false
+
+        selectedLatitude = 0.0
+        selectedLongitude = 0.0
+
+        vehicleArrayList = ArrayList()
+    }
+
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        Log.d("MyMapActivity", "onMapReady called");
+
+        mMap = googleMap
+        mMap.setOnMapLongClickListener(this)
+
+        locationManager = requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
+        locationListener = LocationListener { location ->
+            trackBoolean = sharedPreferences.getBoolean("tracking", false)
+
+            if (!trackBoolean!!) {
+                val userLocation = LatLng(location.latitude, location.longitude)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, DEFAULT_ZOOM))
+                sharedPreferences.edit().putBoolean("tracking", true).apply()
+            }
+        }
+        permissionLauncher()
+        // Add a marker in the selected location and move the camera
+        if (selectedLatLng != null) {
+            mMap.addMarker(MarkerOptions().position(selectedLatLng!!).title("Selected Location"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
+        }
+
+    }
+
+    private fun checkForData() {
         arguments?.let {
             data = it.getString("data")
             dataID = it.getString("dataID")
@@ -90,262 +157,285 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
             dataVehicleUser = it.getString("dataVehicleUser")
             dataDescribeProblem = it.getString("dataDescribeProblem")
 
+            navbarData = it.getString("navbarData")
 
-            println(dataVehicleUser)
-            println(dataDescribeProblem)
-            println(dataRescueRequest)
-            println(dataID)
             println(rescueMapLatitude)
             println(rescueMapLongitude)
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // Inflate the layout for this fragment
-        _binding = FragmentRescueBinding.inflate(inflater, container, false)
-
-        val mapFragment = childFragmentManager
-            .findFragmentById(com.darth.on_road_vehicle_breakdown_help.R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(this)
-
-        trackBoolean = false
-
-        selectedLatitude = 0.0
-        selectedLongitude = 0.0
-
-        vehicleArrayList = ArrayList()
 
 
-        getVehicles()
-        registerLauncher()
-        getProblem()
+        db.collection("Rescue").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+                        Log.d("Firebase", "Collection not empty")
+                        homeToUpdate()
 
-
-
-        return binding.root
-    }
-
-    override fun onMapReady(p0: GoogleMap) {
-        mMap = p0
-        mMap.setOnMapLongClickListener(this)
-
-        // If collection has a document?
-        val collectionRef = db.collection("Rescue")
-        collectionRef.get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    // Collection has an one document
-
-                    if (data.equals("new")) {
-                        // Code for "new" rescue
-
-                        newSection()
-
-                        // request permission
-                        permissionLauncher()
-
-                    } else if (data.equals("update")) {
-                        // Code for "update" rescue
-
-                        updateSection()
-
-                        // request permission
-                        permissionLauncher()
-
-                        // Add a marker in the selected location and move the camera
-                        if (selectedLatLng != null) {
-                            mMap.addMarker(
-                                MarkerOptions().position(selectedLatLng!!).title("Selected Location")
-                            )
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
-                        }
+                    } else {
+                        Log.d("Firebase", "Collection empty")
+                        homeToNew()
                     }
                 } else {
-                    // Collection is empty
-                    println("we DO NOT have collection")
-
-                    binding.map.visibility = View.GONE
-                    binding.rescueDirectionLabel.visibility = View.GONE
-                    binding.rescueDirectionText.visibility = View.GONE
-                    binding.vehicleLabel.visibility = View.GONE
-                    binding.currentVehicleSpinner.visibility = View.GONE
-                    binding.problemDescription.visibility = View.GONE
-                    binding.problemSpinner.visibility = View.GONE
-                    binding.describeProblem.visibility = View.GONE
-                    binding.saveRescueButton.visibility = View.GONE
-                    binding.editRescueButton.visibility = View.GONE
-                    binding.goBackRescueButton.visibility = View.GONE
-
-                    createRescue()
+                    Log.d("Firebase", "Value is null")
                 }
             }
-            .addOnFailureListener { e ->
-                // any errors?
-                e.localizedMessage
-            }
-
+        }
 
     }
+    private fun navbarCreate() {
+        binding.createRescueRequest.visibility = View.VISIBLE
+        binding.rescueInformationText.visibility = View.VISIBLE
 
-    //Update it
-    private fun newSection(){
-        binding.createRescueRequest.visibility = View.GONE
-        binding.rescueInformationText.visibility = View.GONE
+        binding.map.visibility = View.GONE
+        binding.rescueDirectionLabel.visibility = View.GONE
+        binding.rescueDirectionText.visibility = View.GONE
+        binding.vehicleLabel.visibility = View.GONE
+        binding.currentVehicleSpinner.visibility = View.GONE
+        binding.problemDescription.visibility = View.GONE
+        binding.problemSpinner.visibility = View.GONE
+        binding.describeProblem.visibility = View.GONE
+        binding.saveRescueButton.visibility = View.GONE
+        binding.goBackRescueButton.visibility = View.GONE
         binding.editRescueButton.visibility = View.GONE
+
+
+        binding.createRescueRequest.setOnClickListener {
+
+            // Hide and Show layout
+            binding.createRescueRequest.visibility = View.GONE
+            binding.rescueInformationText.visibility = View.GONE
+            binding.editRescueButton.visibility = View.GONE
+
+            binding.map.visibility = View.VISIBLE
+            binding.rescueDirectionLabel.visibility = View.VISIBLE
+            binding.rescueDirectionText.visibility = View.VISIBLE
+            binding.vehicleLabel.visibility = View.VISIBLE
+            binding.currentVehicleSpinner.visibility = View.VISIBLE
+            binding.problemDescription.visibility = View.VISIBLE
+            binding.problemSpinner.visibility = View.VISIBLE
+            binding.describeProblem.visibility = View.VISIBLE
+            binding.saveRescueButton.visibility = View.VISIBLE
+            binding.goBackRescueButton.visibility = View.VISIBLE
+
+            binding.saveRescueButton.setOnClickListener {
+                buttonAddRescue()
+            }
+        }
     }
-    private fun updateSection(){
+
+    private fun updateFromNavBar() {
         binding.createRescueRequest.visibility = View.GONE
         binding.rescueInformationText.visibility = View.GONE
         binding.saveRescueButton.visibility = View.GONE
+        binding.editRescueButton.visibility = View.VISIBLE
+
+    }
+
+    private fun homeToNew() {
+
+        // Hide and Show layout
+        binding.createRescueRequest.visibility = View.GONE
+        binding.rescueInformationText.visibility = View.GONE
+        binding.editRescueButton.visibility = View.GONE
+
+        binding.map.visibility = View.VISIBLE
+        binding.rescueDirectionLabel.visibility = View.VISIBLE
+        binding.rescueDirectionText.visibility = View.VISIBLE
+        binding.vehicleLabel.visibility = View.VISIBLE
+        binding.currentVehicleSpinner.visibility = View.VISIBLE
+        binding.problemDescription.visibility = View.VISIBLE
+        binding.problemSpinner.visibility = View.VISIBLE
+        binding.describeProblem.visibility = View.VISIBLE
+        binding.saveRescueButton.visibility = View.VISIBLE
+        binding.goBackRescueButton.visibility = View.VISIBLE
+
+        binding.saveRescueButton.setOnClickListener {
+            buttonAddRescue()
+        }
+    }
+
+    private fun homeToUpdate() {
+
+        binding.rescueInformationText.visibility = View.GONE
+        binding.createRescueRequest.visibility = View.GONE
+        binding.saveRescueButton.visibility = View.GONE
+
+        println(dataDescribeProblem)
+        println(dataVehicle)
 
         updateMap(rescueMapLatitude, rescueMapLongitude)
 
         binding.rescueDirectionText.setText(dataMapDirection)
 
-        val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
-        val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
-        binding.problemSpinner.setSelection(spinnerUpdatePosition)
 
         val spinnerVehicleAdapter = binding.currentVehicleSpinner.adapter as ArrayAdapter<String>
         val spinnerVehicleUpdatePosition = spinnerVehicleAdapter.getPosition(dataVehicle)
         binding.currentVehicleSpinner.setSelection(spinnerVehicleUpdatePosition)
 
+        val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
+        val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
+        binding.problemSpinner.setSelection(spinnerUpdatePosition)
+
+
+
     }
-    private fun permissionLauncher() {
-        // Casting
-        locationManager = requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
 
-        locationListener = LocationListener { location ->
-            trackBoolean = sharedPreferences.getBoolean("tracking", false)
+    private fun buttonAddRescue() {
 
-            if (!trackBoolean!!){
-                val userLocation = LatLng(location.latitude, location.longitude)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,16f))
-                sharedPreferences.edit().putBoolean("tracking",true).apply()
+
+        if (auth.currentUser != null) {
+
+            val rescueRequest = "1"
+
+            val rescueId = UUID.randomUUID().toString()
+            val rescueDirection = binding.rescueDirectionText.text.toString()
+            val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+            val rescueDescribeProblem = binding.describeProblem.text.toString()
+            val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
+
+            val rescue = hashMapOf<String, Any>()
+            rescue.put("id", rescueId)
+            rescue.put("vehicleUser", auth.currentUser!!.email!!)
+            rescue.put("rescueMap", googleMap)
+            rescue.put("rescueDirection", rescueDirection)
+            rescue.put("rescueVehicle", vehicleItem)
+            rescue.put("rescueRequest", rescueRequest)
+
+
+            if (rescueSpinner != "Other") {
+                rescue.put("describeTheProblem", rescueSpinner)
+            } else {
+                rescue.put("describeTheProblem", rescueDescribeProblem)
             }
-        }
 
-        if (ContextCompat.checkSelfPermission(requireContext(),android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(),android.Manifest.permission.ACCESS_FINE_LOCATION)){
-                Snackbar.make(binding.root,"Permission needed for location", Snackbar.LENGTH_SHORT).setAction("Give Permission"){
-                    // Request permission
-                    permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                }.show()
+            db.collection("Rescue").add(rescue)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "Rescue requested has been successfully added.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val fragment = HomeFragment()
+                    val transaction = fragmentManager?.beginTransaction()
+                    transaction?.replace(
+                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                        fragment
+                    )?.commit()
+
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "An error occurred while adding your rescue request. Please try again later.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+        }
+    }
+
+    private fun goBackButton(){
+        binding.goBackRescueButton.setOnClickListener {
+            val fragment = HomeFragment()
+            val transaction = fragmentManager?.beginTransaction()
+            transaction?.replace(
+                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                fragment
+            )?.commit()
+        }
+    }
+    private fun deleteDocument(documentId: String) {
+        db.collection("Rescue").document(documentId).delete()
+            .addOnSuccessListener {
+                // Document deleted successfully
+                Log.d(TAG, "Document deleted successfully")
+            }
+            .addOnFailureListener { e ->
+                // Error occurred while deleting the document
+                Log.w(TAG, "Error deleting document", e)
+            }
+    }
+
+    private fun permissionLauncher() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            ) {
+                Snackbar.make(binding.root, "Permission needed for location", Snackbar.LENGTH_SHORT)
+                    .setAction("Give Permission") {
+                        // Request permission
+                        permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    }.show()
             } else {
                 // Request permission
                 permissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
             }
         } else {
             // Permission granted
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0f,locationListener)
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0,
+                0f,
+                locationListener
+            )
             val lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            if (lastLocation != null){
+            if (lastLocation != null) {
                 val lastUserLocation = LatLng(lastLocation.latitude, lastLocation.longitude)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation,16f))
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation, 16f))
             }
             mMap.isMyLocationEnabled = true
         }
     }
 
-    // --- XML ISSUES in registerLauncher()
-    private fun registerLauncher(){
+    private fun registerLauncher() {
 
-        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
-            if (result){
-                if (ContextCompat.checkSelfPermission(requireContext(),android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                    // Permission granted
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0f,locationListener)
-                    val lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    if (lastLocation != null){
-                        val lastUserLocation = LatLng(lastLocation.latitude, lastLocation.longitude)
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastUserLocation,16f))
+        permissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { result ->
+                if (result) {
+                    if (ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            android.Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // Permission granted
+                        locationManager.requestLocationUpdates(
+                            LocationManager.GPS_PROVIDER,
+                            0,
+                            0f,
+                            locationListener
+                        )
+                        val lastLocation =
+                            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                        if (lastLocation != null) {
+                            val lastUserLocation =
+                                LatLng(lastLocation.latitude, lastLocation.longitude)
+                            mMap.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    lastUserLocation,
+                                    16f
+                                )
+                            )
+                        }
+                        mMap.isMyLocationEnabled = true
                     }
-                    mMap.isMyLocationEnabled = true
+
+                } else {
+                    // Permission denied
+                    Toast.makeText(requireContext(), "Permission needed!", Toast.LENGTH_SHORT)
+                        .show()
+
                 }
-
-            }else{
-                // Permission denied
-                Toast.makeText(requireContext(), "Permission needed!", Toast.LENGTH_SHORT).show()
-
             }
-        }
-
-//        // Save Button ---------------------------------------------------------------------------------
-//        binding.saveRescueButton.setOnClickListener {
-//
-//            val rescueId = UUID.randomUUID().toString()
-//
-//            if (auth.currentUser != null) {
-//
-//                val rescueRequest = "1"
-//
-//                val rescueDirection = binding.rescueDirectionText.text.toString()
-//
-//                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
-//
-//                val rescueDescribeProblem = binding.describeProblem.text.toString()
-//
-//                val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
-//
-//                val rescue = hashMapOf<String, Any>()
-//                rescue.put("id", rescueId)
-//                rescue.put("vehicleUser", auth.currentUser!!.email!!)
-//                rescue.put("rescueMap", googleMap)
-//                rescue.put("rescueDirection", rescueDirection)
-//                rescue.put("rescueVehicle", vehicleItem)
-//                rescue.put("rescueRequest", rescueRequest)
-//
-//
-//                if (rescueSpinner != "Other") {
-//                    rescue.put("describeTheProblem", rescueSpinner)
-//                }else{
-//                    rescue.put("describeTheProblem", rescueDescribeProblem)
-//                }
-//
-//                db.collection("Rescue").add(rescue)
-//                    .addOnSuccessListener {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "Rescue requested has been successfully added.",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                        val intent = Intent(requireContext(),MainActivity::class.java)
-//                        startActivity(intent)
-//                    }
-//                    .addOnFailureListener {
-//                        Toast.makeText(
-//                            requireContext(),
-//                            "An error occurred while adding your rescue request. Please try again later.",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-//                    }
-//            }
-//        }
-
-        // I gonna fix it up!
-        binding.editRescueButton.setOnClickListener {
-
-            if (auth.currentUser != null) {
-
-
-                val rescueDirection = binding.rescueDirectionText.text.toString()
-                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
-                val rescueDescribeProblem = binding.describeProblem.text.toString()
-                val googleMap = Place(selectedLatitude!!,selectedLongitude!!)
-
-            }
-        }
-
-        binding.goBackRescueButton.setOnClickListener {
-            val intent = Intent(requireContext(),MainActivity::class.java)
-            startActivity(intent)
-        }
     }
 
-    // --- XML ISSUES in getVehicles()
     private fun getVehicles() {
 
         // Data comes from Firebase to here!
@@ -396,13 +486,14 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
                         val documents = value.documents
 
                         for (document in documents) {
-                            val vehicleId = document.get("id") as String
-                            val vehicleManufacturerFB = document.get("vehicleManufacturer") as String
+                            val vehicleManufacturerFB =
+                                document.get("vehicleManufacturer") as String
                             val vehicleModelFB = document.get("vehicleModel") as String
                             val vehicleYearFB = document.get("vehicleYear") as String
 
                             // Add each vehicle as a separate item to the vehicleList
-                            val vehicleString = "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
+                            val vehicleString =
+                                "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
                             vehicleList.add(vehicleString)
                         }
                         vehicleAdapter.notifyDataSetChanged()
@@ -412,9 +503,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         }
     }
 
-    // --- XML ISSUES in getProblem()
-    private fun getProblem(){
-        val problemList : MutableList<String> = ArrayList()
+    private fun getProblem() {
+        val problemList: MutableList<String> = ArrayList()
         problemList.add("Choose the problem:")
         problemList.add("Other")
         problemList.add("A flat or faulty battery")
@@ -429,14 +519,16 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         problemList.add("Overheating")
         problemList.add("Accident")
 
-        val adapter : ArrayAdapter<String> = ArrayAdapter(requireContext(),
-            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList)
+        val adapter: ArrayAdapter<String> = ArrayAdapter(
+            requireContext(),
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList
+        )
 
         val problemSpinner = binding.problemSpinner
         problemSpinner.adapter = adapter
         problemSpinner.setSelection(0)
 
-        problemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        problemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // give an error later!
             }
@@ -448,13 +540,13 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
                 id: Long
             ) {
 
-                val item : String = problemList[position]
+                val item: String = problemList[position]
                 val defaultItem: String = problemList[0]
                 val otherItem: String = problemList[1]
 
-                if (item == otherItem){
+                if (item == otherItem) {
                     binding.describeProblem.visibility = View.VISIBLE
-                }else{
+                } else {
                     binding.describeProblem.visibility = View.GONE
                 }
 
@@ -464,21 +556,18 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
             }
         }
     }
-    private fun deleteDocument(documentId: String){
-        db.collection("Rescue").document(documentId).delete()
-            .addOnSuccessListener {
-                // Document deleted successfully
-                Log.d(TAG, "Document deleted successfully")
-            }
-            .addOnFailureListener { e ->
-                // Error occurred while deleting the document
-                Log.w(TAG, "Error deleting document", e)
-            }
-    }
 
     private fun updateMap(latitude: String?, longitude: String?) {
         if (latitude.isNullOrEmpty() || longitude.isNullOrEmpty()) {
             return
+        }
+
+        // Add a marker in the selected location and move the camera
+        if (selectedLatLng != null) {
+            mMap.addMarker(
+                MarkerOptions().position(selectedLatLng!!).title("Selected Location")
+            )
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
 
         try {
@@ -491,27 +580,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
             e.printStackTrace()
         }
     }
-
-    private fun createRescue(){
-        binding.createRescueRequest.setOnClickListener {
-            // Hide and Show layout
-            binding.createRescueRequest.visibility = View.GONE
-            binding.rescueInformationText.visibility = View.GONE
-            binding.editRescueButton.visibility = View.GONE
-
-            binding.map.visibility = View.VISIBLE
-            binding.rescueDirectionLabel.visibility = View.VISIBLE
-            binding.rescueDirectionText.visibility = View.VISIBLE
-            binding.vehicleLabel.visibility = View.VISIBLE
-            binding.currentVehicleSpinner.visibility = View.VISIBLE
-            binding.problemDescription.visibility = View.VISIBLE
-            binding.problemSpinner.visibility = View.VISIBLE
-            binding.describeProblem.visibility = View.VISIBLE
-            binding.saveRescueButton.visibility = View.VISIBLE
-            binding.goBackRescueButton.visibility = View.VISIBLE
-        }
-    }
-
 
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
@@ -526,3 +594,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback,GoogleMap.OnMapLongClickLi
         _binding = null
     }
 }
+
+
+
+

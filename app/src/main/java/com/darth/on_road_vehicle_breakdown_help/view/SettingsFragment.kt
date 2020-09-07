@@ -23,11 +23,11 @@ import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var vehicleArrayList : ArrayList<Vehicle>
@@ -59,9 +59,6 @@ class SettingsFragment : Fragment() {
         vehicleAdapter = VehicleAdapter(vehicleArrayList)
         binding.vehicleRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.vehicleRecyclerView.adapter = vehicleAdapter
-
-
-
 
         return binding.root
     }
