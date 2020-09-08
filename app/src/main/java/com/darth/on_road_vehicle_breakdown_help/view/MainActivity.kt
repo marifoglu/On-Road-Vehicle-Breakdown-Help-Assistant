@@ -3,31 +3,25 @@ package com.darth.on_road_vehicle_breakdown_help.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
+    private lateinit var auth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
 
         val homeFragment = HomeFragment()
         val rescueFragment = RescueFragment()
@@ -78,25 +72,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     is RescueFragment -> {
                         // Set data to the bundle
-
-                        db.collection("Rescue").addSnapshotListener { value, error ->
-                            if (error != null) {
-                                Toast.makeText(this@MainActivity, error.localizedMessage, Toast.LENGTH_SHORT).show()
-                            } else {
-                                if (value != null) {
-                                    if (!value.isEmpty) {
-                                        Log.d("Firebase", "Collection not empty")
-                                        bundle.putString("navbarData", "notEmpty")
-                                    } else {
-                                        Log.d("Firebase", "Collection empty")
-                                        bundle.putString("navbarData", "empty")
-                                    }
-                                } else {
-                                    Log.d("Firebase", "Value is null")
-                                    bundle.putString("navbarData", "null")
-                                }
-                            }
-                        }
+                        bundle.putString("data", "navbar")
                     }
                     is NotificationFragment -> {
                         // Do something for NotificationFragment

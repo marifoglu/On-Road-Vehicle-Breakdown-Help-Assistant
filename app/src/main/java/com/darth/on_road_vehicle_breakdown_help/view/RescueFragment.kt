@@ -105,7 +105,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         registerLauncher()
         getProblem()
         getVehicles()
-        goBackButton()
+        onClickButtons()
 
         sharedPreferences = requireActivity().getSharedPreferences(
             "com.darth.on_road_vehicle_breakdown_help",
@@ -147,7 +147,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     private fun checkForData() {
         arguments?.let {
-            data = it.getString("data")
+            data = it.getString("data") // "new" "update" "navbar"
             dataID = it.getString("dataID")
             dataRescueRequest = it.getString("dataRescueRequest")
             rescueMapLatitude = it.getString("dataMapLatitude")
@@ -157,10 +157,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             dataVehicleUser = it.getString("dataVehicleUser")
             dataDescribeProblem = it.getString("dataDescribeProblem")
 
-            navbarData = it.getString("navbarData")
 
-            println(rescueMapLatitude)
-            println(rescueMapLongitude)
+
         }
 
 
@@ -172,13 +170,14 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                     if (!value.isEmpty) {
                         Log.d("Firebase", "Collection not empty")
                         homeToUpdate()
-
                     } else {
                         Log.d("Firebase", "Collection empty")
                         homeToNew()
                     }
                 } else {
                     Log.d("Firebase", "Value is null")
+                    // create new?
+
                 }
             }
         }
@@ -219,9 +218,10 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             binding.saveRescueButton.visibility = View.VISIBLE
             binding.goBackRescueButton.visibility = View.VISIBLE
 
-            binding.saveRescueButton.setOnClickListener {
-                buttonAddRescue()
-            }
+//            it could be an error
+//            binding.saveRescueButton.setOnClickListener {
+//                buttonAddRescue()
+//            }
         }
     }
 
@@ -251,9 +251,10 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.saveRescueButton.visibility = View.VISIBLE
         binding.goBackRescueButton.visibility = View.VISIBLE
 
-        binding.saveRescueButton.setOnClickListener {
-            buttonAddRescue()
-        }
+//        it could be an error
+//        binding.saveRescueButton.setOnClickListener {
+//            buttonAddRescue()
+//        }
     }
 
     private fun homeToUpdate() {
@@ -261,9 +262,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.rescueInformationText.visibility = View.GONE
         binding.createRescueRequest.visibility = View.GONE
         binding.saveRescueButton.visibility = View.GONE
-
-        println(dataDescribeProblem)
-        println(dataVehicle)
 
         updateMap(rescueMapLatitude, rescueMapLongitude)
 
@@ -274,6 +272,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         val spinnerVehicleUpdatePosition = spinnerVehicleAdapter.getPosition(dataVehicle)
         binding.currentVehicleSpinner.setSelection(spinnerVehicleUpdatePosition)
 
+
+
         val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
         val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
         binding.problemSpinner.setSelection(spinnerUpdatePosition)
@@ -282,61 +282,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     }
 
-    private fun buttonAddRescue() {
-
-
-        if (auth.currentUser != null) {
-
-            val rescueRequest = "1"
-
-            val rescueId = UUID.randomUUID().toString()
-            val rescueDirection = binding.rescueDirectionText.text.toString()
-            val rescueSpinner = binding.problemSpinner.selectedItem.toString()
-            val rescueDescribeProblem = binding.describeProblem.text.toString()
-            val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
-
-            val rescue = hashMapOf<String, Any>()
-            rescue.put("id", rescueId)
-            rescue.put("vehicleUser", auth.currentUser!!.email!!)
-            rescue.put("rescueMap", googleMap)
-            rescue.put("rescueDirection", rescueDirection)
-            rescue.put("rescueVehicle", vehicleItem)
-            rescue.put("rescueRequest", rescueRequest)
-
-
-            if (rescueSpinner != "Other") {
-                rescue.put("describeTheProblem", rescueSpinner)
-            } else {
-                rescue.put("describeTheProblem", rescueDescribeProblem)
-            }
-
-            db.collection("Rescue").add(rescue)
-                .addOnSuccessListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "Rescue requested has been successfully added.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    val fragment = HomeFragment()
-                    val transaction = fragmentManager?.beginTransaction()
-                    transaction?.replace(
-                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                        fragment
-                    )?.commit()
-
-                }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        requireContext(),
-                        "An error occurred while adding your rescue request. Please try again later.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                }
-        }
-    }
-
-    private fun goBackButton(){
+    private fun onClickButtons(){
+        //------goBackRescueButton------------------------------------------------------------------
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
             val transaction = fragmentManager?.beginTransaction()
@@ -344,6 +291,58 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
                 fragment
             )?.commit()
+        }
+
+        //------goBackRescueButton------------------------------------------------------------------
+        binding.saveRescueButton.setOnClickListener {
+            if (auth.currentUser != null) {
+
+                val rescueRequest = "1"
+
+                val rescueId = UUID.randomUUID().toString()
+                val rescueDirection = binding.rescueDirectionText.text.toString()
+                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+                val rescueDescribeProblem = binding.describeProblem.text.toString()
+                val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
+
+                val rescue = hashMapOf<String, Any>()
+                rescue.put("id", rescueId)
+                rescue.put("vehicleUser", auth.currentUser!!.email!!)
+                rescue.put("rescueMap", googleMap)
+                rescue.put("rescueDirection", rescueDirection)
+                rescue.put("rescueVehicle", vehicleItem)
+                rescue.put("rescueRequest", rescueRequest)
+
+
+                if (rescueSpinner != "Other") {
+                    rescue.put("describeTheProblem", rescueSpinner)
+                } else {
+                    rescue.put("describeTheProblem", rescueDescribeProblem)
+                }
+
+                db.collection("Rescue").add(rescue)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Rescue requested has been successfully added.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        val fragment = HomeFragment()
+                        val transaction = fragmentManager?.beginTransaction()
+                        transaction?.replace(
+                            com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                            fragment
+                        )?.commit()
+
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "An error occurred while adding your rescue request. Please try again later.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
         }
     }
     private fun deleteDocument(documentId: String) {
