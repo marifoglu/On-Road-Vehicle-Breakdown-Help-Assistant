@@ -172,7 +172,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         homeToUpdate()
                     } else {
                         Log.d("Firebase", "Collection empty")
-                        homeToNew()
+                        homeToCreate()
                     }
                 } else {
                     Log.d("Firebase", "Value is null")
@@ -183,7 +183,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         }
 
     }
-    private fun navbarCreate() {
+    private fun homeToCreate() {
         binding.createRescueRequest.visibility = View.VISIBLE
         binding.rescueInformationText.visibility = View.VISIBLE
 
@@ -218,43 +218,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             binding.saveRescueButton.visibility = View.VISIBLE
             binding.goBackRescueButton.visibility = View.VISIBLE
 
-//            it could be an error
-//            binding.saveRescueButton.setOnClickListener {
-//                buttonAddRescue()
-//            }
         }
-    }
-
-    private fun updateFromNavBar() {
-        binding.createRescueRequest.visibility = View.GONE
-        binding.rescueInformationText.visibility = View.GONE
-        binding.saveRescueButton.visibility = View.GONE
-        binding.editRescueButton.visibility = View.VISIBLE
-
-    }
-
-    private fun homeToNew() {
-
-        // Hide and Show layout
-        binding.createRescueRequest.visibility = View.GONE
-        binding.rescueInformationText.visibility = View.GONE
-        binding.editRescueButton.visibility = View.GONE
-
-        binding.map.visibility = View.VISIBLE
-        binding.rescueDirectionLabel.visibility = View.VISIBLE
-        binding.rescueDirectionText.visibility = View.VISIBLE
-        binding.vehicleLabel.visibility = View.VISIBLE
-        binding.currentVehicleSpinner.visibility = View.VISIBLE
-        binding.problemDescription.visibility = View.VISIBLE
-        binding.problemSpinner.visibility = View.VISIBLE
-        binding.describeProblem.visibility = View.VISIBLE
-        binding.saveRescueButton.visibility = View.VISIBLE
-        binding.goBackRescueButton.visibility = View.VISIBLE
-
-//        it could be an error
-//        binding.saveRescueButton.setOnClickListener {
-//            buttonAddRescue()
-//        }
     }
 
     private fun homeToUpdate() {
@@ -293,7 +257,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             )?.commit()
         }
 
-        //------goBackRescueButton------------------------------------------------------------------
+        //------saveRescueButton--------------------------------------------------------------------
         binding.saveRescueButton.setOnClickListener {
             if (auth.currentUser != null) {
 
@@ -343,6 +307,11 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         ).show()
                     }
             }
+        }
+
+        //------editRescueButton--------------------------------------------------------------------
+        binding.editRescueButton.setOnClickListener {
+
         }
     }
     private fun deleteDocument(documentId: String) {
