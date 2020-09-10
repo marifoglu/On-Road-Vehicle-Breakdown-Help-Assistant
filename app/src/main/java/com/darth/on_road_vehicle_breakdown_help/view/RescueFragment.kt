@@ -158,7 +158,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             dataDescribeProblem = it.getString("dataDescribeProblem")
 
 
-
         }
 
 
@@ -168,85 +167,211 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {
-                        Log.d("Firebase", "Collection not empty")
-                        homeToUpdate()
+                        Log.d("Data", "Collection is not empty")
+                        println("Firebase Collection is not empty")
+                        if (data.equals("new")) {
+                            println("data comes from navbar")
+                        } else {
+                            println("data comes from home")
+                        }
+                        updateRescue()
                     } else {
                         Log.d("Firebase", "Collection empty")
-                        homeToCreate()
+                        println("Firebase Collection empty")
+                        if (data.equals("navbar")) {
+                            println("data comes from navbar")
+                        } else if (data.equals("new")) {
+                            println("data comes from home")
+                        } else {
+                            println("wrongg")
+                        }
+
+
+                        updateRescue()
+
                     }
                 } else {
                     Log.d("Firebase", "Value is null")
                     // create new?
+                    println("Firebase Value is null")
+                    println(data)
 
                 }
             }
         }
 
     }
-    private fun homeToCreate() {
-        binding.createRescueRequest.visibility = View.VISIBLE
-        binding.rescueInformationText.visibility = View.VISIBLE
 
-        binding.map.visibility = View.GONE
-        binding.rescueDirectionLabel.visibility = View.GONE
-        binding.rescueDirectionText.visibility = View.GONE
-        binding.vehicleLabel.visibility = View.GONE
-        binding.currentVehicleSpinner.visibility = View.GONE
-        binding.problemDescription.visibility = View.GONE
-        binding.problemSpinner.visibility = View.GONE
-        binding.describeProblem.visibility = View.GONE
-        binding.saveRescueButton.visibility = View.GONE
-        binding.goBackRescueButton.visibility = View.GONE
-        binding.editRescueButton.visibility = View.GONE
-
-
-        binding.createRescueRequest.setOnClickListener {
-
-            // Hide and Show layout
-            binding.createRescueRequest.visibility = View.GONE
-            binding.rescueInformationText.visibility = View.GONE
-            binding.editRescueButton.visibility = View.GONE
-
-            binding.map.visibility = View.VISIBLE
-            binding.rescueDirectionLabel.visibility = View.VISIBLE
-            binding.rescueDirectionText.visibility = View.VISIBLE
-            binding.vehicleLabel.visibility = View.VISIBLE
-            binding.currentVehicleSpinner.visibility = View.VISIBLE
-            binding.problemDescription.visibility = View.VISIBLE
-            binding.problemSpinner.visibility = View.VISIBLE
-            binding.describeProblem.visibility = View.VISIBLE
-            binding.saveRescueButton.visibility = View.VISIBLE
-            binding.goBackRescueButton.visibility = View.VISIBLE
-
-        }
-    }
-
-    private fun homeToUpdate() {
-
-        binding.rescueInformationText.visibility = View.GONE
+    private fun updateRescue() {
         binding.createRescueRequest.visibility = View.GONE
-        binding.saveRescueButton.visibility = View.GONE
+        binding.rescueInformationText.visibility = View.GONE
 
-        updateMap(rescueMapLatitude, rescueMapLongitude)
+        binding.map.visibility = View.VISIBLE
+        binding.rescueDirectionLabel.visibility = View.VISIBLE
+        binding.rescueDirectionText.visibility = View.VISIBLE
+        binding.vehicleLabel.visibility = View.VISIBLE
+        binding.currentVehicleSpinner.visibility = View.VISIBLE
+        binding.problemDescription.visibility = View.VISIBLE
+        binding.problemSpinner.visibility = View.VISIBLE
+        binding.describeProblem.visibility = View.VISIBLE
+        binding.saveRescueButton.visibility = View.VISIBLE
+        binding.goBackRescueButton.visibility = View.VISIBLE
+        binding.editRescueButton.visibility = View.VISIBLE
+
+
+        // Update the map with the new latitude and longitude values
+        if (rescueMapLatitude != null && rescueMapLongitude != null) {
+            selectedLatLng = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
+            //updateMap(rescueMapLatitude,rescueMapLongitude)
+        }
+
+
+
+
+
+
+
 
         binding.rescueDirectionText.setText(dataMapDirection)
-
-
-        val spinnerVehicleAdapter = binding.currentVehicleSpinner.adapter as ArrayAdapter<String>
-        val spinnerVehicleUpdatePosition = spinnerVehicleAdapter.getPosition(dataVehicle)
-        binding.currentVehicleSpinner.setSelection(spinnerVehicleUpdatePosition)
-
-
 
         val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
         val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
         binding.problemSpinner.setSelection(spinnerUpdatePosition)
 
 
+        val problemList: MutableList<String> = ArrayList()
+        problemList.add("Choose the problem:")
+        problemList.add("Other")
+        problemList.add("A flat or faulty battery")
+        problemList.add("Alternator faults")
+        problemList.add("Damaged tyres or wheel")
+        problemList.add("Electrical problem")
+        problemList.add("Keys and alarms")
+        problemList.add("Misfuelling")
+        problemList.add("Clutch cables on manual vehicles")
+        problemList.add("Diesel Particulate Filter (DPF)")
+        problemList.add("Starter motor")
+        problemList.add("Overheating")
+        problemList.add("Accident")
 
+        val adapter: ArrayAdapter<String> = ArrayAdapter(
+            requireContext(),
+            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList
+        )
+
+        val problemSpinner = binding.problemSpinner
+        problemSpinner.adapter = adapter
+
+        val myDataIndex = problemList.indexOf(dataDescribeProblem)
+        if (myDataIndex != -1) {
+            problemSpinner.setSelection(myDataIndex)
+        } else {
+            problemSpinner.setSelection(1) // Select the "Other" option
+            binding.describeProblem.visibility = View.VISIBLE
+            binding.describeProblem.setText(dataDescribeProblem)
+        }
+
+        problemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                val item: String = problemList[position]
+                val defaultItem: String = problemList[0]
+                val otherItem: String = problemList[1]
+
+                if (item == otherItem) {
+                    binding.describeProblem.visibility = View.VISIBLE
+                } else {
+                    binding.describeProblem.visibility = View.GONE
+                }
+
+                if (item != defaultItem) {
+                    Toast.makeText(requireContext(), "$item selected!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+
+        //  Vehicle Data ---------------------------------------------------------------------------
+        val vehicleList: MutableList<String> = ArrayList()
+
+        val vehicleAdapter: ArrayAdapter<String> = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item, vehicleList
+        )
+
+        val vehicleSpinner = binding.currentVehicleSpinner
+        vehicleSpinner.adapter = vehicleAdapter
+
+        vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // give an error later!
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+
+                if (parent != null) {
+                    vehicleItem = parent.getItemAtPosition(position) as String
+                }
+                val vehicleItem: String = vehicleList[position]
+                val defaultItem: String = vehicleList[0]
+
+                if (vehicleItem != defaultItem) {
+                    Toast.makeText(requireContext(), "$vehicleItem selected!", Toast.LENGTH_SHORT)
+                        .show()
+
+                    // Get the index of myData in Firebase
+                    val index = vehicleList.indexOf(dataVehicle)
+                    if (index != -1) {
+                        Log.d("Firebase", "The index of myData in Firebase is $index")
+                    } else {
+                        Log.d("Firebase", "myData not found in Firebase")
+                    }
+                }
+            }
+        }
+
+        db.collection("Vehicles").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val vehicleManufacturerFB =
+                                document.get("vehicleManufacturer") as String
+                            val vehicleModelFB = document.get("vehicleModel") as String
+                            val vehicleYearFB = document.get("vehicleYear") as String
+
+                            // Add each vehicle as a separate item to the vehicleList
+                            val vehicleString =
+                                "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
+                            vehicleList.add(vehicleString)
+                        }
+                        vehicleAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
     }
 
-    private fun onClickButtons(){
+        private fun onClickButtons(){
         //------goBackRescueButton------------------------------------------------------------------
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
@@ -259,7 +384,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         //------saveRescueButton--------------------------------------------------------------------
         binding.saveRescueButton.setOnClickListener {
-            if (auth.currentUser != null) {
 
                 val rescueRequest = "1"
 
@@ -307,10 +431,30 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         ).show()
                     }
             }
-        }
 
         //------editRescueButton--------------------------------------------------------------------
         binding.editRescueButton.setOnClickListener {
+
+        }
+
+        //------createRescueRequest-----------------------------------------------------------------
+        binding.createRescueRequest.setOnClickListener {
+
+            // Hide and Show layout
+            binding.createRescueRequest.visibility = View.GONE
+            binding.rescueInformationText.visibility = View.GONE
+            binding.editRescueButton.visibility = View.GONE
+            binding.describeProblem.visibility = View.GONE
+
+            binding.map.visibility = View.VISIBLE
+            binding.rescueDirectionLabel.visibility = View.VISIBLE
+            binding.rescueDirectionText.visibility = View.VISIBLE
+            binding.vehicleLabel.visibility = View.VISIBLE
+            binding.currentVehicleSpinner.visibility = View.VISIBLE
+            binding.problemDescription.visibility = View.VISIBLE
+            binding.problemSpinner.visibility = View.VISIBLE
+            binding.saveRescueButton.visibility = View.VISIBLE
+            binding.goBackRescueButton.visibility = View.VISIBLE
 
         }
     }
