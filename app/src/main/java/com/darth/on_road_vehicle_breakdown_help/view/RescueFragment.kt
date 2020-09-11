@@ -234,11 +234,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         binding.rescueDirectionText.setText(dataMapDirection)
 
-        val spinnerUpdateAdapter = binding.problemSpinner.adapter as ArrayAdapter<String>
-        val spinnerUpdatePosition = spinnerUpdateAdapter.getPosition(dataDescribeProblem)
-        binding.problemSpinner.setSelection(spinnerUpdatePosition)
-
-
+        //  Problem Data ---------------------------------------------------------------------------
         val problemList: MutableList<String> = ArrayList()
         problemList.add("Choose the problem:")
         problemList.add("Other")
@@ -256,7 +252,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         val adapter: ArrayAdapter<String> = ArrayAdapter(
             requireContext(),
-            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList
+            R.layout.support_simple_spinner_dropdown_item, problemList
         )
 
         val problemSpinner = binding.problemSpinner
