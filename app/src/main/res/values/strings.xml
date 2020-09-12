@@ -20,4 +20,5 @@
     <string name="create_rescue_request">Create Rescue Request</string>
     <string name="please_give_us_some_place_information">Please give us some place information</string>
     <string name="describe_the_problem">Describe the problem</string>
+    <string name="do_you_want_to_delete_your_road_assistance_request">Do you want to DELETE your road assistance request</string>
 </resources>

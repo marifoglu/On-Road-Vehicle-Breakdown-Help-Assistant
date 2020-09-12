@@ -1,7 +1,14 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.app.AlertDialog
+import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,7 +52,6 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-
         return binding.root
     }
 
@@ -54,6 +60,7 @@ class HomeFragment : Fragment() {
 
         getRescueData()
         getUserInformation()
+        onClickButtons()
     }
 
 
@@ -92,6 +99,8 @@ class HomeFragment : Fragment() {
                                         binding.currentRescueRequest.visibility = View.VISIBLE
                                         binding.currentRescueRequest.text = "You have a currently road assistance request."
 
+                                        binding.deleteRescueRequest.visibility = View.VISIBLE
+
                                         binding.updateRescueRequest.setOnClickListener {
 
                                             val fragment = RescueFragment()
@@ -116,7 +125,6 @@ class HomeFragment : Fragment() {
                                             val transaction = requireActivity().supportFragmentManager.beginTransaction()
                                             transaction.replace(R.id.frameLayoutID, fragment)?.commit()
 
-
                                         }
                                     }
                                 }
@@ -128,10 +136,19 @@ class HomeFragment : Fragment() {
             } else {
 
                 // Collection is empty
-                binding.currentRescueRequest.text = "You don't have a currently road assistance request."
+
+                val message = "You have a currently road assistance request."
+                val startIndex = message.indexOf("currently")
+                val endIndex = startIndex + "currently".length
+
+                val spannable = SpannableString(message)
+                spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                binding.currentRescueRequest.text = spannable
 
                 binding.addARescueRequest.visibility = View.VISIBLE
                 binding.updateRescueRequest.visibility = View.GONE
+                binding.deleteRescueRequest.visibility = View.GONE
 
                 binding.addARescueRequest.setOnClickListener {
                     val fragment = RescueFragment()
@@ -165,6 +182,53 @@ class HomeFragment : Fragment() {
                             val userNameAndSurname = document.get("nameAndSurname") as String
                             // Set the user name to TextView
                             binding.rescueFBVehicleUser.text = userNameAndSurname
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private fun onClickButtons(){
+
+        binding.deleteRescueRequest.setOnClickListener {
+
+            db.collection("Rescue").addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    if (value != null) {
+                        if (!value.isEmpty) {
+                            val documents = value.documents
+                            for (document in documents) {
+                                val documentId = document.id
+
+                                val builder = AlertDialog.Builder(requireContext())
+                                builder.setTitle("Delete")
+                                builder.setMessage("Are you sure you want to delete the road assistance request?")
+                                builder.setPositiveButton("Yes") { _, _ ->
+                                    // Delete document...
+                                    db.collection("Rescue").document(documentId).delete()
+                                        .addOnSuccessListener {
+                                            // Document deleted successfully
+                                            Log.d(TAG, "Document deleted successfully")
+                                            val fragment = HomeFragment()
+                                            val transaction = fragmentManager?.beginTransaction()
+                                            transaction?.replace(
+                                                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                fragment
+                                            )?.commit()
+                                        }
+                                        .addOnFailureListener { e ->
+                                            // Error occurred while deleting the document
+                                            Log.w(TAG, "Error deleting document", e)
+                                        }
+                                }
+                                builder.setNegativeButton("No") { _, _ ->
+                                    // empty...
+                                }
+                                builder.create().show()
+                            }
                         }
                     }
                 }

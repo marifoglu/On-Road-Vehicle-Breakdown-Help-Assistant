@@ -96,12 +96,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingTop="20dp"
+                android:paddingTop="10dp"
                 android:paddingBottom="5dp"
                 android:paddingStart="10dp"
-                android:text=""
-                android:textColor="#BF0000"
-                android:textStyle="bold"/>
+                android:text="" />
 
 
 
@@ -110,7 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:lineSpacingExtra="1dp"
-                android:paddingEnd="10dp"
+                android:paddingEnd="5dp"
                 android:background="@color/medium_grey">
 
             </TextView>
@@ -119,8 +117,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="#008505"
                 android:paddingStart="10dp"
-                android:paddingTop="5dp"
+                android:paddingTop="10dp"
                 android:text="@string/do_you_want_to_create_a_road_assistance_request" />
 
             <TextView
@@ -128,9 +127,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textColor="#3F51B5"
                 android:paddingStart="10dp"
-                android:paddingTop="5dp"
+                android:paddingTop="1dp"
                 android:text="@string/do_you_want_to_update_your_road_assistance_request" />
+
+            <TextView
+                android:id="@+id/deleteRescueRequest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingStart="10dp"
+                android:paddingTop="10dp"
+                android:textColor="#F30000"
+                android:textStyle="bold"
+                android:text="@string/do_you_want_to_delete_your_road_assistance_request" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

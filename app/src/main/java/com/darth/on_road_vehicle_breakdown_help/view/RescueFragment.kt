@@ -147,7 +147,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     private fun checkForData() {
         arguments?.let {
-            data = it.getString("data") // "new" "update" "navbar"
+            data = it.getString("data") // "new" "update" "navbarUpdate" "navbarCreate"
             dataID = it.getString("dataID")
             dataRescueRequest = it.getString("dataRescueRequest")
             rescueMapLatitude = it.getString("dataMapLatitude")
@@ -168,33 +168,31 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 if (value != null) {
                     if (!value.isEmpty) {
                         Log.d("Data", "Collection is not empty")
-                        println("Firebase Collection is not empty")
+
                         if (data.equals("new")) {
-                            println("data comes from navbar")
-                        } else {
-                            println("data comes from home")
+                            createRescueFromHome()
+                        } else if(data.equals("update")) {
+                            updateRescue()
+                        }else if (data.equals("navbar")){
+                            navbarCheck()
                         }
-                        updateRescue()
-                    } else {
+                    }
+
+                    else {
                         Log.d("Firebase", "Collection empty")
-                        println("Firebase Collection empty")
-                        if (data.equals("navbar")) {
-                            println("data comes from navbar")
-                        } else if (data.equals("new")) {
-                            println("data comes from home")
-                        } else {
-                            println("wrongg")
+                        if (data.equals("new")) {
+                            createRescueFromHome()
+                        } else if(data.equals("update")) {
+                            updateRescue()
+                        }else if (data.equals("navbar")){
+                            navbarCheck()
+
                         }
-
-
-                        updateRescue()
-
                     }
                 } else {
                     Log.d("Firebase", "Value is null")
                     // create new?
                     println("Firebase Value is null")
-                    println(data)
 
                 }
             }
@@ -224,13 +222,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             selectedLatLng = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
             //updateMap(rescueMapLatitude,rescueMapLongitude)
         }
-
-
-
-
-
-
-
 
         binding.rescueDirectionText.setText(dataMapDirection)
 
@@ -367,7 +358,53 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         }
     }
 
-        private fun onClickButtons(){
+    private fun navbarCheck(){
+        db.collection("Rescue").addSnapshotListener { value, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                if (value != null) {
+                    if (!value.isEmpty) {
+
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val rescueFBRescueRequest = document.get("rescueRequest") as String
+
+                            if (rescueFBRescueRequest.equals("1")) {
+                                updateRescue()
+                                println("update works")
+
+                            } else {
+                                createRescueFromHome()
+                                println("create works")
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private fun createRescueFromHome(){
+        binding.createRescueRequest.visibility = View.GONE
+        binding.rescueInformationText.visibility = View.GONE
+        binding.editRescueButton.visibility = View.GONE
+
+        binding.map.visibility = View.VISIBLE
+        binding.rescueDirectionLabel.visibility = View.VISIBLE
+        binding.rescueDirectionText.visibility = View.VISIBLE
+        binding.vehicleLabel.visibility = View.VISIBLE
+        binding.currentVehicleSpinner.visibility = View.VISIBLE
+        binding.problemDescription.visibility = View.VISIBLE
+        binding.problemSpinner.visibility = View.VISIBLE
+        binding.describeProblem.visibility = View.VISIBLE
+        binding.saveRescueButton.visibility = View.VISIBLE
+        binding.goBackRescueButton.visibility = View.VISIBLE
+
+    }
+
+    private fun onClickButtons(){
         //------goBackRescueButton------------------------------------------------------------------
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
