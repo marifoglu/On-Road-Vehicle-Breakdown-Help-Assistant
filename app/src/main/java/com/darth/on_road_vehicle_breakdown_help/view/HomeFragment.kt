@@ -97,7 +97,13 @@ class HomeFragment : Fragment() {
                                         binding.addARescueRequest.visibility = View.GONE
 
                                         binding.currentRescueRequest.visibility = View.VISIBLE
-                                        binding.currentRescueRequest.text = "You have a currently road assistance request."
+
+                                        val message = "You have a currently road assistance request."
+                                        val startIndex = message.indexOf("currently")
+                                        val endIndex = startIndex + "currently".length
+                                        val spannable = SpannableString(message)
+                                        spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                        binding.currentRescueRequest.text = spannable
 
                                         binding.deleteRescueRequest.visibility = View.VISIBLE
 
@@ -137,9 +143,9 @@ class HomeFragment : Fragment() {
 
                 // Collection is empty
 
-                val message = "You have a currently road assistance request."
-                val startIndex = message.indexOf("currently")
-                val endIndex = startIndex + "currently".length
+                val message = "You do not have a currently road assistance request."
+                val startIndex = message.indexOf("do not have")
+                val endIndex = startIndex + "do not have".length
 
                 val spannable = SpannableString(message)
                 spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
