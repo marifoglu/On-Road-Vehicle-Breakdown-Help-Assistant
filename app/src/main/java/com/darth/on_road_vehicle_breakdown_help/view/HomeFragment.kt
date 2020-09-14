@@ -35,7 +35,13 @@ class HomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
-
+    private var dataID: String? = null
+    private var datadocumentId: String? = null
+    private var dataLatitude: String? = null
+    private var dataLongitude: String? = null
+    private var dataNewDirection: String? = null
+    private var dataNewVehicle: String? = null
+    private var dataProblem: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,15 +58,20 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+
+        try {
+            getRescueData()
+            getUserInformation()
+            onClickButtons()
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "Error: ${e.message}")
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        getRescueData()
-        getUserInformation()
-        onClickButtons()
+        bundleGets()
     }
 
 
@@ -84,8 +95,8 @@ class HomeFragment : Fragment() {
                                     val rescueFBId = document.get("id") as String
                                     val rescueFBRescueRequest = document.get("rescueRequest") as String
                                     val rescueFBMap = document.get("rescueMap") as Map<*, *>
-                                    val rescueFBMapLatitude = rescueFBMap?.get("latitude") as Double?
-                                    val rescueFBMapLongitude = rescueFBMap?.get("longitude") as Double?
+                                    val rescueFBMapLatitude = rescueFBMap.get("latitude") as Double?
+                                    val rescueFBMapLongitude = rescueFBMap.get("longitude") as Double?
                                     val rescueFBMapDirection = document.get("rescueDirection") as String
                                     val rescueFBVehicle = document.get("rescueVehicle") as String
                                     val rescueFBVehicleUser = document.get("vehicleUser") as String
@@ -115,8 +126,7 @@ class HomeFragment : Fragment() {
                                             bundle.putString("dataID", rescueFBId)
                                             bundle.putString("dataRescueRequest", rescueFBRescueRequest)
                                             if (rescueFBMapLatitude != null) {
-                                                bundle.putString("dataMapLatitude",
-                                                    rescueFBMapLatitude.toDouble().toString()
+                                                bundle.putString("dataMapLatitude", rescueFBMapLatitude.toDouble().toString()
                                                 )
                                             }
                                             if (rescueFBMapLongitude != null) {
@@ -129,7 +139,7 @@ class HomeFragment : Fragment() {
 
                                             fragment.arguments = bundle
                                             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                                            transaction.replace(R.id.frameLayoutID, fragment)?.commit()
+                                            transaction.replace(R.id.frameLayoutID, fragment).commit()
 
                                         }
                                     }
@@ -172,7 +182,30 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun bundleGets(){
 
+        arguments?.let { // null check
+            dataID = it.getString("data") // "save"
+            datadocumentId = it.getString("documentID")
+            dataLatitude = it.getString("dataMapLatitude")
+            dataLongitude = it.getString("dataMapLongitude")
+            dataNewDirection = it.getString("dataMapDirection")
+            dataNewVehicle = it.getString("dataVehicle")
+            dataProblem = it.getString("dataDescribeProblem")
+
+            if (dataID != null){
+                println("data $dataID")
+                println("document id $datadocumentId")
+                println("MapLat : $dataLatitude")
+                println("MapLong : $dataLongitude")
+                println("Direction : $dataNewDirection")
+                println("Vehicle : $dataNewVehicle")
+                println("Problem: $dataProblem")
+            }
+        }
+
+
+    }
     private fun getUserInformation() {
 
         db.collection("UserInformation").addSnapshotListener { value, error ->

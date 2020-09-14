@@ -1,6 +1,5 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
-import android.Manifest
 import android.content.ContentValues.TAG
 import android.content.Context.LOCATION_SERVICE
 import android.content.SharedPreferences
@@ -8,8 +7,6 @@ import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,7 +21,6 @@ import androidx.appcompat.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
@@ -62,6 +58,10 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     private lateinit var vehicleArrayList: ArrayList<Vehicle>
 
     private var vehicleItem: String = ""
+    private var vehicleItemUpdate: String = ""
+    private var problemItemUpdate: String = ""
+    private var newProblemSpinner: String = ""
+
 
     private var data: String? = null
     private var dataID: String? = null
@@ -72,7 +72,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     private var dataVehicle: String? = null
     private var dataVehicleUser: String? = null
     private var dataDescribeProblem: String? = null
-    private var navbarData: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,7 +120,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
 
     override fun onMapReady(googleMap: GoogleMap) {
-        Log.d("MyMapActivity", "onMapReady called");
 
         mMap = googleMap
         mMap.setOnMapLongClickListener(this)
@@ -147,16 +145,16 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     private fun checkForData() {
         arguments?.let {
-            data = it.getString("data") // "new" "update" "navbarUpdate" "navbarCreate"
+            data = it.getString("data") // "new" "update" "navbar"
             dataID = it.getString("dataID")
             dataRescueRequest = it.getString("dataRescueRequest")
             rescueMapLatitude = it.getString("dataMapLatitude")
             rescueMapLongitude = it.getString("dataMapLongitude")
+
             dataMapDirection = it.getString("dataMapDirection")
             dataVehicle = it.getString("dataVehicle")
             dataVehicleUser = it.getString("dataVehicleUser")
             dataDescribeProblem = it.getString("dataDescribeProblem")
-
 
         }
 
@@ -197,7 +195,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 }
             }
         }
-
     }
 
     private fun updateRescue() {
@@ -217,88 +214,95 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.editRescueButton.visibility = View.VISIBLE
 
 
-        // Update the map with the new latitude and longitude values
-        if (rescueMapLatitude != null && rescueMapLongitude != null) {
-            selectedLatLng = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
-            //updateMap(rescueMapLatitude,rescueMapLongitude)
-        }
-
         binding.rescueDirectionText.setText(dataMapDirection)
 
-        //  Problem Data ---------------------------------------------------------------------------
-        val problemList: MutableList<String> = ArrayList()
-        problemList.add("Choose the problem:")
-        problemList.add("Other")
-        problemList.add("A flat or faulty battery")
-        problemList.add("Alternator faults")
-        problemList.add("Damaged tyres or wheel")
-        problemList.add("Electrical problem")
-        problemList.add("Keys and alarms")
-        problemList.add("Misfuelling")
-        problemList.add("Clutch cables on manual vehicles")
-        problemList.add("Diesel Particulate Filter (DPF)")
-        problemList.add("Starter motor")
-        problemList.add("Overheating")
-        problemList.add("Accident")
 
-        val adapter: ArrayAdapter<String> = ArrayAdapter(
-            requireContext(),
-            R.layout.support_simple_spinner_dropdown_item, problemList
-        )
-
-        val problemSpinner = binding.problemSpinner
-        problemSpinner.adapter = adapter
-
-        val myDataIndex = problemList.indexOf(dataDescribeProblem)
-        if (myDataIndex != -1) {
-            problemSpinner.setSelection(myDataIndex)
-        } else {
-            problemSpinner.setSelection(1) // Select the "Other" option
-            binding.describeProblem.visibility = View.VISIBLE
-            binding.describeProblem.setText(dataDescribeProblem)
+        // Update the map with the new latitude and longitude values--------------------------------
+        if (rescueMapLatitude != null && rescueMapLongitude != null) {
+            selectedLatLng = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
+            updateMap(rescueMapLatitude, rescueMapLongitude)
         }
 
-        problemSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // give an error later!
-            }
+        //  Problem Data ---------------------------------------------------------------------------
+        val problemListUpdate: MutableList<String> = ArrayList()
+        problemListUpdate.add("Choose the problem:")
+        problemListUpdate.add("Other")
+        problemListUpdate.add("A flat or faulty battery")
+        problemListUpdate.add("Alternator faults")
+        problemListUpdate.add("Damaged tyres or wheel")
+        problemListUpdate.add("Electrical problem")
+        problemListUpdate.add("Keys and alarms")
+        problemListUpdate.add("Misfuelling")
+        problemListUpdate.add("Clutch cables on manual vehicles")
+        problemListUpdate.add("Diesel Particulate Filter (DPF)")
+        problemListUpdate.add("Starter motor")
+        problemListUpdate.add("Overheating")
+        problemListUpdate.add("Accident")
 
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+        val problemAdapter: ArrayAdapter<String> = ArrayAdapter(
+            requireContext(),
+            R.layout.support_simple_spinner_dropdown_item, problemListUpdate
+        )
 
-                val item: String = problemList[position]
-                val defaultItem: String = problemList[0]
-                val otherItem: String = problemList[1]
+        val problemSpinnerUpdate = binding.problemSpinner
+        problemSpinnerUpdate.adapter = problemAdapter
 
-                if (item == otherItem) {
-                    binding.describeProblem.visibility = View.VISIBLE
-                } else {
-                    binding.describeProblem.visibility = View.GONE
+        val myDataIndexUpdate = problemListUpdate.indexOf(dataDescribeProblem)
+
+        if (myDataIndexUpdate != -1) {
+            problemSpinnerUpdate.setSelection(myDataIndexUpdate)
+
+            problemSpinnerUpdate.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // give an error later!
+                    }
+
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+
+                        problemItemUpdate = parent!!.getItemAtPosition(position) as String
+
+                        val problemItemUpdate: String = problemListUpdate[position]
+                        val defaultItemUpdate: String = problemListUpdate[0]
+                        val defaultOtherItemUpdate: String = problemListUpdate[1]
+
+                        if (problemItemUpdate != defaultItemUpdate) {
+                            Toast.makeText(
+                                requireContext(),
+                                "$problemItemUpdate selected!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            if (problemItemUpdate != defaultOtherItemUpdate) {
+                                newProblemSpinner = problemItemUpdate
+                                binding.describeProblem.visibility = View.GONE
+                            } else {
+                                binding.describeProblem.visibility = View.VISIBLE
+                                binding.describeProblem.setText(dataDescribeProblem)
+                            }
+                        }
+                    }
                 }
-
-                if (item != defaultItem) {
-                    Toast.makeText(requireContext(), "$item selected!", Toast.LENGTH_SHORT).show()
-                }
-            }
         }
 
 
         //  Vehicle Data ---------------------------------------------------------------------------
-        val vehicleList: MutableList<String> = ArrayList()
+        val vehicleListUpdate: MutableList<String> = ArrayList()
 
-        val vehicleAdapter: ArrayAdapter<String> = ArrayAdapter(
+        val vehicleAdapterUpdate: ArrayAdapter<String> = ArrayAdapter(
             requireContext(),
-            R.layout.support_simple_spinner_dropdown_item, vehicleList
+            R.layout.support_simple_spinner_dropdown_item, vehicleListUpdate
         )
 
-        val vehicleSpinner = binding.currentVehicleSpinner
-        vehicleSpinner.adapter = vehicleAdapter
+        val vehicleSpinnerUpdate = binding.currentVehicleSpinner
+        vehicleSpinnerUpdate.adapter = vehicleAdapterUpdate
 
-        vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        vehicleSpinnerUpdate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // give an error later!
             }
@@ -311,17 +315,21 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             ) {
 
                 if (parent != null) {
-                    vehicleItem = parent.getItemAtPosition(position) as String
+                    vehicleItemUpdate = parent.getItemAtPosition(position) as String
                 }
-                val vehicleItem: String = vehicleList[position]
-                val defaultItem: String = vehicleList[0]
+                val vehicleItemUpdate: String = vehicleListUpdate[position]
+                val defaultItemUpdate: String = vehicleListUpdate[0]
 
-                if (vehicleItem != defaultItem) {
-                    Toast.makeText(requireContext(), "$vehicleItem selected!", Toast.LENGTH_SHORT)
+                if (vehicleItemUpdate != defaultItemUpdate) {
+                    Toast.makeText(
+                        requireContext(),
+                        "$vehicleItemUpdate selected!",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
 
                     // Get the index of myData in Firebase
-                    val index = vehicleList.indexOf(dataVehicle)
+                    val index = vehicleListUpdate.indexOf(dataVehicle)
                     if (index != -1) {
                         Log.d("Firebase", "The index of myData in Firebase is $index")
                     } else {
@@ -341,18 +349,113 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         val documents = value.documents
 
                         for (document in documents) {
-                            val vehicleManufacturerFB =
+                            val vehicleManufacturer =
                                 document.get("vehicleManufacturer") as String
-                            val vehicleModelFB = document.get("vehicleModel") as String
-                            val vehicleYearFB = document.get("vehicleYear") as String
+                            val vehicleModel = document.get("vehicleModel") as String
+                            val vehicleYear = document.get("vehicleYear") as String
 
                             // Add each vehicle as a separate item to the vehicleList
                             val vehicleString =
-                                "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
-                            vehicleList.add(vehicleString)
+                                "$vehicleManufacturer $vehicleModel $vehicleYear"
+                            vehicleListUpdate.add(vehicleString)
+
+                            //------editRescueButton--------------------------------------------------------------------
+                            binding.editRescueButton.setOnClickListener() {
+
+                                db.collection("Rescue").addSnapshotListener { value, error ->
+                                    if (error != null) {
+                                        Toast.makeText(
+                                            requireContext(),
+                                            error.localizedMessage,
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                    } else {
+                                        if (value != null) {
+                                            if (!value.isEmpty) {
+                                                val documents2 = value.documents
+                                                for (documentQuery in documents2) {
+                                                    val documentId = documentQuery.id
+
+
+                                                    val fragment = HomeFragment()
+                                                    val bundle = Bundle()
+
+                                                    // Data sent as a "save" ----------------------------------------------------------
+                                                    bundle.putString("data", "save")
+
+                                                    // Document ID --------------------------------------------------------------------
+                                                    bundle.putString("documentID", documentId)
+
+                                                    // LatLong ------------------------------------------------------------------------
+                                                    if ((selectedLatitude != 0.0) && (selectedLongitude != 0.0)) {
+                                                        bundle.putString(
+                                                            "dataMapLatitude",
+                                                            selectedLatitude!!.toDouble().toString()
+                                                        )
+                                                        bundle.putString(
+                                                            "dataMapLongitude",
+                                                            selectedLongitude!!.toDouble()
+                                                                .toString()
+                                                        )
+
+                                                    } else {
+                                                        bundle.putString(
+                                                            "dataMapLatitude",
+                                                            rescueMapLatitude!!.toDouble()
+                                                                .toString()
+                                                        )
+                                                        bundle.putString(
+                                                            "dataMapLongitude",
+                                                            rescueMapLongitude!!.toDouble()
+                                                                .toString()
+                                                        )
+                                                    }
+
+                                                    // Direction -----------------------------------------------------------------------
+                                                    val newDirectionValue =
+                                                        binding.rescueDirectionText.text.toString()
+                                                    bundle.putString(
+                                                        "dataMapDirection",
+                                                        newDirectionValue
+                                                    )
+
+                                                    // Vehicle -------------------------------------------------------------------------
+                                                    bundle.putString(
+                                                        "dataVehicle",
+                                                        vehicleItemUpdate
+                                                    )
+
+                                                    // Describe Problem -- if Other selected--------------------------------------------
+                                                    if (problemItemUpdate == "Other") {
+                                                        bundle.putString(
+                                                            "dataDescribeProblem",
+                                                            binding.describeProblem.text.toString()
+                                                        )
+                                                    } else {
+                                                        bundle.putString(
+                                                            "dataDescribeProblem",
+                                                            problemItemUpdate
+                                                        )
+                                                    }
+
+                                                    fragment.arguments = bundle
+                                                    val transaction =
+                                                        requireActivity().supportFragmentManager.beginTransaction()
+                                                    transaction.replace(
+                                                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                        fragment
+                                                    ).commit()
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        vehicleAdapter.notifyDataSetChanged()
                     }
+                    vehicleAdapterUpdate.notifyDataSetChanged()
                 }
             }
         }
@@ -371,7 +474,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         for (document in documents) {
                             val rescueFBRescueRequest = document.get("rescueRequest") as String
 
-                            if (rescueFBRescueRequest.equals("1")) {
+                            if (rescueFBRescueRequest == "1") {
                                 updateRescue()
                                 println("update works")
 
@@ -404,7 +507,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     }
 
-    private fun onClickButtons(){
+    private fun onClickButtons() {
         //------goBackRescueButton------------------------------------------------------------------
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
@@ -418,56 +521,51 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         //------saveRescueButton--------------------------------------------------------------------
         binding.saveRescueButton.setOnClickListener {
 
-                val rescueRequest = "1"
+            val rescueRequest = "1"
 
-                val rescueId = UUID.randomUUID().toString()
-                val rescueDirection = binding.rescueDirectionText.text.toString()
-                val rescueSpinner = binding.problemSpinner.selectedItem.toString()
-                val rescueDescribeProblem = binding.describeProblem.text.toString()
-                val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
+            val rescueId = UUID.randomUUID().toString()
+            val rescueDirection = binding.rescueDirectionText.text.toString()
+            val rescueSpinner = binding.problemSpinner.selectedItem.toString()
+            val rescueDescribeProblem = binding.describeProblem.text.toString()
+            val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
 
-                val rescue = hashMapOf<String, Any>()
-                rescue.put("id", rescueId)
-                rescue.put("vehicleUser", auth.currentUser!!.email!!)
-                rescue.put("rescueMap", googleMap)
-                rescue.put("rescueDirection", rescueDirection)
-                rescue.put("rescueVehicle", vehicleItem)
-                rescue.put("rescueRequest", rescueRequest)
+            val rescue = hashMapOf<String, Any>()
+            rescue["id"] = rescueId
+            rescue["vehicleUser"] = auth.currentUser!!.email!!
+            rescue["rescueMap"] = googleMap
+            rescue["rescueDirection"] = rescueDirection
+            rescue["rescueVehicle"] = vehicleItem
+            rescue["rescueRequest"] = rescueRequest
 
 
-                if (rescueSpinner != "Other") {
-                    rescue.put("describeTheProblem", rescueSpinner)
-                } else {
-                    rescue.put("describeTheProblem", rescueDescribeProblem)
-                }
-
-                db.collection("Rescue").add(rescue)
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            requireContext(),
-                            "Rescue requested has been successfully added.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        val fragment = HomeFragment()
-                        val transaction = fragmentManager?.beginTransaction()
-                        transaction?.replace(
-                            com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                            fragment
-                        )?.commit()
-
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            requireContext(),
-                            "An error occurred while adding your rescue request. Please try again later.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+            if (rescueSpinner != "Other") {
+                rescue["describeTheProblem"] = rescueSpinner
+            } else {
+                rescue["describeTheProblem"] = rescueDescribeProblem
             }
 
-        //------editRescueButton--------------------------------------------------------------------
-        binding.editRescueButton.setOnClickListener {
+            db.collection("Rescue").add(rescue)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "Rescue requested has been successfully added.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    val fragment = HomeFragment()
+                    val transaction = fragmentManager?.beginTransaction()
+                    transaction?.replace(
+                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                        fragment
+                    )?.commit()
 
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        requireContext(),
+                        "An error occurred while adding your rescue request. Please try again later.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
 
         //------createRescueRequest-----------------------------------------------------------------
@@ -490,17 +588,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             binding.goBackRescueButton.visibility = View.VISIBLE
 
         }
-    }
-    private fun deleteDocument(documentId: String) {
-        db.collection("Rescue").document(documentId).delete()
-            .addOnSuccessListener {
-                // Document deleted successfully
-                Log.d(TAG, "Document deleted successfully")
-            }
-            .addOnFailureListener { e ->
-                // Error occurred while deleting the document
-                Log.w(TAG, "Error deleting document", e)
-            }
     }
 
     private fun permissionLauncher() {
@@ -666,7 +753,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         val adapter: ArrayAdapter<String> = ArrayAdapter(
             requireContext(),
-            androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, problemList
+            R.layout.support_simple_spinner_dropdown_item, problemList
         )
 
         val problemSpinner = binding.problemSpinner
@@ -705,14 +792,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     private fun updateMap(latitude: String?, longitude: String?) {
         if (latitude.isNullOrEmpty() || longitude.isNullOrEmpty()) {
             return
-        }
-
-        // Add a marker in the selected location and move the camera
-        if (selectedLatLng != null) {
-            mMap.addMarker(
-                MarkerOptions().position(selectedLatLng!!).title("Selected Location")
-            )
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
 
         try {
