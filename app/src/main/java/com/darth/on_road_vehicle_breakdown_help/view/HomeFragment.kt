@@ -14,9 +14,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
+import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
+import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
 import com.darth.on_road_vehicle_breakdown_help.view.model.User
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,14 +29,30 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
+
+    private val userCollectionRef = Firebase.firestore.collection("UserInformation")
+    private val rescueCollectionRef = Firebase.firestore.collection("Rescue")
+    private val vehicleCollectionRef = Firebase.firestore.collection("Vehicle")
 
     private var dataID: String? = null
     private var datadocumentId: String? = null
@@ -42,13 +61,10 @@ class HomeFragment : Fragment() {
     private var dataNewDirection: String? = null
     private var dataNewVehicle: String? = null
     private var dataProblem: String? = null
+    var googleMap: Place? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-
     }
 
     override fun onCreateView(
@@ -58,153 +74,179 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-
-        try {
-            getRescueData()
-            getUserInformation()
-            onClickButtons()
-        } catch (e: NullPointerException) {
-            Log.e(TAG, "Error: ${e.message}")
-        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bundleGets()
+
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
+        binding.deleteRescueRequest.setOnClickListener {
+            deleteRescue(deleteRescueDataGet())
+        }
+
+        lifecycleScope.launch {
+            delay(500)
+            getRescueData()
+        }
+        getUserInformation()
+        onClickButtons()
+//      bundleGets()
+
+    }
+    private fun deleteRescueDataGet() : Rescue{
+
+        val rescueRequest = "1"
+        val rescueId = ""
+        val vehicleUser = auth.currentUser!!.email!!
+        val rescueDirection = ""
+        val rescueSpinner = ""
+        val rescueDescribeProblem = ""
+        val googleMap = Place(0.0,0.0)
+        val vehicleItem = ""
+
+        val rescue = Rescue(
+            rescueId = rescueId,
+            rescueRequest = rescueRequest,
+            rescueDescribeProblem = if (rescueSpinner != "Other") {
+                rescueSpinner
+            } else {
+                rescueDescribeProblem
+            },
+            rescueDirection = rescueDirection,
+            rescueMap = googleMap,
+            rescueVehicle = vehicleItem,
+            rescueVehicleUser = vehicleUser,
+        )
+        return rescue
+    }
+    private fun deleteRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
+        val rescueQuery = rescueCollectionRef
+            .get()
+            .await()
+        if(rescueQuery.documents.isNotEmpty()) {
+            for(document in rescueQuery) {
+                try {
+                    rescueCollectionRef.document(document.id).delete().await()
+                    Toast.makeText(requireContext(), "Road assistance request succesfully removed.", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        } else {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "No rescue request matched the query.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
-
-    private fun getRescueData() {
-
+    private suspend fun getRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
         collectionRef.get()
-        .addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                // Collection has an one document
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Collection has an one document
 
-                db.collection("Rescue").addSnapshotListener { value, error ->
-                    if (error != null) {
-                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-                    } else {
-                        if (value != null) {
-                            if (!value.isEmpty) {
-                                val documents = value.documents
-                                for (document in documents) {
-                                    val rescueFBId = document.get("id") as String
-                                    val rescueFBRescueRequest = document.get("rescueRequest") as String
-                                    val rescueFBMap = document.get("rescueMap") as Map<*, *>
-                                    val rescueFBMapLatitude = rescueFBMap.get("latitude") as Double?
-                                    val rescueFBMapLongitude = rescueFBMap.get("longitude") as Double?
-                                    val rescueFBMapDirection = document.get("rescueDirection") as String
-                                    val rescueFBVehicle = document.get("rescueVehicle") as String
-                                    val rescueFBVehicleUser = document.get("vehicleUser") as String
-                                    val rescueFBDescribeProblem = document.get("describeTheProblem") as String
+                    db.collection("Rescue").addSnapshotListener { value, error ->
+                        if (error != null) {
+                            Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (value != null) {
+                                if (!value.isEmpty) {
+                                    val documents = value.documents
+                                    for (document in documents) {
+                                        val rescueFBId = document.get("id") as? String
+                                        val rescueFBRescueRequest = document.get("rescueRequest") as? String
+                                        val rescueFBMap = document.get("rescueMap") as? Map<*, *>
+                                        val rescueFBMapLatitude = rescueFBMap?.get("latitude") as? Double
+                                        val rescueFBMapLongitude = rescueFBMap?.get("longitude") as? Double
+                                        val rescueFBMapDirection = document.get("rescueDirection") as? String
+                                        val rescueFBVehicle = document.get("rescueVehicle") as? String
+                                        val rescueFBVehicleUser = document.get("vehicleUser") as? String
+                                        val rescueFBDescribeProblem = document.get("describeTheProblem") as? String
 
-                                    // If user has a rescue request-----------------------------------------
-                                    if (rescueFBRescueRequest.equals("1")){
 
-                                        binding.addARescueRequest.visibility = View.GONE
+                                        // If user has a rescue request-----------------------------------------
+                                        if (rescueFBRescueRequest.equals("1")){
 
-                                        binding.currentRescueRequest.visibility = View.VISIBLE
+                                            binding.addARescueRequest.visibility = View.GONE
 
-                                        val message = "You have a currently road assistance request."
-                                        val startIndex = message.indexOf("currently")
-                                        val endIndex = startIndex + "currently".length
-                                        val spannable = SpannableString(message)
-                                        spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                        binding.currentRescueRequest.text = spannable
+                                            binding.currentRescueRequest.visibility = View.VISIBLE
 
-                                        binding.deleteRescueRequest.visibility = View.VISIBLE
+                                            val message = "You have a currently road assistance request."
+                                            val startIndex = message.indexOf("currently")
+                                            val endIndex = startIndex + "currently".length
+                                            val spannable = SpannableString(message)
+                                            spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                            binding.currentRescueRequest.text = spannable
 
-                                        binding.updateRescueRequest.setOnClickListener {
+                                            binding.deleteRescueRequest.visibility = View.VISIBLE
 
-                                            val fragment = RescueFragment()
-                                            val bundle = Bundle()
-                                            bundle.putString("data", "update")
-                                            bundle.putString("dataID", rescueFBId)
-                                            bundle.putString("dataRescueRequest", rescueFBRescueRequest)
-                                            if (rescueFBMapLatitude != null) {
-                                                bundle.putString("dataMapLatitude", rescueFBMapLatitude.toDouble().toString()
-                                                )
+                                            binding.updateRescueRequest.setOnClickListener {
+
+                                                val fragment = RescueFragment()
+                                                val bundle = Bundle()
+                                                bundle.putString("data", "update")
+                                                bundle.putString("dataID", rescueFBId)
+                                                bundle.putString("dataRescueRequest", rescueFBRescueRequest)
+                                                if (rescueFBMapLatitude != null) {
+                                                    bundle.putString("dataMapLatitude", rescueFBMapLatitude.toDouble().toString()
+                                                    )
+                                                }
+                                                if (rescueFBMapLongitude != null) {
+                                                    bundle.putString("dataMapLongitude", rescueFBMapLongitude.toDouble().toString())
+                                                }
+                                                bundle.putString("dataMapDirection", rescueFBMapDirection)
+                                                bundle.putString("dataVehicle", rescueFBVehicle)
+                                                bundle.putString("dataVehicleUser", rescueFBVehicleUser)
+                                                bundle.putString("dataDescribeProblem", rescueFBDescribeProblem)
+
+                                                fragment.arguments = bundle
+                                                val transaction = requireActivity().supportFragmentManager.beginTransaction()
+                                                transaction.replace(R.id.frameLayoutID, fragment).commit()
+
                                             }
-                                            if (rescueFBMapLongitude != null) {
-                                                bundle.putString("dataMapLongitude", rescueFBMapLongitude.toDouble().toString())
-                                            }
-                                            bundle.putString("dataMapDirection", rescueFBMapDirection)
-                                            bundle.putString("dataVehicle", rescueFBVehicle)
-                                            bundle.putString("dataVehicleUser", rescueFBVehicleUser)
-                                            bundle.putString("dataDescribeProblem", rescueFBDescribeProblem)
-
-                                            fragment.arguments = bundle
-                                            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                                            transaction.replace(R.id.frameLayoutID, fragment).commit()
-
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-            } else {
+                } else {
 
-                // Collection is empty
+                    // Collection is empty
+                    val message = "You do not have a currently road assistance request."
+                    val startIndex = message.indexOf("do not have")
+                    val endIndex = startIndex + "do not have".length
 
-                val message = "You do not have a currently road assistance request."
-                val startIndex = message.indexOf("do not have")
-                val endIndex = startIndex + "do not have".length
+                    val spannable = SpannableString(message)
+                    spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                val spannable = SpannableString(message)
-                spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    binding.currentRescueRequest.text = spannable
+                    binding.addARescueRequest.visibility = View.VISIBLE
+                    binding.updateRescueRequest.visibility = View.GONE
+                    binding.deleteRescueRequest.visibility = View.GONE
 
-                binding.currentRescueRequest.text = spannable
-
-                binding.addARescueRequest.visibility = View.VISIBLE
-                binding.updateRescueRequest.visibility = View.GONE
-                binding.deleteRescueRequest.visibility = View.GONE
-
-                binding.addARescueRequest.setOnClickListener {
-                    val fragment = RescueFragment()
-                    val bundle = Bundle()
-                    bundle.putString("data", "new")
-                    fragment.arguments = bundle
-                    val transaction = fragmentManager?.beginTransaction()
-                    transaction?.replace(R.id.frameLayoutID, fragment)?.commit()
+                    binding.addARescueRequest.setOnClickListener {
+                        val fragment = RescueFragment()
+                        val bundle = Bundle()
+                        bundle.putString("data", "new")
+                        fragment.arguments = bundle
+                        val transaction = fragmentManager?.beginTransaction()
+                        transaction?.replace(R.id.frameLayoutID, fragment)?.commit()
+                    }
                 }
             }
-        }
-        .addOnFailureListener { e ->
-            // any errors?
-            e.localizedMessage
-        }
-    }
-
-    private fun bundleGets(){
-
-        arguments?.let { // null check
-            dataID = it.getString("data") // "save"
-            datadocumentId = it.getString("documentID")
-            dataLatitude = it.getString("dataMapLatitude")
-            dataLongitude = it.getString("dataMapLongitude")
-            dataNewDirection = it.getString("dataMapDirection")
-            dataNewVehicle = it.getString("dataVehicle")
-            dataProblem = it.getString("dataDescribeProblem")
-
-            if (dataID != null){
-                println("data $dataID")
-                println("document id $datadocumentId")
-                println("MapLat : $dataLatitude")
-                println("MapLong : $dataLongitude")
-                println("Direction : $dataNewDirection")
-                println("Vehicle : $dataNewVehicle")
-                println("Problem: $dataProblem")
+            .addOnFailureListener { e ->
+                // any errors?
+                e.localizedMessage
             }
-        }
-
-
     }
     private fun getUserInformation() {
 
@@ -274,9 +316,11 @@ class HomeFragment : Fragment() {
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onMapReady(p0: GoogleMap) {
     }
 }
