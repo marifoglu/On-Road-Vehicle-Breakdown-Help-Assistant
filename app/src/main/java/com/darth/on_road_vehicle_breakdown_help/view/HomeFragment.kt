@@ -2,9 +2,9 @@ package com.darth.on_road_vehicle_breakdown_help.view
 
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
-import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
@@ -16,17 +16,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.R
+import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentFunctionsBinding
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
-import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
-import com.darth.on_road_vehicle_breakdown_help.view.model.User
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
@@ -37,15 +32,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.UUID
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
-class HomeFragment : Fragment(), OnMapReadyCallback {
+class HomeFragment : Fragment(){
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: throw IllegalStateException("Attempt to access the binding when it's null")
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -70,13 +61,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
+        _binding = FragmentHomeBinding.inflate(inflater,container,false)
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -84,64 +73,149 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         db = FirebaseFirestore.getInstance()
 
         binding.deleteRescueRequest.setOnClickListener {
-            deleteRescue(deleteRescueDataGet())
+           // deleteRescue(deleteRescueDataGet())
         }
 
         lifecycleScope.launch {
-            delay(500)
+            delay(1500)
             getRescueData()
+            sendRescueData()
         }
         getUserInformation()
         onClickButtons()
-//      bundleGets()
 
     }
-    private fun deleteRescueDataGet() : Rescue{
 
-        val rescueRequest = "1"
-        val rescueId = ""
-        val vehicleUser = auth.currentUser!!.email!!
-        val rescueDirection = ""
-        val rescueSpinner = ""
-        val rescueDescribeProblem = ""
-        val googleMap = Place(0.0,0.0)
-        val vehicleItem = ""
 
-        val rescue = Rescue(
-            rescueId = rescueId,
-            rescueRequest = rescueRequest,
-            rescueDescribeProblem = if (rescueSpinner != "Other") {
-                rescueSpinner
-            } else {
-                rescueDescribeProblem
-            },
-            rescueDirection = rescueDirection,
-            rescueMap = googleMap,
-            rescueVehicle = vehicleItem,
-            rescueVehicleUser = vehicleUser,
-        )
-        return rescue
-    }
-    private fun deleteRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
-        val rescueQuery = rescueCollectionRef
-            .get()
-            .await()
-        if(rescueQuery.documents.isNotEmpty()) {
-            for(document in rescueQuery) {
-                try {
-                    rescueCollectionRef.document(document.id).delete().await()
-                    Toast.makeText(requireContext(), "Road assistance request succesfully removed.", Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+    private suspend fun sendRescueData() {
+        // If collection has a document?
+        val collectionRef = db.collection("Rescue")
+        collectionRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Collection has an one document
+
+                    db.collection("Rescue").addSnapshotListener { value, error ->
+                        if (error != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                error.localizedMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            if (value != null) {
+                                if (!value.isEmpty) {
+                                    val documents = value.documents
+                                    for (document in documents) {
+                                        val rescueFBId = document.get("id") as? String
+                                        val rescueFBRescueRequest =
+                                            document.get("rescueRequest") as? String
+                                        val rescueFBMap = document.get("rescueMap") as? Map<*, *>
+                                        val rescueFBMapLatitude =
+                                            rescueFBMap?.get("latitude") as? Double
+                                        val rescueFBMapLongitude =
+                                            rescueFBMap?.get("longitude") as? Double
+                                        val rescueFBMapDirection =
+                                            document.get("rescueDirection") as? String
+                                        val rescueFBVehicle =
+                                            document.get("rescueVehicle") as? String
+                                        val rescueFBVehicleUser =
+                                            document.get("rescueVehicleUser") as? String
+                                        val rescueFBDescribeProblem =
+                                            document.get("rescueDescribeProblem") as? String
+
+
+                                        // If user has a rescue request-----------------------------------------
+                                        if (rescueFBRescueRequest.equals("1")) {
+
+
+                                            binding.newRequestCreate.setOnClickListener {
+                                                val fragment = FunctionsFragment()
+                                                val bundle = Bundle()
+
+                                                bundle.putString("data", "create")
+
+                                                fragment.arguments = bundle
+                                                val transaction =
+                                                    requireActivity().supportFragmentManager.beginTransaction()
+                                                transaction.replace(
+                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                    fragment)
+                                                    .commit()
+                                            }
+                                            binding.newRequestUpdate.setOnClickListener {
+                                                val fragment = FunctionsFragment()
+                                                val bundle = Bundle()
+
+                                                bundle.putString("data", "update")
+
+                                                bundle.putString("rescueRequest", rescueFBRescueRequest)
+
+                                                bundle.putString("dataID", rescueFBId)
+                                                bundle.putString(
+                                                    "dataRescueRequest",
+                                                    rescueFBRescueRequest
+                                                )
+                                                if (rescueFBMapLatitude != null) {
+                                                    bundle.putString(
+                                                        "dataMapLatitude",
+                                                        rescueFBMapLatitude.toDouble().toString()
+                                                    )
+                                                }
+                                                if (rescueFBMapLongitude != null) {
+                                                    bundle.putString(
+                                                        "dataMapLongitude",
+                                                        rescueFBMapLongitude.toDouble().toString()
+                                                    )
+                                                }
+                                                bundle.putString(
+                                                    "dataMapDirection",
+                                                    rescueFBMapDirection
+                                                )
+                                                bundle.putString("dataVehicle", rescueFBVehicle)
+                                                bundle.putString(
+                                                    "dataVehicleUser",
+                                                    rescueFBVehicleUser
+                                                )
+                                                bundle.putString(
+                                                    "dataDescribeProblem",
+                                                    rescueFBDescribeProblem
+                                                )
+
+                                                fragment.arguments = bundle
+                                                val transaction =
+                                                    requireActivity().supportFragmentManager.beginTransaction()
+                                                transaction.replace(
+                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                    fragment)
+                                                    .commit()
+                                            }
+                                            binding.newRequestDelete.setOnClickListener {
+                                                val fragment = RescueFragment()
+                                                val bundle = Bundle()
+
+                                                bundle.putString("data", "delete")
+
+                                                fragment.arguments = bundle
+                                                val transaction =
+                                                    requireActivity().supportFragmentManager.beginTransaction()
+                                                transaction.replace(
+                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                    fragment)
+                                                    .commit()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-        } else {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(), "No rescue request matched the query.", Toast.LENGTH_LONG).show()
+            .addOnFailureListener { e ->
+                // any errors?
+                e.localizedMessage
             }
-        }
     }
 
     private suspend fun getRescueData() {
@@ -160,19 +234,18 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                                 if (!value.isEmpty) {
                                     val documents = value.documents
                                     for (document in documents) {
-                                        val rescueFBId = document.get("id") as? String
+                                        val rescueFBId = document.id as? String
                                         val rescueFBRescueRequest = document.get("rescueRequest") as? String
                                         val rescueFBMap = document.get("rescueMap") as? Map<*, *>
                                         val rescueFBMapLatitude = rescueFBMap?.get("latitude") as? Double
                                         val rescueFBMapLongitude = rescueFBMap?.get("longitude") as? Double
                                         val rescueFBMapDirection = document.get("rescueDirection") as? String
                                         val rescueFBVehicle = document.get("rescueVehicle") as? String
-                                        val rescueFBVehicleUser = document.get("vehicleUser") as? String
-                                        val rescueFBDescribeProblem = document.get("describeTheProblem") as? String
-
+                                        val rescueFBVehicleUser = document.get("rescueVehicleUser") as? String
+                                        val rescueFBDescribeProblem = document.get("rescueDescribeProblem") as? String
 
                                         // If user has a rescue request-----------------------------------------
-                                        if (rescueFBRescueRequest.equals("1")){
+                                        if (rescueFBRescueRequest == "1"){
 
                                             binding.addARescueRequest.visibility = View.GONE
 
@@ -187,11 +260,11 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
                                             binding.deleteRescueRequest.visibility = View.VISIBLE
 
-                                            binding.updateRescueRequest.setOnClickListener {
+                                            binding.linearLayoutId.setOnClickListener {
 
                                                 val fragment = RescueFragment()
                                                 val bundle = Bundle()
-                                                bundle.putString("data", "update")
+                                                bundle.putString("data", "show")
                                                 bundle.putString("dataID", rescueFBId)
                                                 bundle.putString("dataRescueRequest", rescueFBRescueRequest)
                                                 if (rescueFBMapLatitude != null) {
@@ -230,13 +303,12 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
                     binding.currentRescueRequest.text = spannable
                     binding.addARescueRequest.visibility = View.VISIBLE
-                    binding.updateRescueRequest.visibility = View.GONE
                     binding.deleteRescueRequest.visibility = View.GONE
 
                     binding.addARescueRequest.setOnClickListener {
                         val fragment = RescueFragment()
                         val bundle = Bundle()
-                        bundle.putString("data", "new")
+                        bundle.putString("data", "create")
                         fragment.arguments = bundle
                         val transaction = fragmentManager?.beginTransaction()
                         transaction?.replace(R.id.frameLayoutID, fragment)?.commit()
@@ -319,8 +391,5 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onMapReady(p0: GoogleMap) {
     }
 }

@@ -20,13 +20,13 @@ import androidx.appcompat.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
 import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -38,13 +38,10 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import kotlinx.coroutines.tasks.await
-import java.util.concurrent.Executors
 
 private const val DEFAULT_ZOOM = 16f
 class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickListener {
@@ -52,13 +49,10 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     private var _binding: FragmentRescueBinding? = null
     private val binding get() = _binding!!
 
-    private val userCollectionRef = Firebase.firestore.collection("UserInformation")
     private val rescueCollectionRef = Firebase.firestore.collection("Rescue")
-    private val vehicleCollectionRef = Firebase.firestore.collection("Vehicle")
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-
 
     private lateinit var mMap: GoogleMap
     var selectedLatitude: Double? = null
@@ -90,10 +84,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-
     }
 
     override fun onCreateView(
@@ -108,17 +98,12 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
         val mapFragment = childFragmentManager
             .findFragmentById(com.darth.on_road_vehicle_breakdown_help.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        checkForData()
-        registerLauncher()
-        getProblem()
-        getVehicles()
-        onClickButtons()
-        updateRescue()
 
         sharedPreferences = requireActivity().getSharedPreferences(
             "com.darth.on_road_vehicle_breakdown_help",
@@ -131,10 +116,35 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         vehicleArrayList = ArrayList()
 
+        registerLauncher()
+        bundles()
 
-        binding.saveRescueButton.setOnClickListener {
-            val rescue = addRescueDataToSave()
-            saveRescue(rescue)
+        if (data.equals("create")) {
+            createRescueVisibility()
+            getProblem()
+            getVehicles()
+            binding.saveRescueButton.setOnClickListener {
+                val rescue = addRescueDataToSave()
+                saveRescue(rescue)
+            }
+        }
+        else if (data.equals("show")) {
+            showRescueVisibility()
+            showData()
+        }
+        else if (data.equals("navbar")) {
+            showRescueVisibility()
+            showData()
+        }
+        else if (data.equals("delete")) {
+            val deleteRescueDataGet = deleteRescueDataGet()
+            deleteRescue(deleteRescueDataGet)
+            val fragment = HomeFragment()
+            val transaction = fragmentManager?.beginTransaction()
+            transaction?.replace(
+                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                fragment
+            )?.commit()
         }
 
         binding.goBackRescueButton.setOnClickListener {
@@ -145,10 +155,32 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 fragment
             )?.commit()
         }
-
     }
 
+    private fun bundles(){
+        arguments?.let {
+            data = it.getString("data") // "create" "show" "navbar" "delete"
+            dataID = it.getString("dataID")
+            dataRescueRequest = it.getString("dataRescueRequest")
+            rescueMapLatitude = it.getString("dataMapLatitude")
+            rescueMapLongitude = it.getString("dataMapLongitude")
+            dataMapDirection = it.getString("dataMapDirection")
+            dataVehicle = it.getString("dataVehicle")
+            dataVehicleUser = it.getString("dataVehicleUser")
+            dataDescribeProblem = it.getString("dataDescribeProblem")
 
+            println(data)
+            println(dataID)
+            println(dataRescueRequest)
+            println(rescueMapLatitude)
+            println(rescueMapLongitude)
+            println(dataMapDirection)
+            println(dataVehicle)
+            println(dataVehicleUser)
+            println(dataDescribeProblem)
+
+        }
+    }
     override fun onMapReady(googleMap: GoogleMap) {
 
         mMap = googleMap
@@ -171,13 +203,23 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
 
-    }
+        if ((data.equals("show")) || data.equals("navbar")) {
+            val location = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM))
+            mMap.addMarker(MarkerOptions().position(location))
+            mMap.uiSettings.isScrollGesturesEnabled = false
+        }
 
+    }
     private fun saveRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
         try {
             rescueCollectionRef.add(rescue).await()
-            withContext(Dispatchers.Main){
-                Toast.makeText(requireContext(), "Road assistance requested successfully added.", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    requireContext(),
+                    "Road assistance requested successfully added.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             val fragment = HomeFragment()
             val transaction = fragmentManager?.beginTransaction()
@@ -187,16 +229,14 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             )?.commit()
 
         } catch (e: Exception) {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-    private fun addRescueDataToSave() : Rescue{
+    private fun addRescueDataToSave(): Rescue {
 
         val rescueRequest = "1"
-        val rescueId = UUID.randomUUID().toString()
         val vehicleUser = auth.currentUser!!.email!!
         val rescueDirection = binding.rescueDirectionText.text.toString()
         val rescueSpinner = binding.problemSpinner.selectedItem.toString()
@@ -204,7 +244,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
 
         val rescue = Rescue(
-            rescueId = rescueId,
             rescueRequest = rescueRequest,
             rescueDescribeProblem = if (rescueSpinner != "Other") {
                 rescueSpinner
@@ -218,64 +257,66 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         )
         return rescue
     }
-
-
-    private fun checkForData() {
-        arguments?.let {
-            data = it.getString("data") // "new" "update" "navbar"
-            dataID = it.getString("dataID")
-            dataRescueRequest = it.getString("dataRescueRequest")
-            rescueMapLatitude = it.getString("dataMapLatitude")
-            rescueMapLongitude = it.getString("dataMapLongitude")
-
-            dataMapDirection = it.getString("dataMapDirection")
-            dataVehicle = it.getString("dataVehicle")
-            dataVehicleUser = it.getString("dataVehicleUser")
-            dataDescribeProblem = it.getString("dataDescribeProblem")
-
-        }
-
+    private fun navbarCheck() {
         db.collection("Rescue").addSnapshotListener { value, error ->
             if (error != null) {
                 Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
             } else {
                 if (value != null) {
                     if (!value.isEmpty) {
-                        Log.d("Data", "Collection is not empty")
 
-                        if (data.equals("new")) {
-                            createRescueFromHome()
-                        } else if(data.equals("update")) {
-                            updateRescue()
-                        }else if (data.equals("navbar")){
-                            navbarCheck()
+                        val documents = value.documents
+
+                        for (document in documents) {
+                            val rescueFBRescueRequest = document.get("rescueRequest") as String
+
+                            if (rescueFBRescueRequest == "1") {
+                                //updateRescue()
+
+                            } else {
+                                createRescueVisibility()
+
+                            }
                         }
                     }
-
-                    else {
-                        Log.d("Firebase", "Collection empty")
-                        if (data.equals("new")) {
-                            createRescueFromHome()
-                        } else if(data.equals("update")) {
-                            updateRescue()
-                        }else if (data.equals("navbar")){
-                            navbarCheck()
-
-                        }
-                    }
-                } else {
-                    Log.d("Firebase", "Value is null")
-                    // create new?
-                    println("Firebase Value is null")
-
                 }
             }
         }
     }
+    private fun createRescueVisibility() {
+        binding.map.visibility = View.GONE
+        binding.rescueDirectionLabel.visibility = View.GONE
+        binding.rescueDirectionText.visibility = View.GONE
+        binding.vehicleLabel.visibility = View.GONE
+        binding.currentVehicleSpinner.visibility = View.GONE
+        binding.problemDescription.visibility = View.GONE
+        binding.problemSpinner.visibility = View.GONE
+        binding.saveRescueButton.visibility = View.GONE
+        binding.goBackRescueButton.visibility = View.GONE
+        binding.describeProblem.visibility = View.GONE
 
-    private fun updateRescue() {
+
+        binding.createRescueRequest.setOnClickListener {
+            // Hide and Show layout
+            binding.createRescueRequest.visibility = View.GONE
+            binding.rescueInformationText.visibility = View.GONE
+            binding.describeProblem.visibility = View.GONE
+
+            binding.map.visibility = View.VISIBLE
+            binding.rescueDirectionLabel.visibility = View.VISIBLE
+            binding.rescueDirectionText.visibility = View.VISIBLE
+            binding.vehicleLabel.visibility = View.VISIBLE
+            binding.currentVehicleSpinner.visibility = View.VISIBLE
+            binding.problemDescription.visibility = View.VISIBLE
+            binding.problemSpinner.visibility = View.VISIBLE
+            binding.saveRescueButton.visibility = View.VISIBLE
+            binding.goBackRescueButton.visibility = View.VISIBLE
+        }
+    }
+    private fun showRescueVisibility() {
         binding.createRescueRequest.visibility = View.GONE
         binding.rescueInformationText.visibility = View.GONE
+        binding.describeProblem.visibility = View.GONE
 
         binding.map.visibility = View.VISIBLE
         binding.rescueDirectionLabel.visibility = View.VISIBLE
@@ -284,21 +325,10 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.currentVehicleSpinner.visibility = View.VISIBLE
         binding.problemDescription.visibility = View.VISIBLE
         binding.problemSpinner.visibility = View.VISIBLE
-        binding.describeProblem.visibility = View.GONE
-        binding.saveRescueButton.visibility = View.VISIBLE
+        binding.saveRescueButton.text = "Create again?"
         binding.goBackRescueButton.visibility = View.VISIBLE
-        binding.editRescueButton.visibility = View.VISIBLE
-
-
-        binding.rescueDirectionText.setText(dataMapDirection)
-
-
-        // Update the map with the new latitude and longitude values--------------------------------
-        if (rescueMapLatitude != null && rescueMapLongitude != null) {
-            selectedLatLng = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
-            updateMap(rescueMapLatitude, rescueMapLongitude)
-        }
-
+    }
+    private fun showData() {
         //  Problem Data ---------------------------------------------------------------------------
         val problemListUpdate: MutableList<String> = ArrayList()
         problemListUpdate.add("Choose the problem:")
@@ -341,8 +371,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         id: Long
                     ) {
 
-                        println("agains : $problemItemUpdate")
-
                         problemItemUpdate = parent!!.getItemAtPosition(position) as String
 
                         val problemItemUpdate: String = problemListUpdate[position]
@@ -365,9 +393,9 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                                 Toast.LENGTH_SHORT
                             ).show()
 
+                        }
                     }
                 }
-            }
         } else {
             // data is not present in problemListUpdate
             if (dataDescribeProblem !in problemListUpdate) {
@@ -378,7 +406,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 newProblemSpinner = problemItemUpdate
             }
         }
-
 
 
         //  Vehicle Data ---------------------------------------------------------------------------
@@ -430,114 +457,13 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         val documents = value.documents
 
                         for (document in documents) {
-                            val vehicleManufacturer =
-                                document.get("vehicleManufacturer") as String
+                            val vehicleManufacturer = document.get("vehicleManufacturer") as String
                             val vehicleModel = document.get("vehicleModel") as String
                             val vehicleYear = document.get("vehicleYear") as String
 
-                            // Add each vehicle as a separate item to the vehicleList
                             val vehicleString =
                                 "$vehicleManufacturer $vehicleModel $vehicleYear"
                             vehicleListUpdate.add(vehicleString)
-
-                            //------editRescueButton--------------------------------------------------------------------
-                            binding.editRescueButton.setOnClickListener() {
-                                lifecycleScope.launch {
-                                    updateFirebase()
-                                }
-
-
-
-//                                db.collection("Rescue").addSnapshotListener { value, error ->
-//                                    if (error != null) {
-//                                        Toast.makeText(
-//                                            requireContext(),
-//                                            error.localizedMessage,
-//                                            Toast.LENGTH_SHORT
-//                                        )
-//                                            .show()
-//                                    } else {
-//                                        if (value != null) {
-//                                            if (!value.isEmpty) {
-//                                                val documents2 = value.documents
-//                                                for (documentQuery in documents2) {
-//                                                    val documentId = documentQuery.id
-//
-//
-//                                                    val fragment = HomeFragment()
-//                                                    val bundle = Bundle()
-//
-//                                                    // Data sent as a "save" ----------------------------------------------------------
-//                                                    bundle.putString("data", "save")
-//
-//                                                    // Document ID --------------------------------------------------------------------
-//                                                    bundle.putString("documentID", documentId)
-//
-//                                                    // LatLong ------------------------------------------------------------------------
-//                                                    if ((selectedLatitude != 0.0) && (selectedLongitude != 0.0)) {
-//                                                        bundle.putString(
-//                                                            "dataMapLatitude",
-//                                                            selectedLatitude!!.toDouble().toString()
-//                                                        )
-//                                                        bundle.putString(
-//                                                            "dataMapLongitude",
-//                                                            selectedLongitude!!.toDouble()
-//                                                                .toString()
-//                                                        )
-//
-//                                                    } else {
-//                                                        bundle.putString(
-//                                                            "dataMapLatitude",
-//                                                            rescueMapLatitude!!.toDouble()
-//                                                                .toString()
-//                                                        )
-//                                                        bundle.putString(
-//                                                            "dataMapLongitude",
-//                                                            rescueMapLongitude!!.toDouble()
-//                                                                .toString()
-//                                                        )
-//                                                    }
-//
-//                                                    // Direction -----------------------------------------------------------------------
-//                                                    val newDirectionValue =
-//                                                        binding.rescueDirectionText.text.toString()
-//                                                    bundle.putString(
-//                                                        "dataMapDirection",
-//                                                        newDirectionValue
-//                                                    )
-//
-//                                                    // Vehicle -------------------------------------------------------------------------
-//                                                    bundle.putString(
-//                                                        "dataVehicle",
-//                                                        vehicleItemUpdate
-//                                                    )
-//
-//                                                    // Describe Problem -- if Other selected--------------------------------------------
-//                                                    if (problemItemUpdate == "Other") {
-//                                                        bundle.putString(
-//                                                            "dataDescribeProblem",
-//                                                            binding.describeProblem.text.toString()
-//                                                        )
-//                                                    } else {
-//                                                        bundle.putString(
-//                                                            "dataDescribeProblem",
-//                                                            problemItemUpdate
-//                                                        )
-//                                                    }
-//
-//                                                    fragment.arguments = bundle
-//                                                    val transaction =
-//                                                        requireActivity().supportFragmentManager.beginTransaction()
-//                                                    transaction.replace(
-//                                                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-//                                                        fragment
-//                                                    ).commit()
-//
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
                             }
                         }
                     }
@@ -545,108 +471,45 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 }
             }
         }
+    private fun deleteRescueDataGet(): Rescue {
+
+        val rescueRequest = "1"
+        val vehicleUser = "auth.currentUser!!.email!!"
+        val rescueDirection = ""
+        val rescueDescribeProblem = ""
+        val googleMap = Place(0.0, 0.0)
+        val vehicleItem = ""
+
+        return Rescue(
+            rescueRequest = rescueRequest,
+            rescueDescribeProblem = rescueDescribeProblem,
+            rescueDirection = rescueDirection,
+            rescueMap = googleMap,
+            rescueVehicle = vehicleItem,
+            rescueVehicleUser = vehicleUser,
+        )
     }
-    private fun updateFirebase() {
-        val db = FirebaseFirestore.getInstance()
-        val documentID = arguments?.getString("documentID")
-        val latitude = arguments?.getString("dataMapLatitude")
-        val longitude = arguments?.getString("dataMapLongitude")
-        val direction = arguments?.getString("dataMapDirection")
-        val vehicle = arguments?.getString("dataVehicle")
-        val problem = arguments?.getString("dataDescribeProblem")
-
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                documentID?.let {
-                    db.collection("Rescue").document(it).update(
-                        mapOf(
-                            "latitude" to latitude,
-                            "longitude" to longitude,
-                            "direction" to direction,
-                            "vehicle" to vehicle,
-                            "problem" to problem
-                        )
-                    )
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-
-    private fun navbarCheck(){
-        db.collection("Rescue").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
-
-                        val documents = value.documents
-
-                        for (document in documents) {
-                            val rescueFBRescueRequest = document.get("rescueRequest") as String
-
-                            if (rescueFBRescueRequest == "1") {
-                                updateRescue()
-                                println("update works")
-
-                            } else {
-                                createRescueFromHome()
-                                println("create works")
-
-                            }
-                        }
+    private fun deleteRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
+        val rescueQuery = rescueCollectionRef
+            .get()
+            .await()
+        if(rescueQuery.documents.isNotEmpty()) {
+            for(document in rescueQuery) {
+                try {
+                    rescueCollectionRef.document(document.id).delete().await()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Road assistance request successfully removed.", Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
                     }
                 }
             }
-        }
-    }
-    private fun createRescueFromHome(){
-        binding.createRescueRequest.visibility = View.GONE
-        binding.rescueInformationText.visibility = View.GONE
-        binding.editRescueButton.visibility = View.GONE
-
-        binding.map.visibility = View.VISIBLE
-        binding.rescueDirectionLabel.visibility = View.VISIBLE
-        binding.rescueDirectionText.visibility = View.VISIBLE
-        binding.vehicleLabel.visibility = View.VISIBLE
-        binding.currentVehicleSpinner.visibility = View.VISIBLE
-        binding.problemDescription.visibility = View.VISIBLE
-        binding.problemSpinner.visibility = View.VISIBLE
-        binding.describeProblem.visibility = View.VISIBLE
-        binding.saveRescueButton.visibility = View.VISIBLE
-        binding.goBackRescueButton.visibility = View.VISIBLE
-
-    }
-    private fun onClickButtons() {
-
-        //------createRescueRequest-----------------------------------------------------------------
-        binding.createRescueRequest.setOnClickListener {
-
-            // Hide and Show layout
-            binding.createRescueRequest.visibility = View.GONE
-            binding.rescueInformationText.visibility = View.GONE
-            binding.editRescueButton.visibility = View.GONE
-            binding.describeProblem.visibility = View.GONE
-
-            binding.map.visibility = View.VISIBLE
-            binding.rescueDirectionLabel.visibility = View.VISIBLE
-            binding.rescueDirectionText.visibility = View.VISIBLE
-            binding.vehicleLabel.visibility = View.VISIBLE
-            binding.currentVehicleSpinner.visibility = View.VISIBLE
-            binding.problemDescription.visibility = View.VISIBLE
-            binding.problemSpinner.visibility = View.VISIBLE
-            binding.saveRescueButton.visibility = View.VISIBLE
-            binding.goBackRescueButton.visibility = View.VISIBLE
-
+        } else {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "No rescue request matched the query.", Toast.LENGTH_LONG).show()
+            }
         }
     }
     private fun permissionLauncher() {
@@ -842,21 +705,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                     Toast.makeText(requireContext(), "$item selected!", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
-    }
-    private fun updateMap(latitude: String?, longitude: String?) {
-        if (latitude.isNullOrEmpty() || longitude.isNullOrEmpty()) {
-            return
-        }
-
-        try {
-            val latLng = LatLng(latitude.toDouble(), longitude.toDouble())
-            if (::mMap.isInitialized) {
-                mMap.addMarker(MarkerOptions().position(latLng))
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM))
-            }
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
         }
     }
     override fun onMapLongClick(p0: LatLng) {

@@ -5,24 +5,47 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
 import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
     private lateinit var auth : FirebaseAuth
+    private lateinit var db: FirebaseFirestore
+
+    private var data: String? = null
+    private var dataID: String? = null
+    private var dataRescueRequest: String? = null
+    private var rescueMapLatitude: String? = null
+    private var rescueMapLongitude: String? = null
+    private var dataMapDirection: String? = null
+    private var dataVehicle: String? = null
+    private var dataVehicleUser: String? = null
+    private var dataDescribeProblem: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        auth = FirebaseAuth.getInstance()
 
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
+        lifecycleScope.launch {
+            delay(500)
+            getRescueData()
+        }
         val homeFragment = HomeFragment()
         val rescueFragment = RescueFragment()
         val notificationFragment = NotificationFragment()
@@ -73,6 +96,15 @@ class MainActivity : AppCompatActivity() {
                     is RescueFragment -> {
                         // Set data to the bundle
                         bundle.putString("data", "navbar")
+                        bundle.putString("dataID", dataID)
+                        bundle.putString("dataRescueRequest", dataRescueRequest)
+                        bundle.putString("dataMapLatitude", rescueMapLatitude)
+                        bundle.putString("dataMapLongitude", rescueMapLongitude)
+                        bundle.putString("dataMapDirection", dataMapDirection)
+                        bundle.putString("dataVehicle", dataVehicle)
+                        bundle.putString("dataVehicleUser", dataVehicleUser)
+                        bundle.putString("dataDescribeProblem", dataDescribeProblem)
+
                     }
                     is NotificationFragment -> {
                         // Do something for NotificationFragment
@@ -90,7 +122,44 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private suspend fun getRescueData() {
+        // If collection has a document?
+        val collectionRef = db.collection("Rescue")
+        collectionRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Collection has an one document
 
+                    db.collection("Rescue").addSnapshotListener { value, error ->
+                        if (error != null) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                error.localizedMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            if (value != null) {
+                                if (!value.isEmpty) {
+                                    val documents = value.documents
+                                    for (document in documents) {
+                                        dataID = document.id as? String
+                                        dataRescueRequest = document.get("rescueRequest") as? String
+                                        val rescueMap = document.get("rescueMap") as? Map<String, Double>
+                                        rescueMapLatitude = rescueMap?.get("latitude").toString()
+                                        rescueMapLongitude = rescueMap?.get("longitude").toString()
+                                        dataMapDirection = document.get("rescueDirection") as? String
+                                        dataVehicle = document.get("rescueVehicle") as? String
+                                        dataVehicleUser = document.get("rescueVehicleUser") as? String
+                                        dataDescribeProblem = document.get("rescueDescribeProblem") as? String
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+    }
 
     fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()
