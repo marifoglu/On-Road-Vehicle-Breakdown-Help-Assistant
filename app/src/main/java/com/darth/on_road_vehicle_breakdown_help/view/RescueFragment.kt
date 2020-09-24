@@ -328,7 +328,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.saveRescueButton.text = "Create again?"
         binding.goBackRescueButton.visibility = View.VISIBLE
     }
-    private fun showData() {
+private fun showData() {
         //  Problem Data ---------------------------------------------------------------------------
         val problemListUpdate: MutableList<String> = ArrayList()
         problemListUpdate.add("Choose the problem:")
@@ -352,6 +352,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         val problemSpinnerUpdate = binding.problemSpinner
         problemSpinnerUpdate.adapter = problemAdapter
+        problemSpinnerUpdate.isEnabled = false
 
         val myDataIndexUpdate = problemListUpdate.indexOf(dataDescribeProblem)
 
@@ -381,11 +382,14 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                         if (problemItemUpdate == defaultOtherItemUpdate) {
                             binding.describeProblem.visibility = View.VISIBLE
                             binding.describeProblem.setText(dataDescribeProblem)
+                            binding.describeProblem.isEnabled = false
+
+                            problemSpinnerUpdate.setSelection(1)
+
                         } else {
                             binding.describeProblem.visibility = View.GONE
                             newProblemSpinner = problemItemUpdate
                         }
-
                         if (problemItemUpdate != defaultItemUpdate) {
                             Toast.makeText(
                                 requireContext(),
@@ -400,6 +404,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             // data is not present in problemListUpdate
             if (dataDescribeProblem !in problemListUpdate) {
                 binding.describeProblem.visibility = View.VISIBLE
+                problemSpinnerUpdate.setSelection(1)
+                binding.describeProblem.isEnabled = false
                 binding.describeProblem.setText(dataDescribeProblem)
             }else{
                 binding.describeProblem.visibility = View.GONE
@@ -418,6 +424,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         val vehicleSpinnerUpdate = binding.currentVehicleSpinner
         vehicleSpinnerUpdate.adapter = vehicleAdapterUpdate
+        vehicleSpinnerUpdate.isEnabled = false
 
         vehicleSpinnerUpdate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -470,7 +477,11 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                     vehicleAdapterUpdate.notifyDataSetChanged()
                 }
             }
-        }
+
+    binding.rescueDirectionText.setText(dataMapDirection)
+    binding.rescueDirectionText.isEnabled = false
+    }
+
     private fun deleteRescueDataGet(): Rescue {
 
         val rescueRequest = "1"

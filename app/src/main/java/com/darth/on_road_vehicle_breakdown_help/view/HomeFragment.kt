@@ -16,7 +16,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.R
-import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentFunctionsBinding
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentHomeBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
 import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
@@ -79,14 +78,14 @@ class HomeFragment : Fragment(){
         lifecycleScope.launch {
             delay(1500)
             getRescueData()
-            sendRescueData()
+            //sendRescueData()
         }
         getUserInformation()
         onClickButtons()
 
     }
 
-
+/*
     private suspend fun sendRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
@@ -217,7 +216,7 @@ class HomeFragment : Fragment(){
                 e.localizedMessage
             }
     }
-
+*/
     private suspend fun getRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
