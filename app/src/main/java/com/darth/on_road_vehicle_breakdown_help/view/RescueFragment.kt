@@ -204,7 +204,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         }
 
         if ((data.equals("show")) || data.equals("navbar")) {
-            val location = LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
+            val location = selectedLatLng ?: LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM))
             mMap.addMarker(MarkerOptions().position(location))
             mMap.uiSettings.isScrollGesturesEnabled = false
@@ -328,7 +328,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.saveRescueButton.text = "Create again?"
         binding.goBackRescueButton.visibility = View.VISIBLE
     }
-private fun showData() {
+    private fun showData() {
         //  Problem Data ---------------------------------------------------------------------------
         val problemListUpdate: MutableList<String> = ArrayList()
         problemListUpdate.add("Choose the problem:")
