@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+        supportActionBar?.hide()
+
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
