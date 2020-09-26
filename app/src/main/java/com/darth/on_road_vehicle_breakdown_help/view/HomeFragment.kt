@@ -34,8 +34,11 @@ import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment(){
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding ?: throw IllegalStateException("Attempt to access the binding when it's null")
+//    private var _binding: FragmentHomeBinding? = null
+//    private val binding get() = _binding ?: throw IllegalStateException("Attempt to access the binding when it's null")
+
+    private lateinit var binding: FragmentHomeBinding
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -62,11 +65,11 @@ class HomeFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentHomeBinding.inflate(inflater,container,false)
-        return binding.root
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding = FragmentHomeBinding.bind(view)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
@@ -84,139 +87,9 @@ class HomeFragment : Fragment(){
         onClickButtons()
 
     }
-
-/*
-    private suspend fun sendRescueData() {
-        // If collection has a document?
-        val collectionRef = db.collection("Rescue")
-        collectionRef.get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    // Collection has an one document
-
-                    db.collection("Rescue").addSnapshotListener { value, error ->
-                        if (error != null) {
-                            Toast.makeText(
-                                requireContext(),
-                                error.localizedMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            if (value != null) {
-                                if (!value.isEmpty) {
-                                    val documents = value.documents
-                                    for (document in documents) {
-                                        val rescueFBId = document.get("id") as? String
-                                        val rescueFBRescueRequest =
-                                            document.get("rescueRequest") as? String
-                                        val rescueFBMap = document.get("rescueMap") as? Map<*, *>
-                                        val rescueFBMapLatitude =
-                                            rescueFBMap?.get("latitude") as? Double
-                                        val rescueFBMapLongitude =
-                                            rescueFBMap?.get("longitude") as? Double
-                                        val rescueFBMapDirection =
-                                            document.get("rescueDirection") as? String
-                                        val rescueFBVehicle =
-                                            document.get("rescueVehicle") as? String
-                                        val rescueFBVehicleUser =
-                                            document.get("rescueVehicleUser") as? String
-                                        val rescueFBDescribeProblem =
-                                            document.get("rescueDescribeProblem") as? String
-
-
-                                        // If user has a rescue request-----------------------------------------
-                                        if (rescueFBRescueRequest.equals("1")) {
-
-
-                                            binding.newRequestCreate.setOnClickListener {
-                                                val fragment = FunctionsFragment()
-                                                val bundle = Bundle()
-
-                                                bundle.putString("data", "create")
-
-                                                fragment.arguments = bundle
-                                                val transaction =
-                                                    requireActivity().supportFragmentManager.beginTransaction()
-                                                transaction.replace(
-                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                    fragment)
-                                                    .commit()
-                                            }
-                                            binding.newRequestUpdate.setOnClickListener {
-                                                val fragment = FunctionsFragment()
-                                                val bundle = Bundle()
-
-                                                bundle.putString("data", "update")
-
-                                                bundle.putString("rescueRequest", rescueFBRescueRequest)
-
-                                                bundle.putString("dataID", rescueFBId)
-                                                bundle.putString(
-                                                    "dataRescueRequest",
-                                                    rescueFBRescueRequest
-                                                )
-                                                if (rescueFBMapLatitude != null) {
-                                                    bundle.putString(
-                                                        "dataMapLatitude",
-                                                        rescueFBMapLatitude.toDouble().toString()
-                                                    )
-                                                }
-                                                if (rescueFBMapLongitude != null) {
-                                                    bundle.putString(
-                                                        "dataMapLongitude",
-                                                        rescueFBMapLongitude.toDouble().toString()
-                                                    )
-                                                }
-                                                bundle.putString(
-                                                    "dataMapDirection",
-                                                    rescueFBMapDirection
-                                                )
-                                                bundle.putString("dataVehicle", rescueFBVehicle)
-                                                bundle.putString(
-                                                    "dataVehicleUser",
-                                                    rescueFBVehicleUser
-                                                )
-                                                bundle.putString(
-                                                    "dataDescribeProblem",
-                                                    rescueFBDescribeProblem
-                                                )
-
-                                                fragment.arguments = bundle
-                                                val transaction =
-                                                    requireActivity().supportFragmentManager.beginTransaction()
-                                                transaction.replace(
-                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                    fragment)
-                                                    .commit()
-                                            }
-                                            binding.newRequestDelete.setOnClickListener {
-                                                val fragment = RescueFragment()
-                                                val bundle = Bundle()
-
-                                                bundle.putString("data", "delete")
-
-                                                fragment.arguments = bundle
-                                                val transaction =
-                                                    requireActivity().supportFragmentManager.beginTransaction()
-                                                transaction.replace(
-                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                    fragment)
-                                                    .commit()
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                // any errors?
-                e.localizedMessage
-            }
+    private fun getBinding(): FragmentHomeBinding {
+        return binding
     }
-*/
     private suspend fun getRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
@@ -340,10 +213,8 @@ class HomeFragment : Fragment(){
             }
         }
     }
-    private fun onClickButtons(){
-
+    private fun onClickButtons() {
         binding.deleteRescueRequest.setOnClickListener {
-
             db.collection("Rescue").addSnapshotListener { value, error ->
                 if (error != null) {
                     Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
@@ -355,31 +226,33 @@ class HomeFragment : Fragment(){
                             for (document in documents) {
                                 val documentId = document.id
 
-                                val builder = AlertDialog.Builder(requireContext())
-                                builder.setTitle("Delete")
-                                builder.setMessage("Are you sure you want to delete the road assistance request?")
-                                builder.setPositiveButton("Yes") { _, _ ->
-                                    // Delete document...
-                                    db.collection("Rescue").document(documentId).delete()
-                                        .addOnSuccessListener {
-                                            // Document deleted successfully
-                                            Log.d(TAG, "Document deleted successfully")
-                                            val fragment = HomeFragment()
-                                            val transaction = fragmentManager?.beginTransaction()
-                                            transaction?.replace(
-                                                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                fragment
-                                            )?.commit()
-                                        }
-                                        .addOnFailureListener { e ->
-                                            // Error occurred while deleting the document
-                                            Log.w(TAG, "Error deleting document", e)
-                                        }
+                                if (isAdded) { // Check if the fragment is added to the activity
+                                    val builder = AlertDialog.Builder(requireContext())
+                                    builder.setTitle("Delete")
+                                    builder.setMessage("Are you sure you want to delete the road assistance request?")
+                                    builder.setPositiveButton("Yes") { _, _ ->
+                                        // Delete document...
+                                        db.collection("Rescue").document(documentId).delete()
+                                            .addOnSuccessListener {
+                                                // Document deleted successfully
+                                                Log.d(TAG, "Document deleted successfully")
+                                                val fragment = HomeFragment()
+                                                val transaction = fragmentManager?.beginTransaction()
+                                                transaction?.replace(
+                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                    fragment
+                                                )?.commit()
+                                            }
+                                            .addOnFailureListener { e ->
+                                                // Error occurred while deleting the document
+                                                Log.w(TAG, "Error deleting document", e)
+                                            }
+                                    }
+                                    builder.setNegativeButton("No") { _, _ ->
+                                        // empty...
+                                    }
+                                    builder.create().show()
                                 }
-                                builder.setNegativeButton("No") { _, _ ->
-                                    // empty...
-                                }
-                                builder.create().show()
                             }
                         }
                     }
@@ -387,8 +260,9 @@ class HomeFragment : Fragment(){
             }
         }
     }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        _binding = null
+//    }
 }

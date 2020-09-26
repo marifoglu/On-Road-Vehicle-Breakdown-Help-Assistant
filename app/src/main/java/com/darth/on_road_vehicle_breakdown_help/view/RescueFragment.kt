@@ -137,14 +137,16 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             showData()
         }
         else if (data.equals("delete")) {
-            val deleteRescueDataGet = deleteRescueDataGet()
-            deleteRescue(deleteRescueDataGet)
-            val fragment = HomeFragment()
-            val transaction = fragmentManager?.beginTransaction()
-            transaction?.replace(
-                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                fragment
-            )?.commit()
+            binding.saveRescueButton.setOnClickListener {
+                val deleteRescueDataGet = deleteRescueDataGet()
+                deleteRescue(deleteRescueDataGet)
+                val fragment = RescueFragment()
+                val transaction = fragmentManager?.beginTransaction()
+                transaction?.replace(
+                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                    fragment
+                )?.commit()
+            }
         }
 
         binding.goBackRescueButton.setOnClickListener {
@@ -155,6 +157,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 fragment
             )?.commit()
         }
+
+
     }
 
     private fun bundles(){
@@ -481,7 +485,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     binding.rescueDirectionText.setText(dataMapDirection)
     binding.rescueDirectionText.isEnabled = false
     }
-
     private fun deleteRescueDataGet(): Rescue {
 
         val rescueRequest = "1"
@@ -519,7 +522,9 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         } else {
             withContext(Dispatchers.Main) {
-                Toast.makeText(requireContext(), "No rescue request matched the query.", Toast.LENGTH_LONG).show()
+                context?.let {
+                    Toast.makeText(it, "Road assistance request successfully removed.", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
