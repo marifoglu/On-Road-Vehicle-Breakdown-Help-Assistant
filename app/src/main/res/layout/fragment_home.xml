@@ -18,7 +18,6 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
 
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewTop"
         android:layout_width="match_parent"
@@ -27,7 +26,7 @@
         android:layout_marginTop="16dp"
         app:cardCornerRadius="9dp"
         app:cardElevation="4dp"
-        app:cardMaxElevation="8dp"
+        app:cardMaxElevation="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toStartOf="@+id/imageView"
@@ -63,7 +62,7 @@
         android:layout_marginEnd="6dp"
         app:cardCornerRadius="9dp"
         app:cardElevation="4dp"
-        app:cardMaxElevation="8dp"
+        app:cardMaxElevation="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toStartOf="@+id/imageView"
@@ -76,7 +75,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="6dp">
-
 
             <TextView
                 android:id="@+id/rescueFBVehicleUserLabel"
@@ -105,8 +103,6 @@
                 android:paddingBottom="5dp"
                 android:paddingStart="10dp"
                 android:text="" />
-
-
 
             <TextView
                 android:layout_gravity="center_vertical|center_horizontal"
@@ -143,6 +139,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/emergencyId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
@@ -150,12 +147,46 @@
         android:layout_marginEnd="6dp"
         app:cardCornerRadius="9dp"
         app:cardElevation="4dp"
-        app:cardMaxElevation="8dp"
+        app:cardMaxElevation="1dp"
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toStartOf="@+id/imageView"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/informationID">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="6dp">
+
+            <TextView
+                android:id="@+id/questionss"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="I’ve broken down – what should I do?"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sssCardID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="6dp"
+        app:cardCornerRadius="9dp"
+        app:cardElevation="4dp"
+        app:cardMaxElevation="1dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toStartOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/emergencyId">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -164,34 +195,51 @@
         android:padding="6dp">
 
         <TextView
-            android:id="@+id/newRequestCreate"
+            android:id="@+id/sssId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingTop="5dp"
+            android:paddingTop="1dp"
             android:paddingStart="10dp"
-            android:text="Create"
+            android:text="Breakdown - FAQs"
             android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/newRequestUpdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingTop="5dp"
-            android:paddingStart="10dp"
-            android:text="Update"
-            android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/newRequestDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingTop="5dp"
-            android:paddingStart="10dp"
-            android:text="Delete"
-            android:textStyle="bold"/>
-
     </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contactId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="6dp"
+        app:cardCornerRadius="9dp"
+        app:cardElevation="4dp"
+        app:cardMaxElevation="1dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toStartOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/sssCardID">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="6dp">
+
+            <TextView
+                android:id="@+id/contacts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="I’ve broken down – what should I do?"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

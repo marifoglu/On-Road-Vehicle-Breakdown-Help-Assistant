@@ -41,7 +41,6 @@ class SettingsFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
-
     }
 
     override fun onCreateView(
@@ -53,7 +52,6 @@ class SettingsFragment : Fragment() {
 
         userInformationList = ArrayList<User>()
         xmlUserEmail = binding.userEmailText
-
 
         vehicleArrayList = ArrayList()
         vehicleAdapter = VehicleAdapter(vehicleArrayList)
@@ -76,13 +74,13 @@ class SettingsFragment : Fragment() {
                 val position = viewHolder.adapterPosition
                 val vehicle = vehicleArrayList[position]
 
-                // Delete the selected vehicle from Firestore
+                // Delete the selected vehicle from Firebase
                 db.collection("Vehicles").document(vehicle.id)
                     .delete()
                     .addOnSuccessListener {
                         Toast.makeText(
                             requireContext(),
-                            "Vehicle deleted successfully",
+                            "Vehicle deleted successfully!",
                             Toast.LENGTH_SHORT
                         ).show()
                         // Log.d("SettingsFragment", "Deleting document with ID: ${vehicle.id}")
@@ -95,7 +93,7 @@ class SettingsFragment : Fragment() {
                     .addOnFailureListener {
                         Toast.makeText(
                             requireContext(),
-                            "Failed to delete vehicle",
+                            "Failed to delete vehicle!",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -152,7 +150,6 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
     private fun getUserInformation() {
 
         var userXMLEmail = binding.userEmailText.text
@@ -189,7 +186,6 @@ class SettingsFragment : Fragment() {
             }
         }
     }
-
 
     private fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()

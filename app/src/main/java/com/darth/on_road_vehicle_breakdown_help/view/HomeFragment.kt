@@ -34,9 +34,6 @@ import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment(){
 
-//    private var _binding: FragmentHomeBinding? = null
-//    private val binding get() = _binding ?: throw IllegalStateException("Attempt to access the binding when it's null")
-
     private lateinit var binding: FragmentHomeBinding
 
 
@@ -74,8 +71,9 @@ class HomeFragment : Fragment(){
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        binding.deleteRescueRequest.setOnClickListener {
-           // deleteRescue(deleteRescueDataGet())
+        binding.sssId.setOnClickListener {
+            val dialog = SSSFragment()
+            dialog.show(childFragmentManager, "Add Vehicle")
         }
 
         lifecycleScope.launch {
@@ -261,8 +259,4 @@ class HomeFragment : Fragment(){
         }
     }
 
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        _binding = null
-//    }
 }
