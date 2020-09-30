@@ -46,7 +46,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:text="Breakdown Assistance"
+                android:text="@string/breakdown_assistance"
+                android:paddingStart="10dp"
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -99,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingTop="10dp"
+                android:paddingTop="8dp"
                 android:paddingBottom="5dp"
                 android:paddingStart="10dp"
                 android:text="" />
@@ -161,14 +162,77 @@
             android:padding="6dp">
 
             <TextView
-                android:id="@+id/questionss"
+                android:id="@+id/breakDownHead"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="1dp"
                 android:paddingStart="10dp"
-                android:text="I’ve broken down – what should I do?"
+                android:text="@string/what_to_do_if_your_car_breaks_down"
                 android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/breakDownHead_01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_1_stay_calm_and_think_of_other_road_users"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_2_attempt_to_pull_over_so_you_re_off_the_road"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_3_turn_on_your_hazard_lights"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_04"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_4_leave_the_car_by_the_left_hand_door_and_ensure_you_re_wearing_light_coloured_clothes_or_a_hi_vis_vest_especially_at_night_or_when_visibility_is_low"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_05"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_5_take_your_warning_triangle_and_place_it_45_metres_147_feet_behind_your_vehicle_that_s_about_60_paces_don_t_do_this_on_a_motorway"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_06"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_6_if_visibility_is_poor_or_you_re_stood_waiting_for_help_at_night_keep_your_sidelights_switched_on_and_make_sure_you_re_not_blocking_others_from_seeing_your_lights"
+                />
+            <TextView
+                android:id="@+id/breakDownHead_07"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/_7_finally_call_your_breakdown_service"
+                />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -201,7 +265,7 @@
             android:layout_weight="1"
             android:paddingTop="1dp"
             android:paddingStart="10dp"
-            android:text="Breakdown - FAQs"
+            android:text="@string/breakdown_faqs"
             android:textStyle="bold"/>
     </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -236,8 +300,35 @@
                 android:layout_weight="1"
                 android:paddingTop="1dp"
                 android:paddingStart="10dp"
-                android:text="I’ve broken down – what should I do?"
+                android:text="@string/help_us_find_you_faster"
                 android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/call_01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/our_app_is_the_best_way_for_members_to_contact_us_when_not_broken_down_on_the_motorway_you_can_send_us_your_exact_location_using_your_phone_s_gps"
+                />
+            <TextView
+                android:id="@+id/call_02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/in_the_event_you_feel_in_immediate_danger_do_not_use_the_app_or_online_service_you_should_call_us_on_01234_000_000"
+                />
+            <TextView
+                android:id="@+id/call_03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="1dp"
+                android:paddingStart="10dp"
+                android:text="@string/dial_999_if_you_re_in_immediate_danger"
+                />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

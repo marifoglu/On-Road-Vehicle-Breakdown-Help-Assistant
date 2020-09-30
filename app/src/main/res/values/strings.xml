@@ -22,4 +22,18 @@
     <string name="describe_the_problem">Describe the problem</string>
     <string name="do_you_want_to_delete_your_road_assistance_request">Do you want to DELETE your road assistance request</string>
     <string name="cancel">Cancel</string>
+    <string name="breakdown_assistance">Breakdown Assistance</string>
+    <string name="what_to_do_if_your_car_breaks_down">What to do if your car breaks down</string>
+    <string name="_1_stay_calm_and_think_of_other_road_users">1. Stay calm and think of other road users</string>
+    <string name="_2_attempt_to_pull_over_so_you_re_off_the_road">2. Attempt to pull over so you’re off the road</string>
+    <string name="_3_turn_on_your_hazard_lights">3. Turn on your hazard lights</string>
+    <string name="_4_leave_the_car_by_the_left_hand_door_and_ensure_you_re_wearing_light_coloured_clothes_or_a_hi_vis_vest_especially_at_night_or_when_visibility_is_low">4. Leave the car by the left-hand door and ensure you’re wearing light-coloured clothes or a hi-vis vest (especially at night or when visibility is low)</string>
+    <string name="_5_take_your_warning_triangle_and_place_it_45_metres_147_feet_behind_your_vehicle_that_s_about_60_paces_don_t_do_this_on_a_motorway">5. Take your warning triangle and place it 45 metres (147 feet) behind your vehicle, that’s about 60 paces. Don’t do this on a motorway.</string>
+    <string name="_6_if_visibility_is_poor_or_you_re_stood_waiting_for_help_at_night_keep_your_sidelights_switched_on_and_make_sure_you_re_not_blocking_others_from_seeing_your_lights">6. If visibility is poor or you’re stood waiting for help at night, keep your sidelights switched on and make sure you’re not blocking others from seeing your lights</string>
+    <string name="_7_finally_call_your_breakdown_service">7. Finally, call your breakdown service</string>
+    <string name="breakdown_faqs">Breakdown - FAQs</string>
+    <string name="help_us_find_you_faster">Help us find you faster</string>
+    <string name="our_app_is_the_best_way_for_members_to_contact_us_when_not_broken_down_on_the_motorway_you_can_send_us_your_exact_location_using_your_phone_s_gps">Our app is the best way for Members to contact us when not broken down on the motorway. You can send us your exact location using your phone’s GPS.</string>
+    <string name="in_the_event_you_feel_in_immediate_danger_do_not_use_the_app_or_online_service_you_should_call_us_on_01234_000_000">In the event you feel in immediate danger, do not use the app or online service. You should call us on 01234 000 000.</string>
+    <string name="dial_999_if_you_re_in_immediate_danger">Dial 999 if you\'re in immediate danger.</string>
 </resources>
