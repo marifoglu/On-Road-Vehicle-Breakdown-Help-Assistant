@@ -111,9 +111,8 @@
                 android:layout_height="3dp"
                 android:lineSpacingExtra="1dp"
                 android:paddingEnd="5dp"
-                android:background="@color/medium_grey">
+                android:background="@color/medium_grey"/>
 
-            </TextView>
             <TextView
                 android:id="@+id/addARescueRequest"
                 android:layout_width="wrap_content"
@@ -170,6 +169,13 @@
                 android:paddingStart="10dp"
                 android:text="@string/what_to_do_if_your_car_breaks_down"
                 android:textStyle="bold"/>
+            <TextView
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:lineSpacingExtra="1dp"
+                android:paddingEnd="5dp"
+                android:background="@color/medium_grey"/>
             <TextView
                 android:id="@+id/breakDownHead_01"
                 android:layout_width="wrap_content"
@@ -302,6 +308,13 @@
                 android:paddingStart="10dp"
                 android:text="@string/help_us_find_you_faster"
                 android:textStyle="bold"/>
+            <TextView
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:lineSpacingExtra="1dp"
+                android:paddingEnd="5dp"
+                android:background="@color/medium_grey"/>
             <TextView
                 android:id="@+id/call_01"
                 android:layout_width="wrap_content"

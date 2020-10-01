@@ -146,18 +146,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             showRescueVisibility()
             showData()
         }
-        else if (data.equals("delete")) {
-            binding.saveRescueButton.setOnClickListener {
-                val deleteRescueDataGet = deleteRescueDataGet()
-                deleteRescue(deleteRescueDataGet)
-                val fragment = HomeFragment()
-                val transaction = fragmentManager?.beginTransaction()
-                transaction?.replace(
-                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                    fragment
-                )?.commit()
-            }
-        }
 
         binding.updateButton.setOnClickListener {
             lifecycleScope.launch {

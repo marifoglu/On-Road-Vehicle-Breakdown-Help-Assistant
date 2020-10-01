@@ -36,7 +36,6 @@ class HomeFragment : Fragment(){
 
     private lateinit var binding: FragmentHomeBinding
 
-
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -82,8 +81,7 @@ class HomeFragment : Fragment(){
             //sendRescueData()
         }
         getUserInformation()
-        onClickButtons()
-
+        deleteRequest()
     }
     private fun getBinding(): FragmentHomeBinding {
         return binding
@@ -211,7 +209,7 @@ class HomeFragment : Fragment(){
             }
         }
     }
-    private fun onClickButtons() {
+    private fun deleteRequest() {
         binding.deleteRescueRequest.setOnClickListener {
             db.collection("Rescue").addSnapshotListener { value, error ->
                 if (error != null) {
