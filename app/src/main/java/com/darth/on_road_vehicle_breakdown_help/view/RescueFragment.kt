@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +26,6 @@ import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -41,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import kotlinx.coroutines.tasks.await
 
 private const val DEFAULT_ZOOM = 16f
@@ -167,7 +164,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
 
-
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
             val transaction = fragmentManager?.beginTransaction()
@@ -176,8 +172,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 fragment
             )?.commit()
         }
-
-
     }
 
     private fun bundles(){
@@ -195,6 +189,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     }
     override fun onMapReady(googleMap: GoogleMap) {
 
+        println(rescueMapLatitude)
+        println(rescueMapLongitude)
         mMap = googleMap
         mMap.setOnMapLongClickListener(this)
 
@@ -221,8 +217,8 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             mMap.addMarker(MarkerOptions().position(location))
             mMap.uiSettings.isScrollGesturesEnabled = false
         }
-
     }
+
     private fun saveRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
         try {
             rescueCollectionRef.add(rescue).await()
@@ -283,8 +279,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.goBackRescueButton.visibility = View.GONE
         binding.describeProblem.visibility = View.GONE
         binding.updateButton.visibility = View.GONE
-
-
 
         binding.createRescueRequest.setOnClickListener {
             // Hide and Show layout
@@ -433,28 +427,29 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             if (error != null) {
                 Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
             } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
-
-                        val documents = value.documents
-
-                        for (document in documents) {
-                            val vehicleManufacturer = document.get("vehicleManufacturer") as String
-                            val vehicleModel = document.get("vehicleModel") as String
-                            val vehicleYear = document.get("vehicleYear") as String
-
-                            val vehicleString =
-                                "$vehicleManufacturer $vehicleModel $vehicleYear"
-                            vehicleListUpdate.add(vehicleString)
-                            }
-                        }
+                if (value != null && !value.isEmpty) {
+                    val documents = value.documents
+                    for (document in documents) {
+                        val vehicleManufacturer = document.get("vehicleManufacturer") as String
+                        val vehicleModel = document.get("vehicleModel") as String
+                        val vehicleYear = document.get("vehicleYear") as String
+                        val vehicleString = "$vehicleManufacturer $vehicleModel $vehicleYear"
+                        vehicleListUpdate.add(vehicleString)
                     }
+
                     vehicleAdapterUpdate.notifyDataSetChanged()
+
+                    // Find the index of dataVehicle in the vehicleListUpdate
+                    val dataVehicleIndex = vehicleListUpdate.indexOf(dataVehicle)
+                    if (dataVehicleIndex != -1) {
+                        vehicleSpinnerUpdate.setSelection(dataVehicleIndex)
+                    }
                 }
             }
+        }
 
-    binding.rescueDirectionText.setText(dataMapDirection)
-    binding.rescueDirectionText.isEnabled = false
+        binding.rescueDirectionText.setText(dataMapDirection)
+        binding.rescueDirectionText.isEnabled = false
     }
     private fun deleteRescueDataGet(): Rescue {
 

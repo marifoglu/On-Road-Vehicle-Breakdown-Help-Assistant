@@ -44,6 +44,7 @@ class HomeFragment : Fragment(){
     private val vehicleCollectionRef = Firebase.firestore.collection("Vehicle")
 
     private var dataID: String? = null
+    private var data: String? = null
     private var datadocumentId: String? = null
     private var dataLatitude: String? = null
     private var dataLongitude: String? = null
@@ -82,9 +83,19 @@ class HomeFragment : Fragment(){
         }
         getUserInformation()
         deleteRequest()
+
+        if(data != null){
+            quickDeleteRequest()
+        }
+
     }
     private fun getBinding(): FragmentHomeBinding {
         return binding
+    }
+    private fun bundles(){
+        arguments?.let {
+            data = it.getString("data") // "recreate"
+        }
     }
     private suspend fun getRescueData() {
         // If collection has a document?
@@ -256,5 +267,42 @@ class HomeFragment : Fragment(){
             }
         }
     }
+    private fun quickDeleteRequest() {
+        binding.deleteRescueRequest.setOnClickListener {
+            db.collection("Rescue").addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    if (value != null) {
+                        if (!value.isEmpty) {
+                            val documents = value.documents
+                            for (document in documents) {
+                                val documentId = document.id
 
-}
+                                if (isAdded) { // Check if the fragment is added to the activity
+                                     // Delete document...
+                                        db.collection("Rescue").document(documentId).delete()
+                                            .addOnSuccessListener {
+                                            // Document deleted successfully
+                                            Log.d(TAG, "Document deleted successfully")
+                                            val fragment = HomeFragment()
+                                            val transaction = fragmentManager?.beginTransaction()
+                                            transaction?.replace(
+                                                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                fragment
+                                            )?.commit()
+                                        }
+                                        .addOnFailureListener { e ->
+                                            // Error occurred while deleting the document
+                                            Log.w(TAG, "Error deleting document", e)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
