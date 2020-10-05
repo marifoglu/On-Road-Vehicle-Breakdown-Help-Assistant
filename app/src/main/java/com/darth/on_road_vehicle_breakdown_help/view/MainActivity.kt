@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private suspend fun getRescueData() {
+    private fun getRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
         collectionRef.get()

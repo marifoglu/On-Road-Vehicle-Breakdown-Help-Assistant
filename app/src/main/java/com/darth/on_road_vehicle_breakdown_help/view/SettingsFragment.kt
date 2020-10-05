@@ -70,9 +70,11 @@ class SettingsFragment : Fragment() {
         // Swipe to remove -------------------------------------------------------------------------
         val swipeToDeleteCallBack = object : SwipeToDelete() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-
                 val position = viewHolder.adapterPosition
                 val vehicle = vehicleArrayList[position]
+
+                // Set a flag indicating that the vehicle is locally deleted
+                vehicle.isLocallyDeleted = true
 
                 // Delete the selected vehicle from Firebase
                 db.collection("Vehicles").document(vehicle.id)
@@ -83,12 +85,8 @@ class SettingsFragment : Fragment() {
                             "Vehicle deleted successfully!",
                             Toast.LENGTH_SHORT
                         ).show()
-                        // Log.d("SettingsFragment", "Deleting document with ID: ${vehicle.id}")
-
-                        // Remove the selected vehicle from ArrayList
                         vehicleArrayList.removeAt(position)
                         vehicleAdapter.notifyItemRemoved(position)
-                        vehicleAdapter.notifyDataSetChanged()
                     }
                     .addOnFailureListener {
                         Toast.makeText(
@@ -96,11 +94,14 @@ class SettingsFragment : Fragment() {
                             "Failed to delete vehicle!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        // Reset the flag if deletion from Firebase fails
+                        vehicle.isLocallyDeleted = false
+                        vehicleAdapter.notifyItemChanged(position)
                     }
             }
         }
 
-        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
+            val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
         itemTouchHelper.attachToRecyclerView(binding.vehicleRecyclerView)
 
         // Add Vehicle -----------------------------------------------------------------------------
@@ -137,19 +138,41 @@ class SettingsFragment : Fragment() {
                     if (!value.isEmpty) {
                         val documents = value.documents
 
+                        // Update existing vehicles and remove deleted vehicle
                         for (document in documents) {
                             val vehicle = document.toObject(Vehicle::class.java)
                             vehicle?.let {
                                 it.id = document.id
-                                vehicleArrayList.add(it)
+
+                                // Check if the vehicle is locally deleted
+                                val existingVehicleIndex = vehicleArrayList.indexOfFirst { existingVehicle ->
+                                    existingVehicle.id == vehicle.id
+                                }
+
+                                if (existingVehicleIndex != -1) {
+                                    val existingVehicle = vehicleArrayList[existingVehicleIndex]
+                                    if (existingVehicle.isLocallyDeleted) {
+                                        // Remove the locally deleted vehicle
+                                        vehicleArrayList.removeAt(existingVehicleIndex)
+                                    } else {
+                                        // Update the existing vehicle with the updated data
+                                        vehicleArrayList[existingVehicleIndex] = vehicle
+                                    }
+                                } else {
+                                    // Add the new vehicle to the list
+                                    vehicleArrayList.add(vehicle)
+                                }
                             }
                         }
+
                         vehicleAdapter.notifyDataSetChanged()
                     }
                 }
             }
         }
     }
+
+
     private fun getUserInformation() {
 
         var userXMLEmail = binding.userEmailText.text

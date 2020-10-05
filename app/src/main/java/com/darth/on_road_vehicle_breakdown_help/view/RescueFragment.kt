@@ -143,8 +143,14 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             showData()
         }
         else if (data.equals("navbar")) {
-            showRescueVisibility()
-            showData()
+            //navBarFirebaseCheck()
+            createRescueVisibility()
+            getProblem()
+            getVehicles()
+            binding.saveRescueButton.setOnClickListener {
+                val rescue = addRescueDataToSave()
+                saveRescue(rescue)
+            }
         }
 
         deleteRequest()
@@ -161,7 +167,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
     private fun bundles(){
         arguments?.let {
-            data = it.getString("data") // "create" "show" "navbar" "delete"
+            data = it.getString("data") // "create" "show" "navbar" "delete" "navbarData"
             dataID = it.getString("dataID")
             dataRescueRequest = it.getString("dataRescueRequest")
             rescueMapLatitude = it.getString("dataMapLatitude")
@@ -194,11 +200,13 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng!!, DEFAULT_ZOOM))
         }
 
-        if ((data.equals("show")) || data.equals("navbar")) {
+        if (data.equals("show")) {
             val location = selectedLatLng ?: LatLng(rescueMapLatitude!!.toDouble(), rescueMapLongitude!!.toDouble())
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM))
             mMap.addMarker(MarkerOptions().position(location))
             mMap.uiSettings.isScrollGesturesEnabled = false
+        }else if (data.equals("navbar")){
+             navBarFirebaseCheck()
         }
     }
 
@@ -677,7 +685,42 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
     }
+    private fun navBarFirebaseCheck(){
+        // If collection has a document?
+        val collectionRef = db.collection("Rescue")
+        collectionRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Collection has an one document
 
+                    db.collection("Rescue").addSnapshotListener { value, error ->
+                        if (error != null) {
+                        Toast.makeText(
+                            requireContext(),
+                            error.localizedMessage,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        if (value != null) {
+                            if (value.isEmpty) {
+                                val fragment = HomeFragment()
+                                val transaction =
+                                    requireActivity().supportFragmentManager.beginTransaction()
+                                transaction.replace(
+                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                    fragment
+                                )
+                                    .commit()
+                            }
+                        } else {
+                            showRescueVisibility()
+                            showData()
+                        }
+                    }
+                }
+            }
+        }
+    }
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
         mMap.addMarker(MarkerOptions().position(p0))
@@ -690,7 +733,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         _binding = null
     }
 }
-
 
 
 
