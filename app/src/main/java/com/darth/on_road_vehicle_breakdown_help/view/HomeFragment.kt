@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class HomeFragment : Fragment(){
+class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
 
@@ -64,6 +64,7 @@ class HomeFragment : Fragment(){
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentHomeBinding.bind(view)
@@ -77,26 +78,24 @@ class HomeFragment : Fragment(){
         }
 
         lifecycleScope.launch {
-            delay(1500)
+            delay(300)
             getRescueData()
-            //sendRescueData()
         }
         getUserInformation()
         deleteRequest()
 
-        if(data != null){
-            quickDeleteRequest()
-        }
-
     }
+
     private fun getBinding(): FragmentHomeBinding {
         return binding
     }
-    private fun bundles(){
+
+    private fun bundles() {
         arguments?.let {
             data = it.getString("data") // "recreate"
         }
     }
+
     private suspend fun getRescueData() {
         // If collection has a document?
         val collectionRef = db.collection("Rescue")
@@ -107,34 +106,52 @@ class HomeFragment : Fragment(){
 
                     db.collection("Rescue").addSnapshotListener { value, error ->
                         if (error != null) {
-                            Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                error.localizedMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             if (value != null) {
                                 if (!value.isEmpty) {
                                     val documents = value.documents
                                     for (document in documents) {
                                         val rescueFBId = document.id as? String
-                                        val rescueFBRescueRequest = document.get("rescueRequest") as? String
+                                        val rescueFBRescueRequest =
+                                            document.get("rescueRequest") as? String
                                         val rescueFBMap = document.get("rescueMap") as? Map<*, *>
-                                        val rescueFBMapLatitude = rescueFBMap?.get("latitude") as? Double
-                                        val rescueFBMapLongitude = rescueFBMap?.get("longitude") as? Double
-                                        val rescueFBMapDirection = document.get("rescueDirection") as? String
-                                        val rescueFBVehicle = document.get("rescueVehicle") as? String
-                                        val rescueFBVehicleUser = document.get("rescueVehicleUser") as? String
-                                        val rescueFBDescribeProblem = document.get("rescueDescribeProblem") as? String
+                                        val rescueFBMapLatitude =
+                                            rescueFBMap?.get("latitude") as? Double
+                                        val rescueFBMapLongitude =
+                                            rescueFBMap?.get("longitude") as? Double
+                                        val rescueFBMapDirection =
+                                            document.get("rescueDirection") as? String
+                                        val rescueFBVehicle =
+                                            document.get("rescueVehicle") as? String
+                                        val rescueFBVehicleUser =
+                                            document.get("rescueVehicleUser") as? String
+                                        val rescueFBDescribeProblem =
+                                            document.get("rescueDescribeProblem") as? String
+
 
                                         // If user has a rescue request-----------------------------------------
-                                        if (rescueFBRescueRequest == "1"){
+                                        if (rescueFBRescueRequest == "1") {
 
                                             binding.addARescueRequest.visibility = View.GONE
 
                                             binding.currentRescueRequest.visibility = View.VISIBLE
 
-                                            val message = "You have a currently road assistance request."
+                                            val message =
+                                                "You have a currently road assistance request."
                                             val startIndex = message.indexOf("currently")
                                             val endIndex = startIndex + "currently".length
                                             val spannable = SpannableString(message)
-                                            spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                            spannable.setSpan(
+                                                StyleSpan(Typeface.BOLD),
+                                                startIndex,
+                                                endIndex,
+                                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                            )
                                             binding.currentRescueRequest.text = spannable
 
                                             binding.deleteRescueRequest.visibility = View.VISIBLE
@@ -145,22 +162,41 @@ class HomeFragment : Fragment(){
                                                 val bundle = Bundle()
                                                 bundle.putString("data", "show")
                                                 bundle.putString("dataID", rescueFBId)
-                                                bundle.putString("dataRescueRequest", rescueFBRescueRequest)
+                                                bundle.putString(
+                                                    "dataRescueRequest",
+                                                    rescueFBRescueRequest
+                                                )
                                                 if (rescueFBMapLatitude != null) {
-                                                    bundle.putString("dataMapLatitude", rescueFBMapLatitude.toDouble().toString()
+                                                    bundle.putString(
+                                                        "dataMapLatitude",
+                                                        rescueFBMapLatitude.toDouble().toString()
                                                     )
                                                 }
                                                 if (rescueFBMapLongitude != null) {
-                                                    bundle.putString("dataMapLongitude", rescueFBMapLongitude.toDouble().toString())
+                                                    bundle.putString(
+                                                        "dataMapLongitude",
+                                                        rescueFBMapLongitude.toDouble().toString()
+                                                    )
                                                 }
-                                                bundle.putString("dataMapDirection", rescueFBMapDirection)
+                                                bundle.putString(
+                                                    "dataMapDirection",
+                                                    rescueFBMapDirection
+                                                )
                                                 bundle.putString("dataVehicle", rescueFBVehicle)
-                                                bundle.putString("dataVehicleUser", rescueFBVehicleUser)
-                                                bundle.putString("dataDescribeProblem", rescueFBDescribeProblem)
+                                                bundle.putString(
+                                                    "dataVehicleUser",
+                                                    rescueFBVehicleUser
+                                                )
+                                                bundle.putString(
+                                                    "dataDescribeProblem",
+                                                    rescueFBDescribeProblem
+                                                )
 
                                                 fragment.arguments = bundle
-                                                val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                                                transaction.replace(R.id.frameLayoutID, fragment).commit()
+                                                val transaction =
+                                                    requireActivity().supportFragmentManager.beginTransaction()
+                                                transaction.replace(R.id.frameLayoutID, fragment)
+                                                    .commit()
 
                                             }
                                         }
@@ -178,7 +214,12 @@ class HomeFragment : Fragment(){
                     val endIndex = startIndex + "do not have".length
 
                     val spannable = SpannableString(message)
-                    spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    spannable.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        startIndex,
+                        endIndex,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
 
                     binding.currentRescueRequest.text = spannable
                     binding.addARescueRequest.visibility = View.VISIBLE
@@ -199,6 +240,7 @@ class HomeFragment : Fragment(){
                 e.localizedMessage
             }
     }
+
     private fun getUserInformation() {
 
         db.collection("UserInformation").addSnapshotListener { value, error ->
@@ -220,6 +262,7 @@ class HomeFragment : Fragment(){
             }
         }
     }
+
     private fun deleteRequest() {
         binding.deleteRescueRequest.setOnClickListener {
             db.collection("Rescue").addSnapshotListener { value, error ->
@@ -244,7 +287,8 @@ class HomeFragment : Fragment(){
                                                 // Document deleted successfully
                                                 Log.d(TAG, "Document deleted successfully")
                                                 val fragment = HomeFragment()
-                                                val transaction = fragmentManager?.beginTransaction()
+                                                val transaction =
+                                                    fragmentManager?.beginTransaction()
                                                 transaction?.replace(
                                                     com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
                                                     fragment
@@ -267,42 +311,4 @@ class HomeFragment : Fragment(){
             }
         }
     }
-    private fun quickDeleteRequest() {
-        binding.deleteRescueRequest.setOnClickListener {
-            db.collection("Rescue").addSnapshotListener { value, error ->
-                if (error != null) {
-                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    if (value != null) {
-                        if (!value.isEmpty) {
-                            val documents = value.documents
-                            for (document in documents) {
-                                val documentId = document.id
-
-                                if (isAdded) { // Check if the fragment is added to the activity
-                                     // Delete document...
-                                        db.collection("Rescue").document(documentId).delete()
-                                            .addOnSuccessListener {
-                                            // Document deleted successfully
-                                            Log.d(TAG, "Document deleted successfully")
-                                            val fragment = HomeFragment()
-                                            val transaction = fragmentManager?.beginTransaction()
-                                            transaction?.replace(
-                                                com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                fragment
-                                            )?.commit()
-                                        }
-                                        .addOnFailureListener { e ->
-                                            // Error occurred while deleting the document
-                                            Log.w(TAG, "Error deleting document", e)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+}

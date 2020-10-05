@@ -1,11 +1,14 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Context.LOCATION_SERVICE
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -144,25 +147,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             showData()
         }
 
-        binding.updateButton.setOnClickListener {
-            lifecycleScope.launch {
-                try {
-                    val deleteRescueDataGet = deleteRescueDataGet()
-                    deleteRescue(deleteRescueDataGet)
-                    val fragment = RescueFragment()
-                    val bundle = Bundle()
-                    bundle.putString("data", "recreate")
-                    val transaction = fragmentManager?.beginTransaction()
-                    fragment.arguments = bundle
-                    transaction?.replace(
-                        com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                        fragment
-                    )?.commit()
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Failed to delete rescue data", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        deleteRequest()
 
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
@@ -189,8 +174,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     }
     override fun onMapReady(googleMap: GoogleMap) {
 
-        println(rescueMapLatitude)
-        println(rescueMapLongitude)
         mMap = googleMap
         mMap.setOnMapLongClickListener(this)
 
@@ -278,7 +261,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.saveRescueButton.visibility = View.GONE
         binding.goBackRescueButton.visibility = View.GONE
         binding.describeProblem.visibility = View.GONE
-        binding.updateButton.visibility = View.GONE
+        binding.deleteButton.visibility = View.GONE
 
         binding.createRescueRequest.setOnClickListener {
             // Hide and Show layout
@@ -295,7 +278,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             binding.problemSpinner.visibility = View.VISIBLE
             binding.saveRescueButton.visibility = View.VISIBLE
             binding.goBackRescueButton.visibility = View.VISIBLE
-            binding.updateButton.visibility = View.GONE
+            binding.deleteButton.visibility = View.GONE
         }
     }
     private fun showRescueVisibility() {
@@ -311,7 +294,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         binding.problemDescription.visibility = View.VISIBLE
         binding.problemSpinner.visibility = View.VISIBLE
         binding.goBackRescueButton.visibility = View.VISIBLE
-        binding.updateButton.visibility = View.VISIBLE
+        binding.deleteButton.visibility = View.VISIBLE
     }
     private fun showData() {
         //  Problem Data ---------------------------------------------------------------------------
@@ -450,55 +433,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
 
         binding.rescueDirectionText.setText(dataMapDirection)
         binding.rescueDirectionText.isEnabled = false
-    }
-    private fun deleteRescueDataGet(): Rescue {
-
-        val rescueRequest = "1"
-        val vehicleUser = "auth.currentUser!!.email!!"
-        val rescueDirection = ""
-        val rescueDescribeProblem = ""
-        val googleMap = Place(0.0, 0.0)
-        val vehicleItem = ""
-
-        return Rescue(
-            rescueRequest = rescueRequest,
-            rescueDescribeProblem = rescueDescribeProblem,
-            rescueDirection = rescueDirection,
-            rescueMap = googleMap,
-            rescueVehicle = vehicleItem,
-            rescueVehicleUser = vehicleUser,
-        )
-    }
-    private fun deleteRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
-        val rescueQuery = rescueCollectionRef
-            .get()
-            .await()
-        if(rescueQuery.documents.isNotEmpty()) {
-            for(document in rescueQuery) {
-                try {
-                    rescueCollectionRef.document(document.id).delete().await()
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Road assistance request successfully removed.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        if (isAdded && context != null) {
-                            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }
-            }
-        }else {
-            withContext(Dispatchers.Main) {
-                context?.let {
-                    Toast.makeText(it, "Road assistance request successfully removed.", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
     }
     private fun permissionLauncher() {
         if (ContextCompat.checkSelfPermission(
@@ -695,6 +629,55 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
     }
+    private fun deleteRequest() {
+        binding.deleteButton.setOnClickListener {
+            db.collection("Rescue").addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    if (value != null) {
+                        if (!value.isEmpty) {
+                            val documents = value.documents
+                            for (document in documents) {
+                                val documentId = document.id
+
+                                if (isAdded) { // Check if the fragment is added to the activity
+                                    val builder = AlertDialog.Builder(requireContext())
+                                    builder.setTitle("Delete")
+                                    builder.setMessage("Are you sure you want to delete the road assistance request?")
+                                    builder.setPositiveButton("Yes") { _, _ ->
+                                        // Delete document...
+                                        db.collection("Rescue").document(documentId).delete()
+                                            .addOnSuccessListener {
+                                                // Document deleted successfully
+                                                Log.d(ContentValues.TAG, "Document deleted successfully")
+                                                val fragment = HomeFragment()
+                                                val transaction =
+                                                    fragmentManager?.beginTransaction()
+                                                transaction?.replace(
+                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                    fragment
+                                                )?.commit()
+                                            }
+                                            .addOnFailureListener { e ->
+                                                // Error occurred while deleting the document
+                                                Log.w(ContentValues.TAG, "Error deleting document", e)
+                                            }
+                                    }
+                                    builder.setNegativeButton("No") { _, _ ->
+                                        // empty...
+                                    }
+                                    builder.create().show()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
         mMap.addMarker(MarkerOptions().position(p0))
