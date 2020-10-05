@@ -19,6 +19,9 @@ class NotificationFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    private lateinit var userName: String
+    private lateinit var userEmail: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,6 +39,18 @@ class NotificationFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Get the authenticated user's email and assign it to the variable
+        userEmail = auth.currentUser?.email ?: ""
+
+        // Print the user's email
+        println("Email: $userEmail")
+
+        getUserInformation()
+    }
+
     private fun getUserInformation() {
 
         db.collection("UserInformation").addSnapshotListener { value, error ->
@@ -48,8 +63,8 @@ class NotificationFragment : Fragment() {
                         val documents = value.documents
 
                         for (document in documents) {
-                            val userNameAndSurname = document.get("nameAndSurname") as String
-                            // Set the user name to a variable, too fucking long way again...
+                            val userName = document.get("nameAndSurname") as String
+                            println("Email: $userName")
 
                         }
                     }
@@ -57,6 +72,7 @@ class NotificationFragment : Fragment() {
             }
         }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
