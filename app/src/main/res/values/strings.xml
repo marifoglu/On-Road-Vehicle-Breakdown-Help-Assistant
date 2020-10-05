@@ -41,4 +41,5 @@
     <string name="phone_number">Phone Number</string>
     <string name="email_address2">Email Address</string>
     <string name="name">Name</string>
+    <string name="type_message">Type message</string>
 </resources>
