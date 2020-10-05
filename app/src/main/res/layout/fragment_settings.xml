@@ -18,10 +18,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="Name"
+            android:text="@string/name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
 
         <TextView
             android:id="@+id/userNameText"
@@ -33,13 +32,12 @@
             app:layout_constraintStart_toStartOf="@+id/userNameLabel"
             app:layout_constraintTop_toBottomOf="@+id/userNameLabel" />
 
-
         <TextView
             android:id="@+id/userEmailLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Email Address"
+            android:text="@string/email_address2"
             app:layout_constraintStart_toStartOf="@+id/userNameText"
             app:layout_constraintTop_toBottomOf="@+id/userNameText" />
 
@@ -52,7 +50,6 @@
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/userEmailLabel"
             app:layout_constraintTop_toBottomOf="@+id/userEmailLabel" />
-
 
         <TextView
             android:id="@+id/userHomeAddressLabel"
@@ -73,14 +70,12 @@
             app:layout_constraintStart_toStartOf="@+id/userHomeAddressLabel"
             app:layout_constraintTop_toBottomOf="@+id/userHomeAddressLabel" />
 
-
-
         <TextView
             android:id="@+id/userPhoneLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Phone Number"
+            android:text="@string/phone_number"
             app:layout_constraintStart_toStartOf="@+id/userHomeAddressText"
             app:layout_constraintTop_toBottomOf="@+id/userHomeAddressText" />
 
@@ -99,7 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="Your Vehicles"
+            android:text="@string/your_vehicles"
             app:layout_constraintStart_toStartOf="@+id/userPhoneText"
             app:layout_constraintTop_toBottomOf="@+id/userPhoneText" />
 
@@ -109,12 +104,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginEnd="24dp"
-            android:text="Add a New Vehicle"
+            android:text="@string/add_a_new_vehicle"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/userPhoneText" />
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -36,4 +36,9 @@
     <string name="our_app_is_the_best_way_for_members_to_contact_us_when_not_broken_down_on_the_motorway_you_can_send_us_your_exact_location_using_your_phone_s_gps">Our app is the best way for Members to contact us when not broken down on the motorway. You can send us your exact location using your phone’s GPS.</string>
     <string name="in_the_event_you_feel_in_immediate_danger_do_not_use_the_app_or_online_service_you_should_call_us_on_01234_000_000">In the event you feel in immediate danger, do not use the app or online service. You should call us on 01234 000 000.</string>
     <string name="dial_999_if_you_re_in_immediate_danger">Dial 999 if you\'re in immediate danger.</string>
+    <string name="add_a_new_vehicle">Add a New Vehicle</string>
+    <string name="your_vehicles">Your Vehicles</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email_address2">Email Address</string>
+    <string name="name">Name</string>
 </resources>
