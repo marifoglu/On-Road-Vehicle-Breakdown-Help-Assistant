@@ -14,8 +14,7 @@
         app:layout_constraintBottom_toTopOf="@+id/chatLinearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <LinearLayout
         android:id="@+id/chatLinearLayout"
@@ -25,8 +24,8 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <EditText
-            android:id="@+id/etMessage"
-            android:layout_width="0dp"
+            android:id="@+id/sendMessage"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/gilroy_light"

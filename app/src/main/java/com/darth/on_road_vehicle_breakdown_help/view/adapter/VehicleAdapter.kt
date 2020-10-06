@@ -9,9 +9,7 @@ import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 
 class VehicleAdapter(private val carList : ArrayList<Vehicle>) : RecyclerView.Adapter<VehicleAdapter.CarHolder>() {
 
-    class CarHolder(val binding: CarRowBinding) : RecyclerView.ViewHolder(binding.root) {
-    }
-
+    class CarHolder(val binding: CarRowBinding) : RecyclerView.ViewHolder(binding.root) {   }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarHolder {
         val binding = CarRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CarHolder(binding)
