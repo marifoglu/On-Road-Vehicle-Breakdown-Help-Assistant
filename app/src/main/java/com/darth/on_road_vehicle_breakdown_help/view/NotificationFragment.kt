@@ -85,11 +85,16 @@ class NotificationFragment : Fragment() {
             value?.let { snapshot ->
                 val newChats = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(ChatMessage::class.java)
-                }.filter { chat ->
-                    chat.sender == userEmail || chat.receiver == userEmail || chat.receiver == "agency@raw.com"
                 }
+
+                // Filter the chats based on the conditions
+                val filteredChats = newChats.filter { chat ->
+                    chat.sender == userEmail && chat.receiver == "agency@raw.com" ||
+                            chat.sender == "agency@raw.com" && chat.receiver == userEmail
+                }
+
                 mChats.clear()
-                mChats.addAll(newChats)
+                mChats.addAll(filteredChats)
                 mAdapter.notifyDataSetChanged()
                 binding.chatRecyclerView.scrollToPosition(mChats.size - 1)
             }
@@ -99,40 +104,56 @@ class NotificationFragment : Fragment() {
     }
 
     private fun sendMessage(sender: String, receiver: String, content: String) {
+        val loggedInUserEmail = auth.currentUser?.email ?: ""
+
+        if (loggedInUserEmail == sender && receiver != "Agency") {
+            // The logged-in user can only send messages to the agency
+            return
+        }
+
+        if (sender == "Agency" && loggedInUserEmail != receiver) {
+            // The agency can only send messages to the logged-in user
+            return
+        }
+
         val messageMap = hashMapOf(
             "sender" to sender,
             "receiver" to receiver,
-            "message" to content,
+            "message" to content
         )
 
         messageCollectionRef
             .add(messageMap)
             .addOnSuccessListener {
-                // Message sent successfully
             }
             .addOnFailureListener { exception ->
                 Log.e(TAG, "Error sending message: ${exception.message}")
-                // Handle error
+                // Handle error, maybe toast?
             }
     }
 
     private fun getUserInformation() {
-        db.collection("UserInformation").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
-                        val documents = value.documents
+        val currentUserEmail = auth.currentUser?.email
 
-                        for (document in documents) {
-                            val userNameAndSurname = document.get("nameAndSurname") as String
-                            // Set the user name to TextView
-                            userName = document.get("nameAndSurname") as String
+        currentUserEmail?.let { email ->
+            db.collection("UserInformation")
+                .whereEqualTo("email", email)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        if (value != null) {
+                            if (!value.isEmpty) {
+                                val documents = value.documents
+
+                                for (document in documents) {
+                                    userName = document.getString("nameAndSurname") ?: ""
+                                    userEmail = document.getString("email") ?: ""
+                                }
+                            }
                         }
                     }
                 }
-            }
         }
     }
 

@@ -2,6 +2,7 @@ package com.darth.on_road_vehicle_breakdown_help.view
 
 import android.app.AlertDialog
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Context.LOCATION_SERVICE
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -22,9 +23,8 @@ import androidx.appcompat.R
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentRescueBinding
-import com.darth.on_road_vehicle_breakdown_help.view.adapter.Place
+import com.darth.on_road_vehicle_breakdown_help.view.model.Place
 import com.darth.on_road_vehicle_breakdown_help.view.model.Rescue
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -209,7 +209,32 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
              navBarFirebaseCheck()
         }
     }
+    private fun navBarFirebaseCheck() {
+        val currentUser = auth.currentUser
+        val userEmail = currentUser?.email
 
+        if (userEmail != null) {
+            val collectionRef = db.collection("Rescue")
+            collectionRef.whereEqualTo("rescueVehicleUser", userEmail)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        if (value != null) {
+                            if (value.isEmpty) {
+                                val fragment = HomeFragment()
+                                val transaction = requireActivity().supportFragmentManager.beginTransaction()
+                                transaction.replace(com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID, fragment)
+                                    .commit()
+                            } else {
+                                showRescueVisibility()
+                                showData()
+                            }
+                        }
+                    }
+                }
+        }
+    }
     private fun saveRescue(rescue: Rescue) = CoroutineScope(Dispatchers.IO).launch {
         try {
             rescueCollectionRef.add(rescue).await()
@@ -414,30 +439,34 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
 
-        db.collection("Vehicles").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null && !value.isEmpty) {
-                    val documents = value.documents
-                    for (document in documents) {
-                        val vehicleManufacturer = document.get("vehicleManufacturer") as String
-                        val vehicleModel = document.get("vehicleModel") as String
-                        val vehicleYear = document.get("vehicleYear") as String
-                        val vehicleString = "$vehicleManufacturer $vehicleModel $vehicleYear"
-                        vehicleListUpdate.add(vehicleString)
-                    }
+        val authEmail = auth.currentUser?.email
 
-                    vehicleAdapterUpdate.notifyDataSetChanged()
+        db.collection("Vehicles")
+            .whereEqualTo("vehicleUser", authEmail)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                } else {
+                    if (value != null && !value.isEmpty) {
+                        val documents = value.documents
+                        for (document in documents) {
+                            val vehicleManufacturer = document.get("vehicleManufacturer") as String
+                            val vehicleModel = document.get("vehicleModel") as String
+                            val vehicleYear = document.get("vehicleYear") as String
+                            val vehicleString = "$vehicleManufacturer $vehicleModel $vehicleYear"
+                            vehicleListUpdate.add(vehicleString)
+                        }
 
-                    // Find the index of dataVehicle in the vehicleListUpdate
-                    val dataVehicleIndex = vehicleListUpdate.indexOf(dataVehicle)
-                    if (dataVehicleIndex != -1) {
-                        vehicleSpinnerUpdate.setSelection(dataVehicleIndex)
+                        vehicleAdapterUpdate.notifyDataSetChanged()
+
+                        // Find the index of dataVehicle in the vehicleListUpdate
+                        val dataVehicleIndex = vehicleListUpdate.indexOf(dataVehicle)
+                        if (dataVehicleIndex != -1) {
+                            vehicleSpinnerUpdate.setSelection(dataVehicleIndex)
+                        }
                     }
                 }
             }
-        }
 
         binding.rescueDirectionText.setText(dataMapDirection)
         binding.rescueDirectionText.isEnabled = false
@@ -519,11 +548,9 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
     }
     private fun getVehicles() {
-
         // Data comes from Firebase to here!
         val vehicleList: MutableList<String> = ArrayList()
         vehicleList.add("Choose your vehicle")
-
 
         val vehicleAdapter: ArrayAdapter<String> = ArrayAdapter(
             requireContext(),
@@ -545,7 +572,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 position: Int,
                 id: Long
             ) {
-
                 if (parent != null) {
                     vehicleItem = parent.getItemAtPosition(position) as String
                 }
@@ -558,32 +584,37 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 }
             }
         }
-        db.collection("Vehicles").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
 
-                        val documents = value.documents
+        val userEmail = auth.currentUser?.email
+        if (userEmail != null) {
+            db.collection("Vehicles").whereEqualTo("vehicleUser", userEmail)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        if (value != null) {
+                            if (!value.isEmpty) {
+                                val documents = value.documents
+                                for (document in documents) {
+                                    val vehicleManufacturerFB =
+                                        document.get("vehicleManufacturer") as String
+                                    val vehicleModelFB = document.get("vehicleModel") as String
+                                    val vehicleYearFB = document.get("vehicleYear") as String
 
-                        for (document in documents) {
-                            val vehicleManufacturerFB =
-                                document.get("vehicleManufacturer") as String
-                            val vehicleModelFB = document.get("vehicleModel") as String
-                            val vehicleYearFB = document.get("vehicleYear") as String
-
-                            // Add each vehicle as a separate item to the vehicleList
-                            val vehicleString =
-                                "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
-                            vehicleList.add(vehicleString)
+                                    // Add each vehicle as a separate item to the vehicleList
+                                    val vehicleString =
+                                        "$vehicleManufacturerFB $vehicleModelFB $vehicleYearFB"
+                                    vehicleList.add(vehicleString)
+                                }
+                                vehicleAdapter.notifyDataSetChanged()
+                            }
                         }
-                        vehicleAdapter.notifyDataSetChanged()
                     }
                 }
-            }
         }
     }
+
     private fun getProblem() {
         val problemList: MutableList<String> = ArrayList()
         problemList.add("Choose the problem:")
@@ -620,7 +651,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 position: Int,
                 id: Long
             ) {
-
                 val item: String = problemList[position]
                 val defaultItem: String = problemList[0]
                 val otherItem: String = problemList[1]
@@ -637,90 +667,73 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
     }
+
     private fun deleteRequest() {
         binding.deleteButton.setOnClickListener {
-            db.collection("Rescue").addSnapshotListener { value, error ->
-                if (error != null) {
-                    Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    if (value != null) {
-                        if (!value.isEmpty) {
-                            val documents = value.documents
-                            for (document in documents) {
-                                val documentId = document.id
+            val userEmail = auth.currentUser?.email
+            if (userEmail != null) {
+                db.collection("Rescue").whereEqualTo("rescueVehicleUser", userEmail)
+                    .addSnapshotListener { value, error ->
+                        if (error != null) {
+                            Toast.makeText(
+                                requireContext(),
+                                error.localizedMessage,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        } else {
+                            if (value != null) {
+                                if (!value.isEmpty) {
+                                    val documents = value.documents
+                                    for (document in documents) {
+                                        val documentId = document.id
 
-                                if (isAdded) { // Check if the fragment is added to the activity
-                                    val builder = AlertDialog.Builder(requireContext())
-                                    builder.setTitle("Delete")
-                                    builder.setMessage("Are you sure you want to delete the road assistance request?")
-                                    builder.setPositiveButton("Yes") { _, _ ->
-                                        // Delete document...
-                                        db.collection("Rescue").document(documentId).delete()
-                                            .addOnSuccessListener {
-                                                // Document deleted successfully
-                                                Log.d(ContentValues.TAG, "Document deleted successfully")
-                                                val fragment = HomeFragment()
-                                                val transaction =
-                                                    fragmentManager?.beginTransaction()
-                                                transaction?.replace(
-                                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                                    fragment
-                                                )?.commit()
+                                        if (isAdded) { // Check if the fragment is added to the activity
+                                            val builder = AlertDialog.Builder(requireContext())
+                                            builder.setTitle("Delete")
+                                            builder.setMessage("Are you sure you want to delete the road assistance request?")
+                                            builder.setPositiveButton("Yes") { _, _ ->
+                                                // Delete document...
+                                                db.collection("Rescue").document(documentId)
+                                                    .delete()
+                                                    .addOnSuccessListener {
+                                                        // Document deleted successfully
+                                                        Log.d(
+                                                            ContentValues.TAG,
+                                                            "Document deleted successfully"
+                                                        )
+                                                        val fragment = HomeFragment()
+                                                        val transaction =
+                                                            fragmentManager?.beginTransaction()
+                                                        transaction?.replace(
+                                                            com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
+                                                            fragment
+                                                        )?.commit()
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        // Error occurred while deleting the document
+                                                        Log.w(
+                                                            ContentValues.TAG,
+                                                            "Error deleting document",
+                                                            e
+                                                        )
+                                                    }
                                             }
-                                            .addOnFailureListener { e ->
-                                                // Error occurred while deleting the document
-                                                Log.w(ContentValues.TAG, "Error deleting document", e)
+                                            builder.setNegativeButton("No") { _, _ ->
+                                                // empty...
                                             }
+                                            builder.create().show()
+                                        }
                                     }
-                                    builder.setNegativeButton("No") { _, _ ->
-                                        // empty...
-                                    }
-                                    builder.create().show()
                                 }
                             }
                         }
                     }
-                }
             }
         }
     }
-    private fun navBarFirebaseCheck(){
-        // If collection has a document?
-        val collectionRef = db.collection("Rescue")
-        collectionRef.get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    // Collection has an one document
 
-                    db.collection("Rescue").addSnapshotListener { value, error ->
-                        if (error != null) {
-                        Toast.makeText(
-                            requireContext(),
-                            error.localizedMessage,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        if (value != null) {
-                            if (value.isEmpty) {
-                                val fragment = HomeFragment()
-                                val transaction =
-                                    requireActivity().supportFragmentManager.beginTransaction()
-                                transaction.replace(
-                                    com.darth.on_road_vehicle_breakdown_help.R.id.frameLayoutID,
-                                    fragment
-                                )
-                                    .commit()
-                            }
-                        } else {
-                            showRescueVisibility()
-                            showData()
-                        }
-                    }
-                }
-            }
-        }
-    }
+
     override fun onMapLongClick(p0: LatLng) {
         mMap.clear()
         mMap.addMarker(MarkerOptions().position(p0))

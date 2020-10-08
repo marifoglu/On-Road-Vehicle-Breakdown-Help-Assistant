@@ -1,4 +1,3 @@
-package com.darth.on_road_vehicle_breakdown_help.view
 
 import android.os.Bundle
 import android.util.Log
@@ -11,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.R
 import androidx.fragment.app.DialogFragment
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentVehicleRegistrationBinding
-import com.darth.on_road_vehicle_breakdown_help.view.adapter.CarListAdapter
+import com.darth.on_road_vehicle_breakdown_help.view.model.CarListAdapter
 import com.darth.on_road_vehicle_breakdown_help.view.util.getJsonData
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -96,10 +95,6 @@ class VehicleRegistrationFragment : DialogFragment() {
         } else {
             Log.e("data", "Failed to deserialize vehicles")
         }
-
-
-
-
 
         // Vehicle Models List comes from JSON -----------------------------------------------
         val carListAdapterType = object : TypeToken<List<CarListAdapter>>() {}.type

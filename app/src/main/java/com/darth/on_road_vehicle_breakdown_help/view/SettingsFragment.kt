@@ -1,5 +1,6 @@
 package com.darth.on_road_vehicle_breakdown_help.view
 
+import VehicleRegistrationFragment
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -22,8 +23,6 @@ import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class SettingsFragment : Fragment() {
 
@@ -32,11 +31,11 @@ class SettingsFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-    private lateinit var vehicleArrayList : ArrayList<Vehicle>
-    private lateinit var vehicleAdapter : VehicleAdapter
-    private lateinit var userInformationList : ArrayList<User>
+    private lateinit var vehicleArrayList: ArrayList<Vehicle>
+    private lateinit var vehicleAdapter: VehicleAdapter
+    private lateinit var userInformationList: ArrayList<User>
 
-    private lateinit var xmlUserEmail : TextView
+    private lateinit var xmlUserEmail: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +48,6 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
         userInformationList = ArrayList<User>()
@@ -75,7 +73,6 @@ class SettingsFragment : Fragment() {
                 val position = viewHolder.adapterPosition
                 val vehicle = vehicleArrayList[position]
 
-                // Set a flag indicating that the vehicle is locally deleted
                 vehicle.isLocallyDeleted = true
 
                 // Delete the selected vehicle from Firebase
@@ -103,7 +100,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
-            val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
+        val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallBack)
         itemTouchHelper.attachToRecyclerView(binding.vehicleRecyclerView)
 
         // Add Vehicle -----------------------------------------------------------------------------
@@ -128,95 +125,101 @@ class SettingsFragment : Fragment() {
             val dialog = builder.create()
             dialog.show()
         }
-
     }
 
     private fun getVehicles() {
-        db.collection("Vehicles").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
-                        val documents = value.documents
+        val currentUserEmail = auth.currentUser?.email
 
-                        // Update existing vehicles and remove deleted vehicle
-                        for (document in documents) {
-                            val vehicle = document.toObject(Vehicle::class.java)
-                            vehicle?.let {
-                                it.id = document.id
+        currentUserEmail?.let { email ->
+            db.collection("Vehicles")
+                .whereEqualTo("vehicleUser", email)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        if (value != null) {
+                            if (!value.isEmpty) {
+                                val documents = value.documents
 
-                                // Check if the vehicle is locally deleted
-                                val existingVehicleIndex = vehicleArrayList.indexOfFirst { existingVehicle ->
-                                    existingVehicle.id == vehicle.id
-                                }
+                                // Update existing vehicles and remove deleted vehicle
+                                for (document in documents) {
+                                    val vehicle = document.toObject(Vehicle::class.java)
+                                    vehicle?.let {
+                                        it.id = document.id
 
-                                if (existingVehicleIndex != -1) {
-                                    val existingVehicle = vehicleArrayList[existingVehicleIndex]
-                                    if (existingVehicle.isLocallyDeleted) {
-                                        // Remove the locally deleted vehicle
-                                        vehicleArrayList.removeAt(existingVehicleIndex)
-                                    } else {
-                                        // Update the existing vehicle with the updated data
-                                        vehicleArrayList[existingVehicleIndex] = vehicle
+                                        // Check if the vehicle is locally deleted
+                                        val existingVehicleIndex = vehicleArrayList.indexOfFirst { existingVehicle ->
+                                            existingVehicle.id == vehicle.id
+                                        }
+
+                                        if (existingVehicleIndex != -1) {
+                                            val existingVehicle = vehicleArrayList[existingVehicleIndex]
+                                            if (existingVehicle.isLocallyDeleted) {
+                                                // Remove the locally deleted vehicle
+                                                vehicleArrayList.removeAt(existingVehicleIndex)
+                                            } else {
+                                                // Update the existing vehicle with the updated data
+                                                vehicleArrayList[existingVehicleIndex] = vehicle
+                                            }
+                                        } else {
+                                            // Add the new vehicle to the list
+                                            vehicleArrayList.add(vehicle)
+                                        }
                                     }
-                                } else {
-                                    // Add the new vehicle to the list
-                                    vehicleArrayList.add(vehicle)
                                 }
+
+                                vehicleAdapter.notifyDataSetChanged()
                             }
                         }
-
-                        vehicleAdapter.notifyDataSetChanged()
                     }
                 }
-            }
         }
     }
-
 
     private fun getUserInformation() {
+        val currentUserEmail = auth.currentUser?.email
 
-        var userXMLEmail = binding.userEmailText.text
+        currentUserEmail?.let { email ->
+            db.collection("UserInformation")
+                .whereEqualTo("email", email)
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        if (value != null) {
+                            if (!value.isEmpty) {
+                                val documents = value.documents
 
-        db.collection("UserInformation").addSnapshotListener { value, error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-            } else {
-                if (value != null) {
-                    if (!value.isEmpty) {
+                                for (document in documents) {
+                                    val userEmail = document.getString("email")
+                                    val userHomeAddress = document.getString("homeAddress")
+                                    val userNameAndSurname = document.getString("nameAndSurname")
+                                    val userPhoneNumber = document.getString("phoneNumber")
 
-                        val documents = value.documents
+                                    // Set the user information values
+                                    binding.userEmailText.text = userEmail ?: ""
+                                    binding.userHomeAddressText.text = userHomeAddress ?: ""
+                                    binding.userNameText.text = userNameAndSurname ?: ""
+                                    binding.userPhoneText.text = userPhoneNumber ?: ""
 
-                        for (document in documents) {
-                            val userEmail = document.get("email") as String
-                            val userHomeAddress = document.get("homeAddress") as String
-                            val userNameAndSurname = document.get("nameAndSurname") as String
-                            val userPhoneNumber = document.get("phoneNumber") as String
-                            
-                            // Set the user email value to the userEmailText TextView
-                            binding.userEmailText.text = userEmail
-                            binding.userHomeAddressText.text = userHomeAddress
-                            binding.userNameText.text = userNameAndSurname
-                            binding.userPhoneText.text = userPhoneNumber
-
-                            val user = User(userEmail, userHomeAddress, userNameAndSurname, userPhoneNumber)
-                            userInformationList.add(user)
-
-
+                                    val user = User(userEmail!!, userHomeAddress!!, userNameAndSurname!!, userPhoneNumber!!)
+                                    userInformationList.add(user)
+                                }
+                                vehicleAdapter.notifyDataSetChanged()
+                            }
                         }
-                        vehicleAdapter.notifyDataSetChanged()
                     }
                 }
-            }
         }
     }
+
 
     private fun logout(view: View) {
         FirebaseAuth.getInstance().signOut()
         startActivity(Intent(requireContext(), LandingPage::class.java))
         requireActivity().finish()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

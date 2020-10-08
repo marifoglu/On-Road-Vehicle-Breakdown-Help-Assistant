@@ -27,7 +27,7 @@ class ChatAdapter(private val dataSet: List<ChatMessage>, private val id: String
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (dataSet[position].id == id) {
+        return if (dataSet[position].sender == "agency@raw.com") {
             CHAT_START
         } else {
             CHAT_END
@@ -37,6 +37,14 @@ class ChatAdapter(private val dataSet: List<ChatMessage>, private val id: String
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chat = dataSet[position]
         holder.textView.text = chat.message
+
+        if (getItemViewType(position) == CHAT_START) {
+            // Set gravity to the left for "Agency" messages
+            holder.textView.gravity = Gravity.START
+        } else {
+            // Set gravity to the right for user messages
+            holder.textView.gravity = Gravity.END
+        }
     }
 
     override fun getItemCount(): Int {
