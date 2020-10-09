@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentNotificationBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.ChatAdapter
 import com.darth.on_road_vehicle_breakdown_help.view.model.ChatMessage
@@ -16,8 +15,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import android.provider.Settings
 import android.util.Log
+import android.widget.EditText
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.darth.on_road_vehicle_breakdown_help.R
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.Query
+import org.json.JSONException
+import org.json.JSONObject
+import java.util.UUID
 
 class NotificationFragment : Fragment() {
 
@@ -36,14 +45,24 @@ class NotificationFragment : Fragment() {
     private var userName: String = ""
     private lateinit var userEmail: String
 
+
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerViewAdapter: ChatAdapter
+    private lateinit var messageText: EditText
+
+    private val chatMessages: MutableList<ChatMessage> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+
+
+
     }
 
-    @SuppressLint("HardwareIds")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,106 +75,108 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        userEmail = auth.currentUser?.email ?: ""
-
-        mChats = mutableListOf()
-
-        mId = Settings.Secure.getString(requireActivity().contentResolver, Settings.Secure.ANDROID_ID)
-        mAdapter = ChatAdapter(mChats, mId)
-
+        recyclerViewAdapter = ChatAdapter(chatMessages)
         binding.chatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.chatRecyclerView.adapter = mAdapter
+        binding.chatRecyclerView.adapter = recyclerViewAdapter
+
+        getData()
 
         binding.btnSendMessage.setOnClickListener {
-            val message = binding.sendMessage.text.toString()
-
-            if (message.isNotEmpty()) {
-                sendMessage(userEmail, "agency@raw.com", message)
-            }
-
-            binding.sendMessage.setText("")
+            sendMessage()
+            Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
         }
-
-        messageCollectionRef.addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.e(TAG, "Error fetching chats: ${error.message}")
-                return@addSnapshotListener
-            }
-
-            value?.let { snapshot ->
-                val newChats = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(ChatMessage::class.java)
-                }
-
-                // Filter the chats based on the conditions
-                val filteredChats = newChats.filter { chat ->
-                    chat.sender == userEmail && chat.receiver == "agency@raw.com" ||
-                            chat.sender == "agency@raw.com" && chat.receiver == userEmail
-                }
-
-                mChats.clear()
-                mChats.addAll(filteredChats)
-                mAdapter.notifyDataSetChanged()
-                binding.chatRecyclerView.scrollToPosition(mChats.size - 1)
-            }
+        binding.btnAgencyMessage.setOnClickListener {
+            sendMessageAgency()
+            Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
         }
-
-        getUserInformation()
     }
 
-    private fun sendMessage(sender: String, receiver: String, content: String) {
-        val loggedInUserEmail = auth.currentUser?.email ?: ""
+    private fun sendMessage() {
+        val messageToSend = binding.sendMessage.text.toString()
 
-        if (loggedInUserEmail == sender && receiver != "Agency") {
-            // The logged-in user can only send messages to the agency
-            return
-        }
+        val uuid = UUID.randomUUID()
+        val uuidString = uuid.toString()
 
-        if (sender == "Agency" && loggedInUserEmail != receiver) {
-            // The agency can only send messages to the logged-in user
-            return
-        }
+        val user: FirebaseUser? = auth.currentUser
+        val userEmail = user?.email.toString()
 
-        val messageMap = hashMapOf(
-            "sender" to sender,
-            "receiver" to receiver,
-            "message" to content
+        val senderType = "customer" // Set the sender type as "customer"
+
+        val data = hashMapOf(
+            "usermessage" to messageToSend,
+            "useremail" to userEmail,
+            "usermessagetime" to FieldValue.serverTimestamp(),
+            "senderType" to senderType // Add the senderType field
         )
-
-        messageCollectionRef
-            .add(messageMap)
+        db.collection("Messages").document(uuidString).set(data)
             .addOnSuccessListener {
+                binding.sendMessage.setText("")
+                Toast.makeText(requireContext(), "Message sent successfully", Toast.LENGTH_SHORT).show()
+                getData() // Retrieve updated data after sending the message
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error sending message: ${exception.message}")
-                // Handle error, maybe toast?
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Error sending message: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun getUserInformation() {
-        val currentUserEmail = auth.currentUser?.email
+    private fun sendMessageAgency() {
+        val messageToSend = binding.sendMessage.text.toString()
 
-        currentUserEmail?.let { email ->
-            db.collection("UserInformation")
-                .whereEqualTo("email", email)
-                .addSnapshotListener { value, error ->
-                    if (error != null) {
-                        Toast.makeText(requireContext(), error.localizedMessage, Toast.LENGTH_SHORT).show()
-                    } else {
-                        if (value != null) {
-                            if (!value.isEmpty) {
-                                val documents = value.documents
+        val uuid = UUID.randomUUID()
+        val uuidString = uuid.toString()
 
-                                for (document in documents) {
-                                    userName = document.getString("nameAndSurname") ?: ""
-                                    userEmail = document.getString("email") ?: ""
-                                }
-                            }
-                        }
-                    }
+        val user: FirebaseUser? = auth.currentUser
+        val userEmail = user?.email.toString()
+
+        val senderType = "agency" // Set the sender type as "customer"
+
+        val data = hashMapOf(
+            "usermessage" to messageToSend,
+            "useremail" to "agency@agency.com",
+            "usermessagetime" to FieldValue.serverTimestamp(),
+            "senderType" to senderType // Add the senderType field
+        )
+        db.collection("Messages").document(uuidString).set(data)
+            .addOnSuccessListener {
+                binding.sendMessage.setText("")
+                Toast.makeText(requireContext(), "Message sent successfully", Toast.LENGTH_SHORT).show()
+                getData() // Retrieve updated data after sending the message
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Error sending message: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    private fun getData() {
+        val agencyTag = "agency" // Modify with the agency tag/nickname
+
+        val newReference = db.collection("Messages")
+        val query: Query = newReference
+            .orderBy("usermessagetime", Query.Direction.ASCENDING)
+        query.addSnapshotListener { value, error ->
+            chatMessages.clear()
+            if (value != null) {
+                for (document in value) {
+                    val senderType = document.getString("senderType")
+                    val useremail = document.getString("useremail")
+                    val usermessage = document.getString("usermessage")
+                    val usermessagetime = document.getDate("usermessagetime")
+
+                    chatMessages.add(ChatMessage(useremail!!, usermessage, usermessagetime, senderType!!))
+
                 }
+                recyclerViewAdapter.notifyDataSetChanged()
+            } else {
+                Toast.makeText(requireContext(), "Error getting data: ${error?.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

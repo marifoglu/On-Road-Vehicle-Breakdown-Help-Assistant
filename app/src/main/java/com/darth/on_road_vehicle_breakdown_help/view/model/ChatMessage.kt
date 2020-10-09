@@ -1,9 +1,9 @@
 package com.darth.on_road_vehicle_breakdown_help.view.model
 
-
+import java.util.Date
 data class ChatMessage(
-    var message: String = "",
-    var id: String = "",
-    var sender: String = "",
-    var receiver: String = ""
+    val useremail: String,
+    val usermessage: String?,
+    val usermessagetime: Date?,
+    val senderType: String
 )
