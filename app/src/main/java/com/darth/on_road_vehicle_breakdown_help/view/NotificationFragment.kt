@@ -36,8 +36,6 @@ class NotificationFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
-    private val messageCollectionRef = Firebase.firestore.collection("Messages")
-
     private var mChats: MutableList<ChatMessage> = mutableListOf()
     private lateinit var mAdapter: ChatAdapter
     private lateinit var mId: String
@@ -46,10 +44,7 @@ class NotificationFragment : Fragment() {
     private lateinit var userEmail: String
 
 
-
-    private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerViewAdapter: ChatAdapter
-    private lateinit var messageText: EditText
 
     private val chatMessages: MutableList<ChatMessage> = mutableListOf()
 
@@ -58,9 +53,6 @@ class NotificationFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
-
-
-
     }
 
     override fun onCreateView(
@@ -83,12 +75,12 @@ class NotificationFragment : Fragment() {
 
         binding.btnSendMessage.setOnClickListener {
             sendMessage()
-            Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
         }
+        /*
         binding.btnAgencyMessage.setOnClickListener {
             sendMessageAgency()
-            Toast.makeText(requireContext(), "Clicked", Toast.LENGTH_SHORT).show()
         }
+         */
     }
 
     private fun sendMessage() {
@@ -105,9 +97,11 @@ class NotificationFragment : Fragment() {
         val data = hashMapOf(
             "usermessage" to messageToSend,
             "useremail" to userEmail,
-            "usermessagetime" to FieldValue.serverTimestamp(),
-            "senderType" to senderType // Add the senderType field
+            "receiveremail" to "agency@raw.com", // define contact email here for the agency
+           "usermessagetime" to FieldValue.serverTimestamp(),
+           "senderType" to senderType
         )
+
         db.collection("Messages").document(uuidString).set(data)
             .addOnSuccessListener {
                 binding.sendMessage.setText("")
@@ -119,6 +113,7 @@ class NotificationFragment : Fragment() {
             }
     }
 
+    // Agency Test Section
     private fun sendMessageAgency() {
         val messageToSend = binding.sendMessage.text.toString()
 
@@ -132,7 +127,8 @@ class NotificationFragment : Fragment() {
 
         val data = hashMapOf(
             "usermessage" to messageToSend,
-            "useremail" to "agency@agency.com",
+            "useremail" to userEmail,
+            "receiveremail" to "raw@raw.com", // Add the receiver's email
             "usermessagetime" to FieldValue.serverTimestamp(),
             "senderType" to senderType // Add the senderType field
         )
@@ -147,36 +143,31 @@ class NotificationFragment : Fragment() {
             }
     }
 
-
     private fun getData() {
-        val agencyTag = "agency" // Modify with the agency tag/nickname
+        val user: FirebaseUser? = auth.currentUser
+        val userEmail = user?.email.toString()
 
         val newReference = db.collection("Messages")
         val query: Query = newReference
             .orderBy("usermessagetime", Query.Direction.ASCENDING)
+            .whereEqualTo("useremail", userEmail)
+            .whereIn("receiveremail", listOf(userEmail, "agency@raw.com"))
         query.addSnapshotListener { value, error ->
             chatMessages.clear()
             if (value != null) {
                 for (document in value) {
                     val senderType = document.getString("senderType")
                     val useremail = document.getString("useremail")
+                    val receiveremail = document.getString("receiveremail")
                     val usermessage = document.getString("usermessage")
                     val usermessagetime = document.getDate("usermessagetime")
 
-                    chatMessages.add(ChatMessage(useremail!!, usermessage, usermessagetime, senderType!!))
-
+                    chatMessages.add(ChatMessage(useremail!!, receiveremail!!, usermessage, usermessagetime, senderType!!))
                 }
                 recyclerViewAdapter.notifyDataSetChanged()
-            } else {
-                Toast.makeText(requireContext(), "Error getting data: ${error?.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-
-
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
