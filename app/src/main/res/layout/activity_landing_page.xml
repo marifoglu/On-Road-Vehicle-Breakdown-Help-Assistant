@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/landingbackground"
+            android:src="@drawable/loginbackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -25,9 +25,10 @@
         <EditText
             android:id="@+id/loginPassword"
             android:layout_width="298dp"
-            android:layout_height="36dp"
+            android:layout_height="41dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/edit_text_shape"
+            android:fontFamily="@font/gilroy_light"
             android:drawableStart="@drawable/baseline_lock_24"
             android:drawablePadding="3dp"
             android:ems="10"
@@ -40,11 +41,12 @@
 
         <EditText
             android:id="@+id/loginEmail"
-            android:layout_width="299dp"
+            android:layout_width="298dp"
             android:layout_height="41dp"
             android:layout_marginTop="140dp"
             android:background="@drawable/edit_text_shape"
             android:drawableLeft="@drawable/baseline_email_24"
+            android:fontFamily="@font/gilroy_light"
             android:drawablePadding="3dp"
             android:ems="10"
             android:hint="@string/email_address"
@@ -59,6 +61,7 @@
             android:id="@+id/signInButton"
             android:layout_width="293dp"
             android:layout_height="36dp"
+            android:fontFamily="@font/gilroy_bold"
             android:layout_marginTop="48dp"
             android:background="@color/white"
             android:onClick="loginSignIn"
@@ -73,20 +76,22 @@
             android:id="@+id/createAccountButton"
             android:layout_width="293dp"
             android:layout_height="36dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="64dp"
             android:background="@color/white"
+            android:fontFamily="@font/gilroy_bold"
             android:onClick="createAccount"
             android:text="Create Account"
             app:cornerRadius="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/background_image_view"
             app:layout_constraintEnd_toEndOf="@+id/signInButton"
             app:layout_constraintHorizontal_bias="0.4"
-            app:layout_constraintStart_toStartOf="@+id/signInButton"
-            app:layout_constraintTop_toBottomOf="@+id/textView4" />
+            app:layout_constraintStart_toStartOf="@+id/signInButton" />
 
         <TextView
             android:id="@+id/forgotPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_bold"
             android:layout_marginTop="8dp"
             android:onClick="forgotPassword"
             android:text="Forgot Password?"
@@ -98,12 +103,13 @@
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="92dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/gilroy_light"
             android:text="or Create an Account?"
             android:textColor="@color/white"
             android:textSize="11sp"
+            app:layout_constraintBottom_toTopOf="@+id/createAccountButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/signInButton" />
+            app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

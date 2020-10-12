@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/landingbackground"
+        android:src="@drawable/registrationbackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -34,6 +34,7 @@
             android:layout_width="299dp"
             android:layout_height="41dp"
             android:layout_marginTop="128dp"
+            android:fontFamily="@font/gilroy_light"
             android:background="@drawable/edit_text_shape"
             android:drawableLeft="@drawable/baseline_email_24"
             android:drawablePadding="3dp"
@@ -41,12 +42,14 @@
             android:hint="@string/e_mail"
             android:padding="5dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
 
         <EditText
             android:id="@+id/password"
             android:layout_width="298dp"
             android:layout_height="36dp"
+            android:fontFamily="@font/gilroy_light"
             android:layout_marginTop="4dp"
             android:background="@drawable/edit_text_shape"
             android:drawableLeft="@drawable/baseline_lock_24"
@@ -63,6 +66,7 @@
             android:id="@+id/password2"
             android:layout_width="298dp"
             android:layout_height="36dp"
+            android:fontFamily="@font/gilroy_light"
             android:layout_marginTop="4dp"
             android:background="@drawable/edit_text_shape"
             android:drawableLeft="@drawable/baseline_lock_24"
@@ -80,6 +84,7 @@
             android:id="@+id/nameAndSurname"
             android:layout_width="299dp"
             android:layout_height="41dp"
+            android:fontFamily="@font/gilroy_light"
             android:layout_marginTop="32dp"
             android:background="@drawable/edit_text_shape"
             android:drawableStart="@drawable/baseline_person_24"
@@ -97,6 +102,7 @@
             android:id="@+id/homeAddress"
             android:layout_width="299dp"
             android:layout_height="41dp"
+            android:fontFamily="@font/gilroy_light"
             android:layout_marginTop="4dp"
             android:background="@drawable/edit_text_shape"
             android:drawableStart="@drawable/baseline_home_work_24"
@@ -114,6 +120,7 @@
             android:id="@+id/phoneNumber"
             android:layout_width="299dp"
             android:layout_height="41dp"
+            android:fontFamily="@font/gilroy_light"
             android:layout_marginTop="4dp"
             android:background="@drawable/edit_text_shape"
             android:drawableStart="@drawable/baseline_local_phone_24"
@@ -128,6 +135,8 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/registrationUserButton"
+            android:fontFamily="@font/gilroy_bold"
+            android:backgroundTint="@color/medium_grey"
             android:layout_width="293dp"
             android:layout_height="36dp"
             android:layout_marginTop="16dp"
@@ -140,5 +149,4 @@
             app:layout_constraintTop_toBottomOf="@+id/phoneNumber" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
