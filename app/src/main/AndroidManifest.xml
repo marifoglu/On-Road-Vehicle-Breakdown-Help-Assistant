@@ -28,7 +28,7 @@
         <activity
             android:name=".view.login.LandingPage"
             android:exported="true"
-            android:label="Landing Page" >
+            android:label="Road Assistant" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
