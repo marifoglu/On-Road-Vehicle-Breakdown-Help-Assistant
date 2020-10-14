@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.R
 import androidx.fragment.app.DialogFragment
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentVehicleRegistrationBinding
-import com.darth.on_road_vehicle_breakdown_help.view.model.CarListAdapter
+import com.darth.on_road_vehicle_breakdown_help.view.model.CarList
 import com.darth.on_road_vehicle_breakdown_help.view.util.getJsonData
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -31,11 +31,9 @@ class VehicleRegistrationFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         auth = FirebaseAuth.getInstance()
         firestore = Firebase.firestore
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,8 +41,6 @@ class VehicleRegistrationFragment : DialogFragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentVehicleRegistrationBinding.inflate(inflater, container, false)
-
-
 
         val jsonFileString = getJsonData(requireContext(), "carlist.json")
         if (jsonFileString != null) {
@@ -54,8 +50,8 @@ class VehicleRegistrationFragment : DialogFragment() {
         }
 
         val gson = Gson()
-        val listCarManufacturer = object : TypeToken<List<CarListAdapter>>() {}.type
-        val vehicles: List<CarListAdapter>? = gson.fromJson(jsonFileString, listCarManufacturer)
+        val listCarManufacturer = object : TypeToken<List<CarList>>() {}.type
+        val vehicles: List<CarList>? = gson.fromJson(jsonFileString, listCarManufacturer)
 
         if (vehicles != null) {
             Log.i("data", "Deserialized vehicles: $vehicles")
@@ -97,8 +93,8 @@ class VehicleRegistrationFragment : DialogFragment() {
         }
 
         // Vehicle Models List comes from JSON -----------------------------------------------
-        val carListAdapterType = object : TypeToken<List<CarListAdapter>>() {}.type
-        val carListAdapterList: List<CarListAdapter>? = gson.fromJson(jsonFileString, carListAdapterType)
+        val carListType = object : TypeToken<List<CarList>>() {}.type
+        val carListAdapterList: List<CarList>? = gson.fromJson(jsonFileString, carListType)
 
         if (carListAdapterList != null) {
             // Log.i("data", "Deserialized carListAdapterList: $carListAdapterList")
@@ -160,15 +156,12 @@ class VehicleRegistrationFragment : DialogFragment() {
             Log.e("data", "Failed to deserialize carListAdapterList")
         }
 
-
-
         // Vehicle Year list comes generated -------------------------------------------------------
         val vehicleYearList : MutableList<String> = ArrayList()
         vehicleYearList.add("Choose your vehicle year:")
         for (year in 2025 downTo 1950) {
             vehicleYearList.add(year.toString())
         }
-
 
         val vehicleYearAdapter : ArrayAdapter<String> = ArrayAdapter(requireContext(),
             R.layout.support_simple_spinner_dropdown_item, vehicleYearList)
@@ -237,9 +230,7 @@ class VehicleRegistrationFragment : DialogFragment() {
         binding.vehicleCancelButton.setOnClickListener {
             dismiss()
         }
-
         return binding.root
-
     }
 
     override fun onDestroyView() {
