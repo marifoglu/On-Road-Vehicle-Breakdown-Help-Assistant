@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.VehicleRegistrationFragment">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="vertical"
@@ -31,7 +30,6 @@
             app:layout_constraintEnd_toEndOf="@+id/regFrameLayout"
             app:layout_constraintStart_toStartOf="@+id/regFrameLayout"
             app:layout_constraintTop_toTopOf="@+id/regFrameLayout" />
-
 
         <Spinner
             android:id="@+id/vehicleModel"
@@ -61,28 +59,28 @@
             app:layout_constraintStart_toStartOf="@+id/vehicleModel"
             app:layout_constraintTop_toBottomOf="@+id/vehicleModel" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/vehicleRegisterButton"
             android:layout_width="293dp"
             android:layout_height="36dp"
             android:layout_marginTop="80dp"
-            android:background="@color/white"
+            android:background="@color/light_grey"
             android:onClick="register"
-            android:text="Register"
+            android:text="@string/registers"
             app:cornerRadius="5dp"
             android:layout_gravity="center_vertical|center_horizontal"
             app:layout_constraintEnd_toEndOf="@+id/vehicleYear"
             app:layout_constraintStart_toStartOf="@+id/vehicleYear"
             app:layout_constraintTop_toBottomOf="@+id/vehicleYear" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/vehicleCancelButton"
             android:layout_width="293dp"
             android:layout_height="36dp"
             android:layout_marginTop="8dp"
-            android:background="@color/white"
+            android:background="@color/light_grey"
             android:onClick="register"
-            android:text="Cancel"
+            android:text="@string/cancels"
             app:cornerRadius="5dp"
             android:layout_gravity="center_vertical|center_horizontal"
             app:layout_constraintEnd_toEndOf="@+id/vehicleRegisterButton"

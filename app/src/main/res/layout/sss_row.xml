@@ -12,6 +12,7 @@
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true"
     android:background="@color/medium_grey">
+
     <LinearLayout
         android:id="@+id/ssRowLinearLayoutId"
         android:layout_width="match_parent"
@@ -21,10 +22,11 @@
 
         <TextView
             android:id="@+id/ssName"
+            android:fontFamily="@font/gilroy_bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="SSS Name"
+            android:text="@string/sss_name"
             android:textSize="18sp"
             android:padding="6dp"/>
 
@@ -36,13 +38,13 @@
 
             <TextView
                 android:id="@+id/ssDescription"
+                android:fontFamily="@font/gilroy_light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SSS Description"
+                android:text="@string/sss_description"
                 android:textSize="14sp"
                 android:padding="6dp"/>
+
         </RelativeLayout>
-
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

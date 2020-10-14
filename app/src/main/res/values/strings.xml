@@ -43,4 +43,11 @@
     <string name="name">Name</string>
     <string name="type_message">Type message</string>
     <string name="user_text">User Text</string>
+    <string name="registers">Register</string>
+    <string name="cancels">Cancel</string>
+    <string name="vehicle_year">Vehicle Year</string>
+    <string name="vehicle_model">Vehicle Model</string>
+    <string name="vehicle_manufacturer">Vehicle Manufacturer</string>
+    <string name="sss_name">SSS Name</string>
+    <string name="sss_description">SSS Description</string>
 </resources>

@@ -88,6 +88,4 @@ private var sssList = ArrayList<SSS>()
             )
         )
     }
-
-
 }

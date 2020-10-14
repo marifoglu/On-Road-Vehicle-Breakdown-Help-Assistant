@@ -70,7 +70,7 @@ class HomeFragment : Fragment() {
 
         binding.sssId.setOnClickListener {
             val dialog = SSSFragment()
-            dialog.show(childFragmentManager, "Add Vehicle")
+            dialog.show(childFragmentManager, "FAQ's")
         }
 
         lifecycleScope.launch {
