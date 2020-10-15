@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.darth.on_road_vehicle_breakdown_help.view.HomeFragment"
+        android:name="com.darth.on_road_vehicle_breakdown_help.view.view.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/rescueFragment"
-        android:name="com.darth.on_road_vehicle_breakdown_help.view.RescueFragment"
+        android:name="com.darth.on_road_vehicle_breakdown_help.view.view.RescueFragment"
         android:label="fragment_rescue"
         tools:layout="@layout/fragment_rescue" >
         <action

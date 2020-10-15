@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityLandingPageBinding
-import com.darth.on_road_vehicle_breakdown_help.view.MainActivity
+import com.darth.on_road_vehicle_breakdown_help.view.view.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
