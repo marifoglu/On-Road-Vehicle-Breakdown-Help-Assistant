@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.view.NotificationFragment">
+    tools:context=".view.view.fragments.NotificationFragment">
 
 
     <androidx.recyclerview.widget.RecyclerView

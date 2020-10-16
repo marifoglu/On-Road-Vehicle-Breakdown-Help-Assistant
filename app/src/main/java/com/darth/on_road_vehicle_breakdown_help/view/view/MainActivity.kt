@@ -10,7 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.ActivityMainBinding
-import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
+import com.darth.on_road_vehicle_breakdown_help.view.view.fragments.HomeFragment
+import com.darth.on_road_vehicle_breakdown_help.view.view.fragments.NotificationFragment
+import com.darth.on_road_vehicle_breakdown_help.view.view.fragments.RescueFragment
+import com.darth.on_road_vehicle_breakdown_help.view.view.fragments.SettingsFragment
+import com.darth.on_road_vehicle_breakdown_help.view.view.auth.LandingPage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.darth.on_road_vehicle_breakdown_help.view.view
+package com.darth.on_road_vehicle_breakdown_help.view.view.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.darth.on_road_vehicle_breakdown_help.R
 import com.darth.on_road_vehicle_breakdown_help.databinding.FragmentSettingsBinding
 import com.darth.on_road_vehicle_breakdown_help.view.adapter.VehicleAdapter
-import com.darth.on_road_vehicle_breakdown_help.view.login.LandingPage
+import com.darth.on_road_vehicle_breakdown_help.view.view.auth.LandingPage
 import com.darth.on_road_vehicle_breakdown_help.view.model.User
 import com.darth.on_road_vehicle_breakdown_help.view.model.Vehicle
 import com.darth.on_road_vehicle_breakdown_help.view.util.SwipeToDelete

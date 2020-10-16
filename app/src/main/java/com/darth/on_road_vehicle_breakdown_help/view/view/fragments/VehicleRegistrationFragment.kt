@@ -1,4 +1,4 @@
-package com.darth.on_road_vehicle_breakdown_help.view.view
+package com.darth.on_road_vehicle_breakdown_help.view.view.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
