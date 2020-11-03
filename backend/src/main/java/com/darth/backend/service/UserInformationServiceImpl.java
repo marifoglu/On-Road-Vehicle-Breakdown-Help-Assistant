@@ -17,4 +17,9 @@ public class UserInformationServiceImpl implements UserInformationService{
     public List<UserInformation> getAllUsers() {
         return userInformationRepository.findAll();
     }
+
+    @Override
+    public void saveUser(UserInformation userInformation) {
+        this.userInformationRepository.save(userInformation);
+    }
 }

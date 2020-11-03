@@ -20,6 +20,10 @@ public class UserInformation {
     @Column(name = "homeAddress")
     private String userHomeAddress;
 
+    @Column(name = "phoneNumber")
+    private String userPhoneNumber;
+
+
     public long getUserId() {
         return userId;
     }
@@ -59,10 +63,5 @@ public class UserInformation {
     public void setUserPhoneNumber(String userPhoneNumber) {
         this.userPhoneNumber = userPhoneNumber;
     }
-
-    @Column(name = "phoneNumber")
-    private String userPhoneNumber;
-
-
 
 }
