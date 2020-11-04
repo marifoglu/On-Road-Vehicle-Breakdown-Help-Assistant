@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
@@ -42,5 +43,15 @@ public class UserInformationController {
         // save employee to database
         userInformationService.saveUser(userInformation);
         return "redirect:/userList";
+    }
+
+    @GetMapping("/showFromUserForm/{id}")
+    public String showFromUserForm(@PathVariable( value = "id") long id, Model model) {
+
+        // get user
+        UserInformation userInformation = userInformationService.getUserById(id);
+        // set user as a model
+        model.addAttribute("userInformation", userInformation);
+        return "updateUser";
     }
 }
