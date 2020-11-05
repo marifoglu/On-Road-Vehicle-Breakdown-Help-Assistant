@@ -8,4 +8,6 @@ public interface UserInformationService {
     List<UserInformation> getAllUsers();
     void saveUser(UserInformation userInformation);
     UserInformation getUserById(long id);
+    void deleteUserInformationById(long id);
+
 }

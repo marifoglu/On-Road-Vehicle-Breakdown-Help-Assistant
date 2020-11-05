@@ -76,6 +76,7 @@
                 <td th:text="${user.userPhoneNumber}"></td>
                 <td th:text="${user.userHomeAddress}"></td>
                 <td><a th:href="@{/showFromUserForm/{id}(id=${user.userId})}" class="btn btn-primary">Update</a></td>
+                <td><a th:href="@{/deleteUser/{id}(id=${user.userId})}" class="btn btn-danger">Delete</a></td>
             </tr>
         </tbody>
     </table>

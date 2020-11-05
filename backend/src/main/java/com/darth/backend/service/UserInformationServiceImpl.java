@@ -35,4 +35,9 @@ public class UserInformationServiceImpl implements UserInformationService{
         }
         return userInformation;
     }
+
+    @Override
+    public void deleteUserInformationById(long id) {
+        this.userInformationRepository.deleteById(id);
+    }
 }
