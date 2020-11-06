@@ -3,12 +3,15 @@ package com.darth.backend.controller;
 import com.darth.backend.model.UserInformation;
 import com.darth.backend.service.UserInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.List;
 
 @Controller
 public class UserInformationController {
@@ -24,10 +27,11 @@ public class UserInformationController {
     }
 
     // Display all listed users
-    @GetMapping("userList")
+    @GetMapping("/userList")
     public String viewHomePage(Model model) {
-        model.addAttribute("listUsers", userInformationService.getAllUsers());
-        return "userList";
+        // model.addAttribute("listUsers", userInformationService.getAllUsers());
+        // return "userList";
+        return findPaginated(1,model);
     }
 
     @GetMapping("/showNewUserForm")
@@ -60,5 +64,22 @@ public class UserInformationController {
 
         this.userInformationService.deleteUserInformationById(id);
         return "redirect:/userList";
+    }
+
+    @GetMapping("/page/{pageNo}")
+    public String findPaginated(@PathVariable(value = "pageNo") int pageNo, Model model){
+        int pageSize = 5;
+
+        Page<UserInformation> page = userInformationService.findPaginated(pageNo, pageSize);
+        List<UserInformation> listOfUsers = page.getContent();
+
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("totalItems", page.getTotalElements());
+        model.addAttribute("listUsers", listOfUsers);
+        return "userList";
+
+
+
     }
 }
