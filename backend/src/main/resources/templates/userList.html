@@ -81,28 +81,30 @@
         </tbody>
     </table>
 
-    <div th:if="${totalPages > 1}">
-        <div class="row col-sm-10">
-            <div class="col-sm-2">
-                Total Users: [[${totalItems}]]
-            </div>
-            <div class="col-sm-1">
-            <span th:each="i: ${#numbers.sequence(1, totalPages)}">
-      <a th:if="${currentPage != i}" th:href="@{'/page/' + ${i}}">[[${i}]]</a>
-      <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
-            </span>
-            </div>
-            <div class="col-sm-1">
-                <a th:if="${currentPage < totalPages}" th:href="@{'/page/' + ${currentPage + 1}}">Next</a>
-                <span th:unless="${currentPage < totalPages}">Next</span>
-            </div>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a class="page-link" th:if="${currentPage > 1}" th:href="@{/page/1}">First</a>
+                <span class="page-link" th:unless="${currentPage > 1}">First</span>
+            </li>
+            <li class="page-item">
+                <a class="page-link" th:if="${currentPage > 1}" th:href="@{/page/__${currentPage - 1}__}">Previous</a>
+                <span class="page-link" th:unless="${currentPage > 1}">Previous</span>
+            </li>
+            <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+                <a class="page-link" th:href="@{/page/__${i}__}" th:text="${i}"></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{/page/__${currentPage + 1}__}">Next</a>
+                <span class="page-link" th:unless="${currentPage < totalPages}">Next</span>
+            </li>
+            <li class="page-item">
+                <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{/page/__${totalPages}__}">Last</a>
+                <span class="page-link" th:unless="${currentPage < totalPages}">Last</span>
+            </li>
+        </ul>
+    </nav>
 
-            <div class="col-sm-1">
-                <a th:if="${currentPage < totalPages}" th:href="@{'/page/' + ${totalPages}}">Last</a>
-                <span th:unless="${currentPage < totalPages}">Last</span>
-            </div>
-        </div>
-    </div>
 
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -110,4 +112,3 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
-
