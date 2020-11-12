@@ -11,7 +11,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" th:href="@{/dashboard}">Roadside Assistance</a>
+    <a class="navbar-brand">Roadside Assistance</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -19,7 +19,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" th:href="@{/api/dashboard}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Chat</a>
@@ -29,9 +29,9 @@
                     Users
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" th:href="@{/userList}">View Users</a>
+                    <a class="dropdown-item" th:href="@{/api/userList}">View Users</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" th:href="@{/showNewUserForm}">Add Users</a>
+                    <a class="dropdown-item" th:href="@{/api/showNewUserForm}">Add Users</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
@@ -60,52 +60,26 @@
     <h1 class="mx-left" style="width: 200px;">User List</h1>
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th scope="col">User Name</th>
-                <th scope="col">Email Address</th>
-                <th scope="col">Phone Number</th>
-                <th scope="col">Home Address</th>
-                <th scope="col">Update</th>
-                <th scope="col">Delete</th>
-            </tr>
+        <tr>
+            <th scope="col">User Name</th>
+            <th scope="col">Email Address</th>
+            <th scope="col">Phone Number</th>
+            <th scope="col">Home Address</th>
+            <th scope="col">Update</th>
+            <th scope="col">Delete</th>
+        </tr>
         </thead>
         <tbody>
-            <tr scope="row" th:each="user : ${listUsers}">
-                <td th:text="${user.userNameAndSurname}"></td>
-                <td th:text="${user.userEmail}"></td>
-                <td th:text="${user.userPhoneNumber}"></td>
-                <td th:text="${user.userHomeAddress}"></td>
-                <td><a th:href="@{/showFromUserForm/{id}(id=${user.userId})}" class="btn btn-primary">Update</a></td>
-                <td><a th:href="@{/deleteUser/{id}(id=${user.userId})}" class="btn btn-danger">Delete</a></td>
-            </tr>
+        <tr th:each="user : ${listOfUser}">
+            <td th:text="${user.nameAndSurname}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.phoneNumber}"></td>
+            <td th:text="${user.homeAddress}"></td>
+            <td><a href="@{/showFromUserForm/{id}(id=${user.userId})}" class="btn btn-primary">Update</a></td>
+            <td><a href="@{/deleteUser/{id}(id=${user.userId})}" class="btn btn-danger">Delete</a></td>
+        </tr>
         </tbody>
     </table>
-
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <li class="page-item">
-                <a class="page-link" th:if="${currentPage > 1}" th:href="@{/page/1}">First</a>
-                <span class="page-link" th:unless="${currentPage > 1}">First</span>
-            </li>
-            <li class="page-item">
-                <a class="page-link" th:if="${currentPage > 1}" th:href="@{/page/__${currentPage - 1}__}">Previous</a>
-                <span class="page-link" th:unless="${currentPage > 1}">Previous</span>
-            </li>
-            <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
-                <a class="page-link" th:href="@{/page/__${i}__}" th:text="${i}"></a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{/page/__${currentPage + 1}__}">Next</a>
-                <span class="page-link" th:unless="${currentPage < totalPages}">Next</span>
-            </li>
-            <li class="page-item">
-                <a class="page-link" th:if="${currentPage < totalPages}" th:href="@{/page/__${totalPages}__}">Last</a>
-                <span class="page-link" th:unless="${currentPage < totalPages}">Last</span>
-            </li>
-        </ul>
-    </nav>
-
-
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
