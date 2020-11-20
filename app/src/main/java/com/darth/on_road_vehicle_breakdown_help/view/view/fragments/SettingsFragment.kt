@@ -190,6 +190,7 @@ class SettingsFragment : Fragment() {
                                 val documents = value.documents
 
                                 for (document in documents) {
+                                    val userId = document.getString("id")
                                     val userEmail = document.getString("email")
                                     val userHomeAddress = document.getString("homeAddress")
                                     val userNameAndSurname = document.getString("nameAndSurname")
@@ -201,7 +202,7 @@ class SettingsFragment : Fragment() {
                                     binding.userNameText.text = userNameAndSurname ?: ""
                                     binding.userPhoneText.text = userPhoneNumber ?: ""
 
-                                    val user = User(userEmail!!, userHomeAddress!!, userNameAndSurname!!, userPhoneNumber!!)
+                                    val user = User(userId!!, userEmail!!, userHomeAddress!!, userNameAndSurname!!, userPhoneNumber!!)
                                     userInformationList.add(user)
                                 }
                                 vehicleAdapter.notifyDataSetChanged()

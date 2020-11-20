@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.util.UUID
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -29,7 +30,7 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     fun register(view: View) {
-
+        val id = UUID.randomUUID().toString()
         val email = binding.email.text.toString()
         val password = binding.password.text.toString()
         val password2 = binding.password2.text.toString()
@@ -47,8 +48,8 @@ class RegistrationActivity : AppCompatActivity() {
                     .addOnSuccessListener {
 
                         val userRegistration = hashMapOf<String, Any>()
-
                         userRegistration.put("email", auth.currentUser!!.email!!)
+                        userRegistration.put("id", id)
                         userRegistration.put("nameAndSurname", nameAndSurname)
                         userRegistration.put("homeAddress", homeAddress)
                         userRegistration.put("phoneNumber", phoneNumber)

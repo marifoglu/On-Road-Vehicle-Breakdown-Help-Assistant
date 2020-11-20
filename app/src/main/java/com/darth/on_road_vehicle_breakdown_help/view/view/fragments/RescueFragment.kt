@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 private const val DEFAULT_ZOOM = 16f
 class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickListener {
@@ -152,7 +153,6 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             }
         }
 
-        deleteRequest()
 
         binding.goBackRescueButton.setOnClickListener {
             val fragment = HomeFragment()
@@ -162,7 +162,13 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
                 fragment
             )?.commit()
         }
+        if (isAdded){
+            
+            deleteRequest()
+
+        }
     }
+
 
     private fun bundles(){
         arguments?.let {
@@ -261,6 +267,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
     }
     private fun addRescueDataToSave(): Rescue {
 
+        val id = UUID.randomUUID().toString()
         val rescueRequest = "1"
         val vehicleUser = auth.currentUser!!.email!!
         val rescueDirection = binding.rescueDirectionText.text.toString()
@@ -269,6 +276,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
         val googleMap = Place(selectedLatitude!!, selectedLongitude!!)
 
         val rescue = Rescue(
+            rescueId = id,
             rescueRequest = rescueRequest,
             rescueDescribeProblem = if (rescueSpinner != "Other") {
                 rescueSpinner
