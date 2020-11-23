@@ -59,9 +59,7 @@ public class ProductController {
             model.addAttribute("userInformation", userInformation);
             return "updateUser";
         } catch (ExecutionException | InterruptedException e) {
-            // Handle the exceptions here, or log an error
-            e.printStackTrace();
-            return "dashboard"; // Return an appropriate error page
+            return "dashboard"; // Return an appropriate error page, will be created later.
         }
     }
 
