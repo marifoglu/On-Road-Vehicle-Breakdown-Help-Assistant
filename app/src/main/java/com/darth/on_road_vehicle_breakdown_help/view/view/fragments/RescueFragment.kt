@@ -163,7 +163,7 @@ class RescueFragment : Fragment(), OnMapReadyCallback ,GoogleMap.OnMapLongClickL
             )?.commit()
         }
         if (isAdded){
-            
+
             deleteRequest()
 
         }

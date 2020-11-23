@@ -58,7 +58,10 @@
 
 <div class="container">
     <h1 class="mx-left" style="width: 200px;">Add User</h1>
-    <form th:action="@{/saveUser}" th:object="${userInformation}" method="POST">
+    <form th:action="@{/api/saveUser}" th:object="${userInformation}" method="POST">
+
+        <input type="hidden" th:field="*{id}" />
+
         <div class="input-group mb-3">
             <input type="text" th:field="*{nameAndSurname}" class="form-control" placeholder="Name and Surname" aria-label="Username" aria-describedby="basic-addon1">
         </div>

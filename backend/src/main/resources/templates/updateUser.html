@@ -11,7 +11,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" th:href="@{/dashboard}">Roadside Assistance</a>
+    <a class="navbar-brand">Roadside Assistance</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -19,7 +19,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" th:href="@{/api/dashboard}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Chat</a>
@@ -29,9 +29,9 @@
                     Users
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" th:href="@{/userList}">View Users</a>
+                    <a class="dropdown-item" th:href="@{/api/userList}">View Users</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" th:href="@{/new_user_form}">Add Users</a>
+                    <a class="dropdown-item" th:href="@{/api/showNewUserForm}">Add Users</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
@@ -52,31 +52,30 @@
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
-        </form>
     </div>
 </nav>
 
 
 <div class="container">
     <h1 class="mx-left" style="width: 200px;">Update User</h1>
-    <form th:action="@{/saveUser}" th:object="${userInformation}" method="POST">
+    <form th:action="@{/api/saveUser}" th:object="${userInformation}" method="POST">
 
-        <input type="hidden" th:field="*{userId}" />
+        <input type="hidden" th:field="*{id}" />
 
         <div class="input-group mb-3">
-            <input type="text" th:field="*{userNameAndSurname}" class="form-control" placeholder="Name and Surname" aria-label="Username" aria-describedby="basic-addon1">
+            <input type="text" th:field="*{nameAndSurname}" class="form-control" placeholder="Name and Surname" aria-label="Username" aria-describedby="basic-addon1">
         </div>
 
         <div class="input-group mb-3">
-            <input type="text" th:field="*{userEmail}" class="form-control" placeholder="Email Address" aria-label="Email Address" aria-describedby="basic-addon1">
+            <input type="text" th:field="*{email}" class="form-control" placeholder="Email Address" aria-label="Email Address" aria-describedby="basic-addon1">
         </div>
 
         <div class="input-group mb-3">
-            <input type="text" th:field="*{userPhoneNumber}" class="form-control" placeholder="Phone Number" aria-label="Phone Number" aria-describedby="basic-addon1">
+            <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="Phone Number" aria-label="Phone Number" aria-describedby="basic-addon1">
         </div>
 
         <div class="input-group mb-3">
-            <input type="text" th:field="*{userHomeAddress}" class="form-control" placeholder="Home Address" aria-label="Home Address" aria-describedby="basic-addon1">
+            <input type="text" th:field="*{homeAddress}" class="form-control" placeholder="Home Address" aria-label="Home Address" aria-describedby="basic-addon1">
         </div>
         <button type="submit" class="btn btn-dark">Update User</button>
         <button type="reset" class="btn btn-info">Reset</button>

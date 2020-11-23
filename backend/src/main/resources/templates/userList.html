@@ -75,8 +75,8 @@
             <td th:text="${user.email}"></td>
             <td th:text="${user.phoneNumber}"></td>
             <td th:text="${user.homeAddress}"></td>
-            <td><a href="@{/showFromUserForm/{id}(id=${user.userId})}" class="btn btn-primary">Update</a></td>
-            <td><a href="@{/deleteUser/{id}(id=${user.userId})}" class="btn btn-danger">Delete</a></td>
+            <td><a th:href="@{/api/updateUserForm/{id}(id=${user.documentId})}" class="btn btn-primary">Update</a></td>
+            <td><a th:href="@{/api/deleteUser/{id}(id=${user.documentId})}" class="btn btn-danger">Delete</a></td>
         </tr>
         </tbody>
     </table>

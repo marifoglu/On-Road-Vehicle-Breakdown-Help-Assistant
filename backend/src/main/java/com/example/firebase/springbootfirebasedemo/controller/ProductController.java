@@ -2,67 +2,16 @@ package com.example.firebase.springbootfirebasedemo.controller;
 
 import com.example.firebase.springbootfirebasedemo.entity.UserInformation;
 import com.example.firebase.springbootfirebasedemo.service.UserInformationService;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
+import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-    /*
-@Controller
-//@RequestMapping("/userInformation")
-public class UserInformationController {
-
-    @Autowired
-    private UserInformationService userInformationService;
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
-    }
-
-    // Display all listed users
-    @GetMapping("/userList")
-    public String viewHomePage(Model model) throws ExecutionException, InterruptedException {
-        model.addAttribute("listUsers", userInformationService.getUserDetails());
-        return "userList";
-//        return findPaginated(1,model);
-    }
-
-    @GetMapping("/showNewUserForm")
-    public String showNewUserForm(Model model) {
-        // create model attribute to bind form data
-        UserInformation userInformation = new UserInformation();
-        model.addAttribute("userInformation", userInformation); // Update the attribute name
-        return "newUserForm";
-    }
-
-    @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("userInformation") UserInformation userInformation) throws ExecutionException, InterruptedException {
-        // save employee to database
-        userInformationService.saveUser(userInformation);
-        return "redirect:/userList";
-    }
-
-    @GetMapping("/showFromUserForm/{id}")
-    public String showFromUserForm(@PathVariable( value = "id") long id, Model model) throws ExecutionException, InterruptedException {
-
-        // get user
-        UserInformation userInformation = userInformationService.getUserById(id);
-        // set user as a model
-        model.addAttribute("userInformation", userInformation);
-        return "updateUser";
-    }
-
-    @GetMapping("/deleteUser/{id}")
-    public String deleteUser(@PathVariable (value = "id") long id) throws ExecutionException, InterruptedException {
-
-        this.userInformationService.deleteUserById(id);
-        return "redirect:/userList";
-    }
-}*/
 
 @Controller
 @RequestMapping("/api")
@@ -76,34 +25,19 @@ public class ProductController {
         return "dashboard";
     }
 
-//    @GetMapping("/products")
-//    public String getAllProducts(Model model) throws ExecutionException, InterruptedException {
-//        List<UserInformation> products = userInformationService.getUserDetails();
-//        model.addAttribute("products", products);
-//        return "products";
-//    }
-
     @GetMapping("userList")
-    public String viewHomePage(Model model) throws ExecutionException, InterruptedException {
-        model.addAttribute("listOfUser", userInformationService.getUserDetails());
-        return "products";
+    public String userList(Model model) throws ExecutionException, InterruptedException {
+        model.addAttribute("listOfUser", userInformationService.getAllUsers());
+        return "userList";
     }
-
 
     @GetMapping("/showNewUserForm")
     public String showNewUserForm(Model model) {
         // create model attribute to bind form data
-        UserInformation userInformation = new UserInformation();
-        model.addAttribute("userInformation", userInformation); // Update the attribute name
+        UserInformation userInfo = new UserInformation();
+        model.addAttribute("userInformation", userInfo); // Update the attribute name
         return "newUserForm";
     }
-//
-//    @PostMapping("/saveUser")
-//    public String saveUser(@RequestBody UserInformation product) throws ExecutionException, InterruptedException {
-//
-//        return userInformationService.saveUser(product);
-//    }
-
 
     @PostMapping("/saveUser")
     public String saveUser(@ModelAttribute("userInformation") UserInformation userInformation) throws ExecutionException, InterruptedException {
@@ -112,29 +46,24 @@ public class ProductController {
         return "redirect:/api/userList";
     }
 
-    @GetMapping("/products/{name}")
-    public UserInformation getProduct(@PathVariable String name) throws ExecutionException, InterruptedException {
-
-        return userInformationService.getUserByName(name);
+    @GetMapping("/deleteUser/{id}")
+    public String deleteUser(@PathVariable("id") String id) throws ExecutionException, InterruptedException {
+        userInformationService.deleteUserById(id);
+        return "redirect:/api/userList";
+    }
+    
+    @GetMapping("/updateUserForm/{id}")
+    public String updateUserForm(@PathVariable("id") String documentID, Model model) {
+        try {
+            UserInformation userInformation = userInformationService.getUserById(documentID);
+            model.addAttribute("userInformation", userInformation);
+            return "updateUser";
+        } catch (ExecutionException | InterruptedException e) {
+            // Handle the exceptions here, or log an error
+            e.printStackTrace();
+            return "dashboard"; // Return an appropriate error page
+        }
     }
 
-//    @GetMapping("/products")
-//    public List<UserInformation> getAllProducts() throws ExecutionException, InterruptedException {
-//
-//        return userInformationService.getUserDetails();
-//    }
 
-
-    @PutMapping("/products")
-    public String update(@RequestBody UserInformation product) throws ExecutionException, InterruptedException {
-
-        return userInformationService.updateUser(product);
-    }
-
-
-    @DeleteMapping("/products/{name}")
-    public String deleteProduct(@PathVariable String name) throws ExecutionException, InterruptedException {
-
-        return userInformationService.deleteUserById(2);
-    }
 }
